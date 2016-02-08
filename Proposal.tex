@@ -150,7 +150,7 @@ with test: 0 < add(1,2) < 100;
 func void changeName(struct personStruct person, string newName)
 {
 	person.name = newName;
-	/* There's an example of a multi-line test case. 
+	/* There's an example of a multi-line test case. */
 }
 with test: {
 changeName(person, "newName");
@@ -171,7 +171,9 @@ func int gcd(int a, int b)
 
 }
 with test: gcd(10, 5) == 5;
-
+/*
+	Here is an actual program that computes the gcd of two numbers.
+*/
 int num1 = 25;
 int num2 = 30;
 int num3;
