@@ -105,7 +105,9 @@ Our syntax is inspired by C and will be identical to C unless explicitly stated 
 	We are using multi-line comments.
 	There are no single line comments.
 */
+\end{lstlisting}
 
+\begin{lstlisting}
 /* the func keyword is used for function declaration */
 func int sum(int[] arr, int len)
 {
@@ -117,17 +119,15 @@ func int sum(int[] arr, int len)
 		sum = sum + arr[i];
 	}
 	return sum;
-	 /* This is how you use the keyword "with test: " . Tests are 
-attached to the end of function definitions with
- some sort of condition.
- This is a single line test. */
 }
 with test sum(arr, 5) == 15 using int[] arr = {1, 2, 3, 4, 5};
 /*
-	The "using" keyword above is used to create variables that are used in the test conidition
+	This is how you use the keyword "with test:". Tests are attached to the end of function definitions with some sort of condition. This is a single line test.
+	The "using" keyword above is used to create variables that are used in the test condition.
 */
+\end{lstlisting}
 
-
+\begin{lstlisting}
 func int absoluteValue(int a)
 {
 	if (a < 0) {
@@ -137,15 +137,19 @@ func int absoluteValue(int a)
 	}
 	return a;
 }
-with test: absoluteValue(-2) > 0  
+with test: absoluteValue(-2) > 0;
+\end{lstlisting}
 
+\begin{lstlisting}
 func int add(int a, int b)
 {
 	return x + y;
 }
-with test: add(1,2) == 3
+with test: add(1,2) == 3;
 with test: 0 < add(1,2) < 100;
+\end{lstlisting}
 
+\begin{lstlisting}
 func void changeName(personStruct person, string newName)
 {
 	person.name = newName;
@@ -154,17 +158,19 @@ with test: {
 	changeName(person, "newName");
 	person.name == "newName";
 } using: { personStruct person = personStruct("name", 18)};
+\end{lstlisting}
 
+\begin{lstlisting}
 func void checkSameAge(personStruct p1, personStruct p2)
 {
 	return p1 == p2;
 }
 with test: checkSameAge{person1, person2} == True;
-	using: { personStruct person1 = personStruct("person", 20),
-				   personStruct person2 = personStruct("other", 20)
-				 };
+	  using: { personStruct person1 = personStruct("person", 20),
+				     personStruct person2 = personStruct("other",  20) };
+\end{lstlisting}
 
-
+\begin{lstlisting}
 func int gcd(int a, int b)
 {
 
@@ -178,7 +184,9 @@ func int gcd(int a, int b)
 
 }
 with test: gcd(10, 5) == 5
+\end{lstlisting}
 
+\begin{lstlisting}
 int num1 = 25;
 int num2 = 30;
 int num3;
@@ -186,9 +194,7 @@ int num3;
 num3 = gcd(num1, num2);
 
 print("Result %d\n" , num3);
-
 \end{lstlisting}
-
 
 
 \end{document} 
