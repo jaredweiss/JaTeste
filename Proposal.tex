@@ -15,6 +15,8 @@
 \definecolor{syntaxBlue}{RGB}{42,0.0,255}
 \definecolor{syntaxGreen}{RGB}{63,127,95}
 \definecolor{syntaxPurple}{RGB}{127,0,85}
+\definecolor{syntaxCyan}{RGB}{0,155,155}
+\definecolor{syntaxGreyBg}{RGB}{220,220,220}
 
 \lstdefinelanguage{JaTeste} %define the code highlighting/formatting
 {
@@ -24,6 +26,7 @@
 		with,
 		test,
 		if,
+		else,
 		while,
 		for,
 		return,
@@ -49,6 +52,9 @@
 	commentstyle=\color{syntaxGreen},
 	keywordstyle=\color{syntaxPurple},
 	stringstyle=\color{syntaxBlue},
+	emph={int,char,float,struct,string},
+	emphstyle=\color{syntaxCyan},
+	backgroundcolor=\color{syntaxGreyBg},
 }
 
 \title{PLT 4115 Proposal}
@@ -106,7 +112,7 @@ func int sum(int[] arr, int len)
 	int sum;
 	int i;
 	
-	i =0;
+	i = 0;
 	while ( i < len; i++) {
 		sum = sum + arr[i];
 	}
