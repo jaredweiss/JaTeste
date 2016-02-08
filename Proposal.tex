@@ -1,0 +1,126 @@
+\documentclass{article} 
+\usepackage{url, graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{textcomp}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{titling}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{verbatim}
+\usepackage{listings}
+
+\title{PLT 4115 Proposal}
+\author{Andrew Grant, Jemma Losh, Jared Weiss, Jake Weismann  \\amg2215@columbia.edu, jal2285@columbia, jbw2140@columbia.edu, jdw2159@columbia.edu}
+\date{2/8/16}
+
+\begin{document}
+
+\maketitle
+
+\par
+Description
+\\
+As necessitated by a language that assures a programmer of the effectivity of his or her code, our language is designed to be fairly rigid and explicit in structure, without much behind-the-scenes magic that can make some existing programming languages difficult to read and understand. While at first this may seem like a limitation to the programmer who is well versed in non-statically typed languages (i.e Python) or object-oriented languages (i.e. C++ or Java), our language is just as capable, while also ensuring a robust compiled program that should always work as expected. 
+\par
+	The syntax for our language will explicitly define the domain and range (including errors that may be raised) of functions for integration tests, as well as the expected input and output for various cases for unit tests. At compilation time, all of these tests will be run to make sure that the produced program works the way it?s designers intended. In addition to user defined unit tests, we will analyze the input code and generate some of our own tests. These tests will be generated in order to cover important test cases that the user might have missed and cases that ensure full code coverage (i.e. all lines of the input code has been tested).
+\par
+
+Compiler Proposals
+\par
+	We are considering two alternatives for the workflow of our compiler. The first option is an interpreter-compiler hybrid that runs unit tests and coverage tests at compile time. This method ensures that a program that does not successfully pass all tests will not have the ability to be compiled, and therefore will not have the chance for execution by the programmer. This would ensure that errand code does not make it through the compiler and into production. On failure, the compiler will inform the user as to what tests failed and what can be done to improve the quality and testability of the program.
+	The second consideration is to generate a test file based on the input program. At compile time, two files will be generated: (1) an executable file, and (2) an executable test file with all the relevant test cases. This method would allow the user to continue with his or her normal work flow and minimize interference from the compiler, while at the same time providing a robust test file to fully test one's program. As compared to the first option, this allows for quicker up times for programmers but would lower the level of rigidity the first option provides.
+
+
+\par
+Types
+\\
+int, \\
+char, \\
+float/double, \\
+struct, 
+array (of any type)
+
+	In our language, typing will be strongly enforced throughout every possible step of compilation. All variables in our language will need to be typed before they can be referenced (and naturally before assignment). This is similar to the strong typing of C, albeit without the complexities that are associated with passing pointers.
+	
+\par
+Syntax
+Our syntax is inspired by C and will be identical to C unless explicitly stated below.
+
+Comments
+/* No single line comments, only nested comments */
+
+Key Words
+with test: 
+using:
+
+	
+\par
+Example code:
+\\
+
+\begin{lstlisting}
+#include <stdio.h>
+#define N 10
+/* Block
+ * comment */
+
+int main()
+{
+    int i;
+
+    // Line comment.
+    puts("Hello world!");
+    
+    for (i = 0; i < N; i++)
+    {
+        puts("LaTeX is also great for programmers!");
+    }
+
+    return 0;
+}
+
+func int sum(int[] arr, int len)
+{
+	int sum;
+	int i;
+	
+	i =0;
+	while ( i < len; i++) {
+		sum = sum + arr[i];
+	}
+	return sum;
+}
+with test sum(arr, 5) == 15 using int[] arr = {1, 2, 3, 4, 5};
+
+
+func int absoluteValue(int a)
+{
+	if (a < 0) {
+		a = -a;
+	} else {
+		a = a;
+	}
+	return a;
+}
+with test: absoluteValue(-2) > 0 using 
+
+func int add(int a, int b)
+{
+	return x + y;
+}
+with test: add(1,2) == 3
+with test: 0 < add(1,2) < 100;
+
+func void changeName(struct personStruct person, string newName)
+{
+	person.name = newName;
+}
+with test: {changeName(person, "newName"); person.name == "newName";} using {struct personStruct person = personStruct("name", 18)};
+
+\end{lstlisting}
+
+
+
+\end{document} 
