@@ -38,42 +38,29 @@ The second consideration is to generate a test file based on the input program. 
 
 In our language, typing will be strongly enforced throughout every possible step of compilation. All variables in our language will need to be typed before they can be referenced (and naturally before assignment). This is similar to the strong typing of C, albeit without the complexities that are associated with passing pointers.
 \section{Syntax}
-Our syntax is inspired by C and will be identical to C unless explicitly stated below.
+Our syntax is inspired by C and will be identical to C unless explicitly stated below. Howe
 
 \subsection{Comments}
+
 /* No single line comments, only nested comments */
 
 \subsection{Key Words}
 \begin{itemize}
 	\item
-		with test: 
+	with test: 
 	\item
-		using:
+	using:
 \end{itemize}
 
 	
 \section{Example code}
 \begin{lstlisting}
-#include <stdio.h>
-#define N 10
-/* Block
- * comment */
+/*
+	We are using multi-line comments.
+	There are no single line comments.
+*/
 
-int main()
-{
-    int i;
-
-    // Line comment.
-    puts("Hello world!");
-    
-    for (i = 0; i < N; i++)
-    {
-        puts("LaTeX is also great for programmers!");
-    }
-
-    return 0;
-}
-
+/* the func keyword is used for function declaration */
 func int sum(int[] arr, int len)
 {
 	int sum;
@@ -84,8 +71,15 @@ func int sum(int[] arr, int len)
 		sum = sum + arr[i];
 	}
 	return sum;
+	 /* This is how you use the keyword "with test: " . Tests are 
+attached to the end of function definitions with
+ some sort of condition.
+ This is a single line test. */
 }
 with test sum(arr, 5) == 15 using int[] arr = {1, 2, 3, 4, 5};
+/*
+	The "using" keyword above is used to create variables that are used in the test conidition
+*/
 
 
 func int absoluteValue(int a)
@@ -97,7 +91,7 @@ func int absoluteValue(int a)
 	}
 	return a;
 }
-with test: absoluteValue(-2) > 0 using 
+with test: absoluteValue(-2) > 0  
 
 func int add(int a, int b)
 {
@@ -110,7 +104,32 @@ func void changeName(struct personStruct person, string newName)
 {
 	person.name = newName;
 }
-with test: {changeName(person, "newName"); person.name == "newName";} using {struct personStruct person = personStruct("name", 18)};
+with test: {
+changeName(person, "newName");
+person.name == "newName";
+} using: { personStruct person = personStruct("name", 18)};
+
+func int gcd(int a, int b)
+{
+
+	if (a == b) {
+		return a;
+	} else if (a > b) {
+		gcd(a-b, b);
+	} else {
+		gcd(a, b-a);
+	}
+
+}
+with test: gcd(10, 5) == 5
+
+int num1 = 25;
+int num2 = 30;
+int num3;
+
+num3 = gcd(num1, num2);
+
+print("Result %d\n" , num3);
 
 \end{lstlisting}
 
