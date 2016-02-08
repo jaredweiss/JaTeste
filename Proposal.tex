@@ -30,7 +30,8 @@
 		while,
 		for,
 		return,
-		using
+		using,
+		import
 	},
 	sensitive=true, % keywords ARE case-sensitive
 	morecomment=[s]{/*}{*/}, % /* and */ delimit comments
@@ -191,27 +192,27 @@ with test: checkSameAge{person1, person2} == True;
 
 \subsection{}
 \begin{lstlisting}
-func int gcd(int a, int b)
-{
-
-	if (a == b) {
-		return a;
-	} else if (a > b) {
-		gcd(a-b, b);
-	} else {
-		gcd(a, b-a);
-	}
-
-}
-with test: gcd(10, 5) == 5;
-\end{lstlisting}
-
-
-\subsection{}
-\begin{lstlisting}
 /*
 	Here is an actual program that computes the gcd of two numbers.
 */
+
+/* Function declarations */
+func int gcd(int a, int b)
+{
+
+if (a == b) {
+return a;
+} else if (a > b) {
+gcd(a-b, b);
+} else {
+gcd(a, b-a);
+}
+
+}
+with test: gcd(10, 5) == 5;
+
+/* Main body of program starts here */
+
 int num1 = 25;
 int num2 = 30;
 int num3;
