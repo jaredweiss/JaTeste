@@ -19,55 +19,60 @@
 
 \maketitle
 
-\par
-\textbf{Description}
-\\
-As necessitated by a language that assures a programmer of the effectivity of his or her code, our language is designed to be fairly rigid and explicit in structure, without much behind-the-scenes magic that can make some existing programming languages difficult to read and understand. While at first this may seem like a limitation to the programmer who is well versed in non-statically typed languages (i.e Python) or object-oriented languages (i.e. C++ or Java), our language is just as capable, while also ensuring a robust compiled program that should always work as expected. 
-\par
-	The syntax for our language will explicitly define the domain and range (including errors that may be raised) of functions for integration tests, as well as the expected input and output for various cases for unit tests. At compilation time, all of these tests will be run to make sure that the produced program works the way it?s designers intended. In addition to user defined unit tests, we will analyze the input code and generate some of our own tests. These tests will be generated in order to cover important test cases that the user might have missed and cases that ensure full code coverage (i.e. all lines of the input code has been tested).
-\par
+\section{Description}
+As necessitated by a language that assures a programmer of the effectivity of his or her code, our language is designed to be fairly rigid and explicit in structure, without much behind-the-scenes magic that can make some existing programming languages difficult to read and understand. While at first this may seem like a limitation to the programmer who is well versed in non-statically typed languages (i.e Python) or object-oriented languages (i.e. C++ or Java), our language is just as capable, while also ensuring a robust compiled program that should always work as expected. //
+The syntax for our language will explicitly define the domain and range (including errors that may be raised) of functions for integration tests, as well as the expected input and output for various cases for unit tests. At compilation time, all of these tests will be run to make sure that the produced program works the way it?s designers intended. In addition to user defined unit tests, we will analyze the input code and generate some of our own tests. These tests will be generated in order to cover important test cases that the user might have missed and cases that ensure full code coverage (i.e. all lines of the input code has been tested).
 
-\textbf{Compiler Proposals}
-\par
-	We are considering two alternatives for the workflow of our compiler. The first option is an interpreter-compiler hybrid that runs unit tests and coverage tests at compile time. This method ensures that a program that does not successfully pass all tests will not have the ability to be compiled, and therefore will not have the chance for execution by the programmer. This would ensure that errand code does not make it through the compiler and into production. On failure, the compiler will inform the user as to what tests failed and what can be done to improve the quality and testability of the program.
-	The second consideration is to generate a test file based on the input program. At compile time, two files will be generated: (1) an executable file, and (2) an executable test file with all the relevant test cases. This method would allow the user to continue with his or her normal work flow and minimize interference from the compiler, while at the same time providing a robust test file to fully test one's program. As compared to the first option, this allows for quicker up times for programmers but would lower the level of rigidity the first option provides.\\
+\subsection{Compiler Proposals}
+We are considering two alternatives for the workflow of our compiler. The first option is an interpreter-compiler hybrid that runs unit tests and coverage tests at compile time. This method ensures that a program that does not successfully pass all tests will not have the ability to be compiled, and therefore will not have the chance for execution by the programmer. This would ensure that errand code does not make it through the compiler and into production. On failure, the compiler will inform the user as to what tests failed and what can be done to improve the quality and testability of the program. \\
+The second consideration is to generate a test file based on the input program. At compile time, two files will be generated: (1) an executable file, and (2) an executable test file with all the relevant test cases. This method would allow the user to continue with his or her normal work flow and minimize interference from the compiler, while at the same time providing a robust test file to fully test one's program. As compared to the first option, this allows for quicker up times for programmers but would lower the level of rigidity the first option provides.
 
-\par
-
-\textbf{Types}
-
+\subsection{Types}
 \begin{itemize}
-  \item int
-  \item char
-  \item float/double
-  \item struct
-  \item array of any type
+	\item int
+	\item char
+	\item float
+	\item struct
+	\item arrays[] \textit{(of any type)}
 \end{itemize}
 
-
-	In our language, typing will be strongly enforced throughout every possible step of compilation. All variables in our language will need to be typed before they can be referenced (and naturally before assignment). This is similar to the strong typing of C, albeit without the complexities that are associated with passing pointers.
-	
-\par
-\textbf{Syntax}
-\\
+In our language, typing will be strongly enforced throughout every possible step of compilation. All variables in our language will need to be typed before they can be referenced (and naturally before assignment). This is similar to the strong typing of C, albeit without the complexities that are associated with passing pointers.
+\section{Syntax}
 Our syntax is inspired by C and will be identical to C unless explicitly stated below.
 
-Comments
+\subsection{Comments}
 /* No single line comments, only nested comments */
 
-Key Words
-with test: 
-using:
+\subsection{Key Words}
+\begin{itemize}
+	\item
+		with test: 
+	\item
+		using:
+\end{itemize}
 
 	
-\par
-\textbf{Example code:}
-\\
+\section{Example code}
 \begin{lstlisting}
-/*
-	This is a comment.
-	There are no single line comments
-*/
+#include <stdio.h>
+#define N 10
+/* Block
+ * comment */
+
+int main()
+{
+    int i;
+
+    // Line comment.
+    puts("Hello world!");
+    
+    for (i = 0; i < N; i++)
+    {
+        puts("LaTeX is also great for programmers!");
+    }
+
+    return 0;
+}
 
 func int sum(int[] arr, int len)
 {
