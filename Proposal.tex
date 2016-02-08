@@ -146,14 +146,24 @@ func int add(int a, int b)
 with test: add(1,2) == 3
 with test: 0 < add(1,2) < 100;
 
-func void changeName(struct personStruct person, string newName)
+func void changeName(personStruct person, string newName)
 {
 	person.name = newName;
 }
 with test: {
-changeName(person, "newName");
-person.name == "newName";
+	changeName(person, "newName");
+	person.name == "newName";
 } using: { personStruct person = personStruct("name", 18)};
+
+func void checkSameAge(personStruct p1, personStruct p2)
+{
+	return p1 == p2;
+}
+with test: checkSameAge{person1, person2} == True;
+	using: { personStruct person1 = personStruct("person", 20),
+				   personStruct person2 = personStruct("other", 20)
+				 };
+
 
 func int gcd(int a, int b)
 {
