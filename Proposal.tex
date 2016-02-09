@@ -58,9 +58,23 @@
 	backgroundcolor=\color{syntaxGreyBg},
 }
 
-\title{PLT 4115 Proposal}
-\author{Andrew Grant, Jemma Losh, Jared Weiss, Jake Weismann  \\amg2215@columbia.edu, jal2285@columbia, jbw2140@columbia.edu, jdw2159@columbia.edu}
-\date{2/8/16}
+\title{PLT 4115 Proposal: \textbf{JaTest\'{e}}}
+\author{
+	Andrew Grant\\
+	\texttt{amg2215@columbia.edu}
+	\and
+	Jemma Losh\\
+	\texttt{jal2285@columbia.edu}
+	\and
+	Jared Weiss\\
+	\texttt{jbw2140@columbia.edu}
+	\and
+	Jake Weissman\\
+	\texttt{jdw2159@columbia.edu}
+}
+
+%\author{Andrew Grant, Jemma Losh, Jared Weiss, Jake Weismann  \\amg2215@columbia.edu, jal2285@columbia, jbw2140@columbia.edu, jdw2159@columbia.edu}
+\date{\today}
 
 \begin{document}
 
@@ -101,6 +115,9 @@ While our syntax is inspired by C, it is very much functional. Each function can
 	func
 \end{itemize}
 
+\subsection{Whitespace}
+Our language is not whitespace sensitive. During tokenization, whitespace will be discarded.
+
 	
 \section{Example code}
 \subsection{}
@@ -115,7 +132,7 @@ While our syntax is inspired by C, it is very much functional. Each function can
 \subsection{}
 \begin{lstlisting}
 /* the func keyword is used for function declaration */
-func int absoluteValue(int a)
+func int abv(int a)
 {
 	if (a < 0) {
 		a = -a;
@@ -124,9 +141,9 @@ func int absoluteValue(int a)
 	}
 	return a;
 }
-with test: absoluteValue(-2) > 0;
+with test: abv(-2) == 2;
 /*
-	This is how you use the keyword "with test:". Tests are attached to the end of function definitions with some sort of boolean condition. In the test below, the programmer makes sure the function absoluteValue returns a positive number when passed the value -2.
+	This is how you use the keyword "with test:". Tests are attached to the end of function definitions with some sort of boolean condition. In the test below, the programmer makes sure the function abv returns a positive number (2) when passed the value -2.
 */
 \end{lstlisting}
 
@@ -144,7 +161,7 @@ func int sum(int[] arr, int len)
 	}
 	return sum;
 }
-with test sum(arr, 5) == 15 using int[] arr = {1, 2, 3, 4, 5};
+with test: sum(arr, 5) == 15 using int[] arr = {1, 2, 3, 4, 5};
 /*
 	The "using" keyword above is used to create variables that are used in the test condition.  Here, the programmar created an array using the keyword and makes sure the sum function computes the right value.
 */
@@ -157,7 +174,9 @@ func int add(int a, int b)
 {
 	return x + y;
 }
-with test: add(1,2) == 3;
+with test: add(1,  2) ==  3;
+with test: add(-1, 2) ==  1;
+with test: add(-1,-2) == -3;
 with test: 0 < add(1,2) < 100;
 \end{lstlisting}
 
@@ -169,7 +188,7 @@ func void changeName(personStruct person, string newName)
 	person.name = newName;
 }
 with test: {
-	/* Here's an example of a multi-line test case. */
+	/* Here's an example of a multi-line test case wrapped in {}. */
 	changeName(person, "newName");
 	person.name == "newName";
 } using: { personStruct person = personStruct("name", 18)};
@@ -183,7 +202,7 @@ func void checkSameAge(personStruct p1, personStruct p2)
 {
 	return p1 == p2;
 }
-with test: checkSameAge{person1, person2} == True;
+with test: checkSameAge{person1, person2} == True
 	  using: { personStruct person1 = personStruct("person", 20),
 				     personStruct person2 = personStruct("other",  20) };
 /* Note: personStruct is just an example struct with the fields age and name; in the context of an actual program it would need to be defined somewhere before it is actually used here */
