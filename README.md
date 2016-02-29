@@ -30,4 +30,4 @@ We don't want to break any existing code so we'll only merge changes that adhere
   
 4. Use pull requests! 
 
-  When you want to bring your code into the master repo, go to your fork and click on "New Pull Request". From there you can open a pull request and write about what the changes you made do. That way we can all look it over and make sure it works. This keeps multiple sets of eyes on the code before it goes into master!
+  When you want to bring your code into the master repo, go to your fork and click on "New Pull Request". From there you can open a pull request and write about what the changes you made do. That way we can all look it over and make sure it works. This keeps multiple sets of eyes on the code before it goes into master! For more info on pull requests check out this [great guide](https://help.github.com/articles/using-pull-requests/) by github.
