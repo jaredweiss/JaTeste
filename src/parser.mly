@@ -1,8 +1,9 @@
 %{ open Ast %}
 
 %token LPAREN RPAREN LBRACE RBRACE SEMI
-%token PLUS MINUS ASSIGN
+%token PLUS MINUS TIMES DIVIDE ASSIGN
 %token FUNC
+%token WTEST USING
 %token INT VOID
 
 %token <int> LITERAL
@@ -10,6 +11,7 @@
 %token EOF
 
 %left PLUS MINUS
+%left TIMES DIVIDE
 %right ASSIGN
 
 %start program
@@ -22,8 +24,15 @@ decls:
 	| fdecl   { $1 }
 
 fdecl:
-	FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
+	  FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
 		typ = $2; fname = $3; body = $7 }}
+	| FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE WTEST LBRACE stmt_list RBRACE{{
+		typ = $2; fname = $3; body = $7 }}
+	| FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE WTEST LBRACE
+	stmt_list RBRACE USING LBRACE stmt_list RBRACE{{
+		typ = $2; fname = $3; body = $7 }}
+
+
 
 typ:
 	    INT { Int }
