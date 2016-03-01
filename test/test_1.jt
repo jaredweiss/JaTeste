@@ -1,0 +1,11 @@
+func int add()
+{
+	a = 10;
+	b = 1 + 1;
+}
+with test {
+	add(1,1) = 0;
+}
+using {
+	c = 11;
+}
