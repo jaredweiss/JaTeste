@@ -3,4 +3,6 @@
 parser.ml
 scanner.ml
 parser.mli
+a.out
+*.jt
 
