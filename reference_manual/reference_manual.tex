@@ -1,0 +1,97 @@
+\documentclass{article} 
+\usepackage{url, graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{textcomp}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{titling}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{verbatim}
+\usepackage{listings} % for code highlighting/formatting
+
+\usepackage{color} %defining colors for syntax highlighting
+\definecolor{syntaxBlue}{RGB}{42,0.0,255}
+\definecolor{syntaxGreen}{RGB}{63,127,95}
+\definecolor{syntaxPurple}{RGB}{127,0,85}
+\definecolor{syntaxCyan}{RGB}{0,155,155}
+\definecolor{syntaxGreyBg}{RGB}{220,220,220}
+
+\lstdefinelanguage{JaTeste} %define the code highlighting/formatting
+{
+	% list of keywords
+	morekeywords={
+		func,
+		with,
+		test,
+		if,
+		else,
+		while,
+		for,
+		return,
+		using,
+		import
+	},
+	sensitive=true, % keywords ARE case-sensitive
+	morecomment=[s]{/*}{*/}, % /* and */ delimit comments
+	morestring=[b]" % string's MUST be in double quotes
+}
+\lstset{
+	language={JaTeste}, % tell listings package to use the JaTeste language spec
+	basicstyle=\small\ttfamily, % Global Code Style
+	tabsize=2, % number of spaces indented when discovering a tab 
+	columns=fixed, % make all characters equal width
+	keepspaces=true, % does not ignore spaces to fit width, convert tabs to spaces
+	showstringspaces=false, % lets spaces in strings appear as real spaces
+	breaklines=true, % wrap lines if they don't fit
+	frame=trbl, % draw a frame at the top, right, left and bottom of the listing
+	frameround=tttt, % make the frame round at all four corners
+	framesep=4pt, % quarter circle size of the round corners
+	numbers=left, % show line numbers at the left
+	numberstyle=\tiny\ttfamily, % style of the line numbers
+	commentstyle=\color{syntaxGreen},
+	keywordstyle=\color{syntaxPurple},
+	stringstyle=\color{syntaxBlue},
+	emph={int,char,float,struct,string},
+	emphstyle=\color{syntaxCyan},
+	backgroundcolor=\color{syntaxGreyBg},
+}
+
+\title{PLT 4115 LRM: \textbf{JaTest\'{e}}}
+\author{
+	Andrew Grant\\
+	\texttt{amg2215@columbia.edu}
+	\and
+	Jemma Losh\\
+	\texttt{jal2285@columbia.edu}
+	\and
+	Jared Weiss\\
+	\texttt{jbw2140@columbia.edu}
+	\and
+	Jake Weissman\\
+	\texttt{jdw2159@columbia.edu}
+}
+
+%\author{Andrew Grant, Jemma Losh, Jared Weiss, Jake Weismann  \\amg2215@columbia.edu, jal2285@columbia, jbw2140@columbia.edu, jdw2159@columbia.edu}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\section{Lexical Conventions}
+
+\section{Data Types}
+
+\section{Expressions and Operators}
+
+\section{Statements}
+
+\section{Functions}
+
+\section{A Sample Program}
+
+\end{document}
