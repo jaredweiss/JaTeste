@@ -1,0 +1,12 @@
+func void hello()
+{
+	a = 10;
+	b = 5 + 5;
+}
+with test
+{
+
+}
+using {
+
+}
