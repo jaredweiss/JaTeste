@@ -17,4 +17,12 @@ type func_decl = {
 	body	: 	stmt list;
 }
 
+<<<<<<< HEAD
 type program = func_decl
+=======
+type flow = 
+	| Var of bind
+	| Func of func_decl
+
+type program = flow list 
+>>>>>>> initial_flow

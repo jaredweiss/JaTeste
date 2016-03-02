@@ -1,0 +1,10 @@
+func int add()
+{
+	a = 10;
+	10 + 10 - 9;
+	b = 100;
+} with test {
+	a = 10;
+} using {
+	cool_var = 1000;
+}
