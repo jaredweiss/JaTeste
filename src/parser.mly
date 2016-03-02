@@ -23,7 +23,13 @@
 program: decls EOF { $1 }
 
 decls: 
-	| fdecl   { $1 }
+	/* nothing */ 	{ [] }
+	| decls fdecl   { Func($2)::$1 }
+	| decls vdecl   { Var($2)::$1 }
+
+typ:
+	    INT { Int }
+	  | VOID { Void }
 
 fdecl:
 	  FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
@@ -34,11 +40,8 @@ fdecl:
 	stmt_list RBRACE USING LBRACE stmt_list RBRACE{{
 		typ = $2; fname = $3; body = $7 }}
 
-
-
-typ:
-	    INT { Int }
-	  | VOID { Void }
+vdecl:
+	typ ID SEMI {($1, $2) }
 
 stmt_list:
 	  /* nothing */ { [] }
