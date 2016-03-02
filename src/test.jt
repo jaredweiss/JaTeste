@@ -6,5 +6,5 @@ func int add()
 } with test {
 	a = 10;
 } using {
-	cool_var = 1000;
+	coolvar = 1000;
 }

@@ -4,13 +4,9 @@
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token FUNC
 %token WTEST USING
-<<<<<<< HEAD
-%token INT VOID
-=======
 %token EQ NEQ LT LEQ GT GEQ
 %token INT VOID CHAR
 %token RETURN IF ELSE WHILE 
->>>>>>> initial_flow
 
 %token <int> LITERAL
 %token <string> ID
@@ -27,9 +23,6 @@
 program: decls EOF { $1 }
 
 decls: 
-<<<<<<< HEAD
-	| fdecl   { $1 }
-=======
 	/* nothing */ 	{ [] }
 	| decls fdecl   { Func($2)::$1 }
 	| decls vdecl   { Var($2)::$1 }
@@ -37,7 +30,6 @@ decls:
 typ:
 	    INT { Int }
 	  | VOID { Void }
->>>>>>> initial_flow
 
 fdecl:
 	  FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
@@ -48,16 +40,9 @@ fdecl:
 	stmt_list RBRACE USING LBRACE stmt_list RBRACE{{
 		typ = $2; fname = $3; body = $7 }}
 
-<<<<<<< HEAD
 
-
-typ:
-	    INT { Int }
-	  | VOID { Void }
-=======
 vdecl:
 	typ ID SEMI {($1, $2) }
->>>>>>> initial_flow
 
 stmt_list:
 	  /* nothing */ { [] }

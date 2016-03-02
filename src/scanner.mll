@@ -13,10 +13,6 @@ rule token = parse
 	| '*'			{ TIMES }
 	| '/'			{ DIVIDE }
 	| '='			{ ASSIGN }
-<<<<<<< HEAD
-	| "void"		{ VOID }
-	| "int"			{ INT }
-=======
 	| "=="			{ EQ }
 	| "!="			{ NEQ }
 	| "<"			{ LT }
@@ -30,7 +26,6 @@ rule token = parse
 	| "else"		{ ELSE }
 	| "return" 		{ RETURN }
 	| "while" 		{ WHILE }
->>>>>>> initial_flow
 	| "func" 		{ FUNC }
 	| "with test" 		{ WTEST }
 	| "using"		{ USING }
