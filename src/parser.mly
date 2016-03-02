@@ -20,10 +20,10 @@
 %type<Ast.program> program
 
 %%
-program: decls EOF { $1 }
+program: decls EOF { $1 } 
 
-decls: 
-	/* nothing */ 	{ [] }
+decls: 			  
+	/* nothing */ 	{ [] } 
 	| decls fdecl   { Func($2)::$1 }
 	| decls vdecl   { Var($2)::$1 }
 
@@ -34,11 +34,17 @@ typ:
 fdecl:
 	  FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
 		typ = $2; fname = $3; body = $7 }}
-	| FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE WTEST LBRACE stmt_list RBRACE{{
+	| FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE testdecl {{
 		typ = $2; fname = $3; body = $7 }}
-	| FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE WTEST LBRACE
-	stmt_list RBRACE USING LBRACE stmt_list RBRACE{{
+	| FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; body = $7 }}
+
+testdecl:
+	WTEST LBRACE stmt_list RBRACE usingdecl { }
+
+usingdecl:
+	USING LBRACE stmt_list RBRACE { }
+
 
 
 vdecl:
