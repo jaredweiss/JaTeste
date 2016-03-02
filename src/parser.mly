@@ -4,7 +4,9 @@
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token FUNC
 %token WTEST USING
-%token INT VOID
+%token EQ NEQ LT LEQ GT GEQ
+%token INT VOID CHAR
+%token RETURN IF ELSE WHILE 
 
 %token <int> LITERAL
 %token <string> ID

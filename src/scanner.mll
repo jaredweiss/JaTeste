@@ -13,8 +13,19 @@ rule token = parse
 	| '*'			{ TIMES }
 	| '/'			{ DIVIDE }
 	| '='			{ ASSIGN }
+	| "=="			{ EQ }
+	| "!="			{ NEQ }
+	| "<"			{ LT }
+	| ">"			{ GT }
+	| "<="			{ LEQ}
+	| ">="			{ GEQ}
 	| "void"		{ VOID }
 	| "int"			{ INT }
+	| "char"		{ CHAR }
+	| "if"			{ IF }
+	| "else"		{ ELSE }
+	| "return" 		{ RETURN }
+	| "while" 		{ WHILE }
 	| "func" 		{ FUNC }
 	| "with test" 		{ WTEST }
 	| "using"		{ USING }
