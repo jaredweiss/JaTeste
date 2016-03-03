@@ -93,7 +93,7 @@ Identifiers are used to name a variable, a function, or other types of data.  An
 % Just a list of reserved keywords
 Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
 
-\texttt{int char float struct if else for while break continue with test using func return}
+\texttt{int char float struct if else for while break continue with test using func return string}
 
 \subsection{Constants}
 % How to define constants such as x = 5
@@ -202,22 +202,20 @@ Text
 
 \subsection{Expressions}
 An expression is a collection of one or more operands and zero or more operators that can be evaluated to produce a value.  A function that returns a value can be an operand as part of an expression.  Additionally, parenthesis can be used to group smaller expressions together as part of a larger expression.  A semicolon terminates an expression.  Some examples of expressions include:
-\begin{itemize}
-\item \texttt{35 - 6};
-\item \texttt{foo(42) * 10};
-\item \texttt{8 - (9 / (2 + 1))};
-\end{itemize}
+\begin{lstlisting}
+35 - 6;
+foo(42) * 10;
+8 - (9 / (2 + 1) );
+\end{lstlisting}
 
 \subsection{Assignment Operators}
 % =, +=, -=, etc
 Assignment can be used to assign the value of an expression on the right side to a named variable on the left hand side of the equals operator.  The left hand side can either be a named variable that has already been declared or a named variable that is being declared and initialized in this assignment.  Examples include:
-
-\begin{itemize}
-\item \texttt{int x = 5};
-\item \texttt{float y};
-
-\texttt{y = 9.9};
-\end{itemize}
+\begin{lstlisting}
+int x = 5;
+float y;
+y = 9.9;
+\end{lstlisting}
 
 Additionally, the following operators can also be used for variations of assignment:
 
