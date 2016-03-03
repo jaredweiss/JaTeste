@@ -97,27 +97,60 @@ Keywords are a set of words that serve a specific purpose in our language and ma
 
 \subsection{Constants}
 % How to define constants such as x = 5
+Our language includes integer, character, real number, and string constants. They're defined in the following sections.
 
 \subsubsection{Integer Constants}
 % We should specify all ways you can define an integer
+Integer constants are a sequence of digits. An integer is taken to be decimal. Here are some examples:
+
+13
+
+1357
+
+23
+
+987
 
 \subsubsection{Character Constants}
 % Same for character
+Character constants hold a single character and are enclosed in single quotes. They are stored in a variable of type char. Character constants that are preceded with a backslash have special meaning. Here are some examples:
+
+'a'
+
+'$\backslash$n' newline
+
+'$\backslash$t' tab
+
 
 \subsubsection{Real Number Constants}
 % Do we want to allow for only ints?  If yes, delete this section
+Real number constants represent a floating point number. They are composed of a sequence of digits, representing the whole number portion, followed by a decimal and another sequence of digits, representing the fractional part. Here are some examples. The whole part or the fractional part may be omitted, but not both.
+
+3.14
+
+0.4
+
+.7
+
+8
 
 \subsubsection{String Constants}
 % How to define a string constant
+Strings are a sequence of characters enclosed by double quotes. A String is treated like a character array. Here are some examples:
+
+"Hello, world!"
+
+"JaTeste"
 
 \subsection{Operators}
 % Just note they can be used, will be explained more later
 Operators are special tokens such as multiply, equals, etc. that are applied to one or two operands.  Their use will be explained further in chapter 4.
 
-\subsection{Separators}
-% List all seperators we use including, but not limted to, ( ) [ ] { } ; , . :
-
 \subsection{White Space}
+Whitespace is considered to be a space, tab, or newline. It is used for token delimitation, but has no meaning otherwise. 
+
+\subsection{Comments}
+A comment is a sequence of characters beginning with a forward slash followed by an asterisk. It continues until it is ended with an asterisk followed by a forward slash. Comments are treated as whitespace. 
 
 \section{Data Types}
 The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays.
