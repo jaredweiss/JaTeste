@@ -93,7 +93,7 @@ Identifiers are used to name a variable, a function, or other types of data.  An
 % Just a list of reserved keywords
 Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
 
-\texttt{int char float struct if else for while break continue with test using func return string}
+\texttt{int char float struct if else for while break continue with test using func return string print}
 
 \subsection{Constants}
 % How to define constants such as x = 5
@@ -264,24 +264,80 @@ This can be done using the \texttt{++} operator to increment and the \texttt{--}
 % ++ vs * and such
 
 \section{Statements}
-
-\subsection{Expression Statements}
-% 2 + 2;
+Statements include: \texttt{if, while, for, return} as explained in the following sections
 
 \subsection{If Statement}
 % explain if, else if, else
+The if, else if, else construct will work as expected in other languages.
+
+\begin{lstlisting}
+if (x == 42) {
+	print("Gotcha");
+}
+else if (x > 42) {
+	print("Sorry, too big");
+}
+else {
+	print("I\'ll allow it");
+}
+\end{lstlisting}
 
 \subsection{While Statement}
+The while statement will evaluate in a loop as long as the specified condition in the while statement is true.
+
+\begin{lstlisting}
+/* Below code prints "Hey there" 10 times */
+int x = 0;
+while (x < 10) {
+	print("Hey there");
+	x++;
+}
+\end{lstlisting}
 
 \subsection{For Statement}
+The for condition will also run in a loop so long as the condition specified in the for statement is true.  The expectation for a for statement is as follows:
+
+\texttt{for ( <initial state>; <test condition>; <step forward> )}
+
+Examples are as follows:
+
+\begin{lstlisting}
+/* 	This will run as long as i is less than 100
+	i will be incremented on each iteration of the loop */
+for (int i = 0; i < 100; i++) {
+	/* do something */
+}
+
+/* i can also be declared or initialized outside of the for loop */
+int i;
+for (i = 0; i < 100; i += 2) {
+	/* code block */
+}
+\end{lstlisting}
 
 \subsection{Code Blocks}
 % Code within braces
+Blocks are code that is contained within a pair of brackets, \texttt{\{ code \}}, that gets executed within a statement.  For example, any code blocks that follow an \texttt{if} statement will get executed if the \texttt{if} condition is evaluated as true:
 
-\subsection{Break and Continue}
-% Do we allow for that?
+\begin{lstlisting}
+int x = 42;
+if (x == 42) {
+	/* the following three lines are executed */
+	print("Hey");
+	x++;
+	print("Bye");
+}
+\end{lstlisting}
 
 \subsection{Return Statement}
+The \texttt{return} statement is used to exit out of a function and return a value.  The return value must be the same type that is specified by the function deceleration.  Return can be used as follows:
+
+\begin{lstlisting}
+/* The function trivially returns the input int value */
+func int someValue(int x) {
+	return x;
+}
+\end{lstlisting}
 
 \section{Functions}
 
