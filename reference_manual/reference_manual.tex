@@ -80,21 +80,26 @@
 \maketitle
 
 \section{Introduction}
+The goal of JaTest\'{e} is to design a language that promotes good coding practices - mainly as it relates to testing.  JaTest\'{e} will require the user to explicitly define test cases for any function that is written in order to compile and execute code.  This will ensure that no code goes untested and will increase the overall quality of programmer code written in our language.  The user will be required to provide some test cases for their code, and the language will also generate some important test cases for their code as well.  JaTest\'{e} is mostly a functional language with a syntax quite similar to C.  The details of our language usage is provided in the rest of the document.
 
 \section{Lexical Conventions}
+This chapter will describe how input code will be processed and how tokens will be generated.
 
 \subsection{Identifiers}
 % Specs on how to name variables, functions, data types, etc.
+Identifiers are used to name a variable, a function, or other types of data.  An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters.
 
 \subsection{Keywords}
 % Just a list of reserved keywords
+Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
+
+\texttt{int char float struct if else for while break continue with test using func return}
 
 \subsection{Constants}
 % How to define constants such as x = 5
 
 \subsubsection{Integer Constants}
 % We should specify all ways you can define an integer
-
 
 \subsubsection{Character Constants}
 % Same for character
