@@ -219,17 +219,81 @@ Ultimately, all structures are backed by some collection of primitives. For exam
 
 
 \subsection{Arrays}
+An array is a data structure that allows for the storage of one or more elements of the same data type consecutively in memory. Each element is stored at an index, and array indices begin at 0. This section will describe how to use Arrays.
 
 \subsubsection{Defining Arrays}
+An array is declared by specifying its data type, name, and size. The size must be positive. Here is an example of declaring an integer array of size 10:
+
+ \begin{lstlisting}
+int arr[10];
+\end{lstlisting}
 
 \subsubsection{Initializing Arrays}
+An array can be declared and initialized in the same line, by listing the element values separated by commas and surrounded by brackets. Here is an example:
+
+ \begin{lstlisting}
+int arr[5] = { 0, 1, 2, 3, 4 };
+\end{lstlisting}
+
+It is not required to initialize all of the elements. Elements that are not initialized will have a default value of zero. For example in this array, arr[3] and arr[4] would have a value of 0:
+
+ \begin{lstlisting}
+int arr[5] = { 0, 1, 2 };
+\end{lstlisting}
 
 \subsubsection{Accessing Array Elements}
+To access an element in an array, use the array name followed by the element index surrounded by square brackets. Here is an example that assigns the value 1 to the first element (at index 0) in the array:
+
+ \begin{lstlisting}
+arr[0] = 1;
+\end{lstlisting}
+
+JaTeste does not test for index out of bounds, so the following code would compile although it is incorrect. 
+
+ \begin{lstlisting}
+int arr[2];
+arr[5] = 1;
+\end{lstlisting}
+
 
 \subsubsection{Multidimensional Arrays}
+A multidimensional array is an array of arrays. To declare a multidimensional array, add another square bracket pair indicating the size for each dimension. Here is an example of declaring and initializing a 2D array that holds 3 elements per dimension:
+
+ \begin{lstlisting}
+int a[2][3] = { {0, 1, 2}, {3, 4, 5} };
+\end{lstlisting}
+
+To access an element in a multidimensional array, specify the desired index of all dimensions. For example:
+
+ \begin{lstlisting}
+a[0][1] = 1;
+\end{lstlisting}
 
 \subsubsection{Arrays of Structures}
-Text
+An array of structures is an array that holds elements of a structure type. Here is an example of declaring a struct array, that holds three struct inventory elements. 
+
+ \begin{lstlisting}
+struct inventory {
+	int part;
+	float cost;
+};
+
+struct inventory in_array[3];
+
+\end{lstlisting}
+
+To initialize the elements in a struct array, brackets are used to surround the memebers associated with each struct element. Here is an example:
+
+ \begin{lstlisting}
+struct inventory in_array[3] = { {1, 1.0}, {2, 2.0}, {3, 3.0} };
+\end{lstlisting}
+
+To access the members of the elements of a struct array, the member access operator is used, with the array name and element number preceding it. Here is an example:
+
+ \begin{lstlisting}
+in_array[0].part = 1;
+in_array[0].cost = 1.0;
+\end{lstlisting}
 
 \section{Expressions and Operators}
 
