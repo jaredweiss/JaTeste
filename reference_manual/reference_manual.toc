@@ -1,0 +1,51 @@
+\contentsline {section}{\numberline {1}Introduction}{4}
+\contentsline {section}{\numberline {2}Lexical Conventions}{4}
+\contentsline {subsection}{\numberline {2.1}Identifiers}{4}
+\contentsline {subsection}{\numberline {2.2}Keywords}{4}
+\contentsline {subsection}{\numberline {2.3}Constants}{4}
+\contentsline {subsubsection}{\numberline {2.3.1}Integer Constants}{4}
+\contentsline {subsubsection}{\numberline {2.3.2}Character Constants}{4}
+\contentsline {subsubsection}{\numberline {2.3.3}Real Number Constants}{4}
+\contentsline {subsubsection}{\numberline {2.3.4}String Constants}{5}
+\contentsline {subsection}{\numberline {2.4}Operators}{5}
+\contentsline {subsection}{\numberline {2.5}White Space}{5}
+\contentsline {subsection}{\numberline {2.6}Comments}{5}
+\contentsline {section}{\numberline {3}Data Types}{5}
+\contentsline {subsection}{\numberline {3.1}Primitives}{5}
+\contentsline {subsubsection}{\numberline {3.1.1}Integer Types}{5}
+\contentsline {subsubsection}{\numberline {3.1.2}Character Type}{5}
+\contentsline {subsection}{\numberline {3.2}Structures}{5}
+\contentsline {subsubsection}{\numberline {3.2.1}Defining Structures}{6}
+\contentsline {subsubsection}{\numberline {3.2.2}Initializing Structures}{6}
+\contentsline {subsubsection}{\numberline {3.2.3}Accessing Structure Members}{6}
+\contentsline {subsection}{\numberline {3.3}Arrays}{6}
+\contentsline {subsubsection}{\numberline {3.3.1}Defining Arrays}{6}
+\contentsline {subsubsection}{\numberline {3.3.2}Initializing Arrays}{6}
+\contentsline {subsubsection}{\numberline {3.3.3}Accessing Array Elements}{7}
+\contentsline {subsubsection}{\numberline {3.3.4}Multidimensional Arrays}{7}
+\contentsline {subsubsection}{\numberline {3.3.5}Arrays of Structures}{7}
+\contentsline {section}{\numberline {4}Expressions and Operators}{8}
+\contentsline {subsection}{\numberline {4.1}Expressions}{8}
+\contentsline {subsection}{\numberline {4.2}Assignment Operators}{8}
+\contentsline {subsection}{\numberline {4.3}Incrementing and Decrementing}{8}
+\contentsline {subsection}{\numberline {4.4}Arithmetic Operators}{8}
+\contentsline {subsection}{\numberline {4.5}Comparison Operators}{8}
+\contentsline {subsection}{\numberline {4.6}Logical Operators}{9}
+\contentsline {subsection}{\numberline {4.7}Operator Precedence}{9}
+\contentsline {subsection}{\numberline {4.8}Order of Evaluation}{9}
+\contentsline {section}{\numberline {5}Statements}{9}
+\contentsline {subsection}{\numberline {5.1}If Statement}{9}
+\contentsline {subsection}{\numberline {5.2}While Statement}{9}
+\contentsline {subsection}{\numberline {5.3}For Statement}{9}
+\contentsline {subsection}{\numberline {5.4}Code Blocks}{10}
+\contentsline {subsection}{\numberline {5.5}Return Statement}{10}
+\contentsline {section}{\numberline {6}Functions}{10}
+\contentsline {subsection}{\numberline {6.1}Function Declarations}{10}
+\contentsline {subsection}{\numberline {6.2}Calling Functions}{10}
+\contentsline {subsection}{\numberline {6.3}Function Parameters}{10}
+\contentsline {subsection}{\numberline {6.4}Main Function}{10}
+\contentsline {subsection}{\numberline {6.5}Recursive Functions}{10}
+\contentsline {section}{\numberline {7}Program Structure and Scope}{10}
+\contentsline {subsection}{\numberline {7.1}Program Structure}{10}
+\contentsline {subsection}{\numberline {7.2}Scope}{10}
+\contentsline {section}{\numberline {8}A Sample Program}{10}
