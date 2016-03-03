@@ -120,18 +120,70 @@ Operators are special tokens such as multiply, equals, etc. that are applied to 
 \subsection{White Space}
 
 \section{Data Types}
+The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays.
 
 \subsection{Primitives}
 % Define primitives and values they can hold
+\subsubsection{Integer Types}
+The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 to 2,147,483,647$. Keyword 'int' is required to declare a variable with this type. 
+\begin{lstlisting}
+int a = 10;
+int b = a + 10;
+\end{lstlisting}
+
+\subsubsection{Character Type}
+The character type is an 8 bit value that is used to hold a single character. The keyword ``char'' is used to declare a variable with this type. 
+\begin{lstlisting}
+char c = 'h';
+char b = 'e';
+char d = 'l';
+\end{lstlisting}
 
 \subsection{Structures}
 % I.e. structs
+The structure data type is a collection of primitive types and other structures. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is made of. As an example, consider the following:
 
 \subsubsection{Defining Structures}
 
+\begin{lstlisting}
+
+struct person = {
+string name;
+int age;
+int height;
+};
+
+
+struct manager = {
+struct person name;
+int salary;
+};
+
+
+\end{lstlisting}
+This syntax is very similar to C.
+
 \subsubsection{Initializing Structures}
+To create instances of structs: 
+\begin{lstlisting}
+struct manager yahoo_manager;
+struct person sam;
+\end{lstlisting}
+
+Here, we create two variables yahoo\_manager and sam. The former is of type ``struct manager'', and the latter is of type ``struct person''.
 
 \subsubsection{Accessing Structure Members}
+
+ To access structs and modify its variables , a period following by the variable name is used:
+
+ \begin{lstlisting}
+ yahoo_manager.name = sam;
+yahoo_manager.age = 45;
+yahoo_manager = 65000;
+\end{lstlisting}
+
+Ultimately, all structures are backed by some collection of primitives. For example, the first struct, manager, is made up of another struct and an int. Since the struct person is made up of two ints, manager is really just made up of three ints.
+
 
 \subsection{Arrays}
 
