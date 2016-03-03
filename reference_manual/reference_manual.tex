@@ -112,6 +112,7 @@ Keywords are a set of words that serve a specific purpose in our language and ma
 
 \subsection{Operators}
 % Just note they can be used, will be explained more later
+Operators are special tokens such as multiply, equals, etc. that are applied to one or two operands.  Their use will be explained further in chapter 4.
 
 \subsection{Separators}
 % List all seperators we use including, but not limted to, ( ) [ ] { } ; , . :
@@ -148,24 +149,64 @@ Text
 \section{Expressions and Operators}
 
 \subsection{Expressions}
+An expression is a collection of one or more operands and zero or more operators that can be evaluated to produce a value.  A function that returns a value can be an operand as part of an expression.  Additionally, parenthesis can be used to group smaller expressions together as part of a larger expression.  A semicolon terminates an expression.  Some examples of expressions include:
+\begin{itemize}
+\item \texttt{35 - 6};
+\item \texttt{foo(42) * 10};
+\item \texttt{8 - (9 / (2 + 1))};
+\end{itemize}
 
 \subsection{Assignment Operators}
 % =, +=, -=, etc
+Assignment can be used to assign the value of an expression on the right side to a named variable on the left hand side of the equals operator.  The left hand side can either be a named variable that has already been declared or a named variable that is being declared and initialized in this assignment.  Examples include:
+
+\begin{itemize}
+\item \texttt{int x = 5};
+\item \texttt{float y};
+
+\texttt{y = 9.9};
+\end{itemize}
+
+Additionally, the following operators can also be used for variations of assignment:
+
+\begin{itemize}
+\item \texttt{+=} increments the left hand side by the result of the right hand side
+\item \texttt{-=} decrements the left hand side by the result of the right hand side
+\end{itemize}
 
 \subsection{Incrementing and Decrementing}
 % ++, --, etc.
+This can be done using the \texttt{++} operator to increment and the \texttt{--} operator to decrement a value.  If the operator is placed before a value it will be incrememnted / decremented first, then it will be evaluated.  If the operator is placed following a value, it will be evaluated with its original value and then incremented / decremented.
 
 \subsection{Arithmetic Operators}
 % +, -, ...
+\begin{itemize}
+\item \texttt{+} can be used for addition
+\item \texttt{-} can be used for subtraction (on two operands) and negation (on one operand)
+\item \texttt{*} can be used for multiplication
+\item \texttt{/} can be used for division
+\item \texttt{$\wedge$} can be used for exponents
+\item \texttt{$\%$} can be used for modular division
+\end{itemize}
 
 \subsection{Comparison Operators}
 % ==, >, <, etc.
+\begin{itemize}
+\item \texttt{==} can be used to evaluate equality
+\item \texttt{!=} can be used to evaluate inequality
+\item \texttt{>} can be used to evaluate is the left greater than the right
+\item \texttt{>=} can be used to evaluate is the left greater than or equal to the right
+\item \texttt{<} can be used to evaluate is the left less than the right
+\item \texttt{<=} can be used to evaluate is the left less than or equal to the right
+\end{itemize}
 
 \subsection{Logical Operators}
 % &&, ||
-
-\subsection{Comma Operator}
-% , for sequencing
+\begin{itemize}
+\item \texttt{!} can be used to evaluate the negation of one expression
+\item \texttt{$\&\&$} can be used to evaluate logical and
+\item \texttt{$\vert\vert$} can be used to evaluate logical or
+\end{itemize}
 
 \subsection{Operator Precedence}
 
