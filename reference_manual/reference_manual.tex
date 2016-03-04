@@ -516,6 +516,12 @@ else {
 }
 \end{lstlisting}
 
+The grammar that recognizes an if statement is as follows:
+\begin{Verbatim}[frame=single]
+IF LPAREN expr RPAREN stmt ELSE stmt
+IF LPAREN expr RPAREN stmt %prec NOELSE
+\end{Verbatim}
+
 \subsection{While Statement}
 The while statement will evaluate in a loop as long as the specified condition in the while statement is true.
 
@@ -527,6 +533,11 @@ while (x < 10) {
 	x++;
 }
 \end{lstlisting}
+
+The grammar that recognizes a while statement is as follows:
+\begin{Verbatim}[frame=single]
+WHILE LPAREN expr RPAREN stmt
+\end{Verbatim}
 
 \subsection{For Statement}
 The for condition will also run in a loop so long as the condition specified in the for statement is true.  The expectation for a for statement is as follows:
@@ -549,6 +560,11 @@ for (i = 0; i < 100; i += 2) {
 }
 \end{lstlisting}
 
+The grammar that recognizes a for statement is as follows:
+\begin{Verbatim}[frame=single]
+FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN
+\end{Verbatim}
+
 \subsection{Code Blocks}
 % Code within braces
 Blocks are code that is contained within a pair of brackets, \texttt{\{ code \}}, that gets executed within a statement.  For example, any code blocks that follow an \texttt{if} statement will get executed if the \texttt{if} condition is evaluated as true:
@@ -563,6 +579,11 @@ if (x == 42) {
 }
 \end{lstlisting}
 
+The grammar that recognizes a block of code is as follows:
+\begin{Verbatim}[frame=single]
+LBRACE stmt RBRACE
+\end{Verbatim}
+
 \subsection{Return Statement}
 The \texttt{return} statement is used to exit out of a function and return a value.  The return value must be the same type that is specified by the function deceleration.  Return can be used as follows:
 
@@ -572,6 +593,12 @@ func int someValue(int x) {
 	return x;
 }
 \end{lstlisting}
+
+The grammar that recognizes a return statement is as follows:
+\begin{Verbatim}[frame=single]
+RETURN SEMI
+RETURN expr SEMI
+\end{Verbatim}
 
 \section{Functions}
 Functions allow you to group snippets of code together that can subsequently be called from other parts of your program, depending on scope. Functions are global, unless they are prepended with the keyword ``private''. While not necessary, it is encouraged that you declare functions before defining them. Functions are usually declared at the top of the file they're defined in. Functions that aren't declared can only be called after they have been defined. 
@@ -736,13 +763,5 @@ int b = 10;
 As explained in the comments, the ``using'' section is matched up with the second test case.
 \\
 Test cases are compiled into a separate program which can subsequently be run. The program will run all test cases and output appropriate information. 
-
-\section{Program Structure and Scope}
-
-\subsection{Program Structure}
-
-\subsection{Scope}
-
-\section{A Sample Program}
 
 \end{document}
