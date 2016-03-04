@@ -26,6 +26,7 @@ let rec eval_prog prog =
 	| p1::p2 -> let next_stmt = p1 in
 		match next_stmt with
 		  Func(x) -> eval_fun x
+		| Struct(x) -> "" (*TODO: Make this work*)
 		| Var(x) -> ""
 	
 
