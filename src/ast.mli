@@ -1,7 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 type uop = Neg | Not
 type prim = Int | Double | String | Void
-type typ = Primitive of prim | Struct_typ
+type typ = Primitive of prim | Struct_typ | Func_typ
 type bind = typ * string
 
 type expr =
@@ -10,6 +10,7 @@ type expr =
 	| Unop 		of uop * expr
 	| Assign 	of string * expr
 	| Noexpr
+	| Id of string
 
 type stmt =
 	  Block of stmt list   
