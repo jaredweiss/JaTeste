@@ -4,7 +4,7 @@
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token FUNC
 %token WTEST USING STRUCT DOT
-%token EQ NEQ LT LEQ GT GEQ
+%token EQ NEQ LT LEQ GT GEQ AND OR
 %token INT DOUBLE VOID CHAR STRING
 %token RETURN IF ELSE WHILE FOR
 
@@ -15,9 +15,15 @@
 %token <string> ID
 %token EOF
 
-%left PLUS MINUS
-%left TIMES DIVIDE
-%right ASSIGN
+%nonassoc ELSE 
+%right ASSIGN 
+%left OR
+%left AND
+%left EQ NEQ
+%left LT GT LEQ GEQ 
+%left PLUS MINUS 
+%left TIMES DIVIDE 
+%right NOT NEG
 
 %start program
 %type<Ast.program> program
@@ -36,7 +42,7 @@ typ:
 	  | DOUBLE 	{ Primitive(Double) }
 	  | INT 	{ Primitive(Int) }
 	  | VOID 	{ Primitive(Void) }
-	  | STRUCT  	{ Struct }
+	  | STRUCT  	{ Struct_typ }
 
 fdecl:
 	  FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
@@ -72,7 +78,17 @@ stmt:
 
 
 expr:
-	  INT_LITERAL { Lit($1)}
-	| expr PLUS expr { Binop($1, Add, $3) }
-	| expr MINUS expr { Binop($1, Sub, $3) }
-	| ID ASSIGN expr { Assign($1, $3) }
+	  INT_LITERAL 		{ Lit($1)}
+	| expr PLUS expr 	{ Binop($1, Add, $3) }
+	| expr MINUS expr 	{ Binop($1, Sub, $3) }
+	| expr TIMES expr 	{ Binop($1, Mult, $3)}
+	| expr DIVIDE expr 	{ Binop($1, Div, $3)}
+	| expr EQ  expr 	{ Binop($1, Equal, $3)}
+	| expr NEQ  expr 	{ Binop($1, Neq, $3)}
+	| expr LT expr 		{ Binop($1, Less, $3)}
+	| expr LEQ  expr 	{ Binop($1, Leq, $3)}
+	| expr GT expr 		{ Binop($1, Greater, $3)}
+	| expr GEQ expr 	{ Binop($1, Geq, $3)}
+	| expr AND  expr 	{ Binop($1, And, $3)}
+	| expr OR expr 		{ Binop($1, Or, $3)}
+	| ID ASSIGN expr 	{ Assign($1, $3) }

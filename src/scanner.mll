@@ -41,7 +41,7 @@ rule token = parse
 	| "while" 		{ WHILE }
 	| "for"			{ FOR }
 	| "func" 		{ FUNC }
-	| "with test" 	{ WTEST }
+	| "with test" 		{ WTEST }
 	| "using"		{ USING }
 	| ['a' - 'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm)}
 	| int as lxm   		{ INT_LITERAL(int_of_string lxm)}
