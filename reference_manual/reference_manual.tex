@@ -290,7 +290,7 @@ struct inventory in_array[3];
 
 \end{lstlisting}
 
-To initialize the elements in a struct array, brackets are used to surround the memebers associated with each struct element. Here is an example:
+To initialize the elements in a struct array, brackets are used to surround the members associated with each struct element. Here is an example:
 
  \begin{lstlisting}
 struct inventory in_array[3] = { {1, 1.0}, {2, 2.0}, {3, 3.0} };
@@ -331,7 +331,7 @@ Additionally, the following operators can also be used for variations of assignm
 
 \subsection{Incrementing and Decrementing}
 % ++, --, etc.
-This can be done using the \texttt{++} operator to increment and the \texttt{--} operator to decrement a value.  If the operator is placed before a value it will be incrememnted / decremented first, then it will be evaluated.  If the operator is placed following a value, it will be evaluated with its original value and then incremented / decremented.
+This can be done using the \texttt{++} operator to increment and the \texttt{--} operator to decrement a value.  If the operator is placed before a value it will be incremented / decremented first, then it will be evaluated.  If the operator is placed following a value, it will be evaluated with its original value and then incremented / decremented.
 
 \subsection{Arithmetic Operators}
 % +, -, ...
@@ -445,16 +445,168 @@ func int someValue(int x) {
 \end{lstlisting}
 
 \section{Functions}
+Functions allow you to group snippets of code together that can subsequently be called from other parts of your program, depending on scope. Functions are global, unless they are prepended with the keyword ``private''. While not necessary, it is encouraged that you declare functions before defining them. Functions are usually declared at the top of the file they're defined in. Functions that aren't declared can only be called after they have been defined. 
 
 \subsection{Function Declarations}
 
+The keyword ``func'' is used to declare a function. A return type is also required using keyword ``return''; if your function doesn't return anything then use keyword ``void'' instead.  Functions are declared with or without parameters; if parameters are used, their types must be specified. A function can be defined with multiple, different parameters. Though a function can only have one return type, it can also be any data type. 
+
+\begin{lstlisting}
+func int add(int a, int b); /* this functions has two int parameters as input and returns an int */
+func void say_hi(); /* this function doesn't return anything nor takes any parameters */
+func int isSam(string name, int age); /* this functions has two input parameters, one of type string and one of type int */
+
+\end{lstlisting}
+
+\subsection{Function Definitions}
+Function definitions contain the instructions to be performed when that function is called. The first part of the syntax is similar to how you declare functions; but curly brackets are used to define what the function actually does. For example, 
+
+\begin{lstlisting}
+func int add(int a, int b); /* declaration */
+
+func int add(int x, int y) /* definition */
+{
+return x + y;
+}
+\end{lstlisting}
+
+This snippet of code first declares add, and then defines it. Declaring before defining is best practice. Importantly, functions can \emph{not} reference global variables; that is, the only variables they can act on are formal parameters and local variables. For example:
+
+\begin{lstlisting}
+func int add_to_a(int x); /* declaration */
+int a = 10;
+func int add_to_a(int x) /* definition */
+{
+return x + a; /* this is NOT allowed */
+}
+\end{lstlisting}
+
+This code is no good because it relies on global variable ``a''. Functions can only reference formal parameters and/or local variables.
+
 \subsection{Calling Functions}
 
-\subsection{Function Parameters}
+A function is called using the name of the function along with any parameters it requires. You \emph{must} supply a function with the parameters it expects. For example, the following will not work:
 
-\subsection{Main Function}
+\begin{lstlisting}
+func int add(int a, int b); /* declaration */
+
+func int add(int x, int y) /* definition */
+{
+return x + y;
+}
+
+add(); /* this is wrong and will not compile because add expects two ints as parameters */
+
+\end{lstlisting}
+
+Functions can only be called after they have been declared and/or defined. Functions are first class objects and so can be used anywhere a normal data type can be used. Of course, a function's return type must be compatible with the context it's being used in. For example, a function that returns a char cannot be used as an actual parameter to a function that expects an int.  Consider the following:
+
+\begin{lstlisting}
+func int add_int(int a, int b); /* declaration */
+
+func int add_int(int x, int y) /* definition */
+{
+return x + y;
+}
+
+func float add_float(float x, float y)
+{
+	return x + y;
+}
+
+func int subtract(int x, int y)
+{
+	return x - y;
+}
+
+int answer = subtract(add(10,10), 10); /* this is ok */
+int answer2 = subtract(add_float(10.0,10.0), 10); /* this is NOT ok because subtract expects its first parameter to be an int while add_float returns a float */
+
+\end{lstlisting}
+
+\subsection{Function Parameters}
+Formal parameters can be any data type. Furthermore, they need not be of the same type. For example, the following is syntactically fine:
+
+\begin{lstlisting}
+func void speak(int age, string name)
+{
+	print_string ("My name is" + name + " and I am "  + age);
+}
+\end{lstlisting}
+While functions may be defined with multiple formal parameters, that number must be fixed. That is, functions cannot accept a variable number of arguments. 
+\\
+TODO: Are we passing by value or reference?
+
+% \subsection{Main Function}
+% Do we want a main function?
 
 \subsection{Recursive Functions}
+
+Functions can be used recursively. Each recursive call results in the creation of a new stack and new set of local variables. It is up to the programmer to prevent infinite loops. 
+
+\subsection{Function Test Cases}
+Functions can be appended with test cases directly in the source code. Most importantly, the test cases will be compiled into a separate (executable) file. The keyword ``with test'' is used to define a test case as illustrated here:
+
+\begin{lstlisting}
+func int add(int a, int b); /* declaration */
+
+func int add(int x, int y) /* definition */
+{
+return x + y;
+}
+with test {
+	add(1,2) == 3;
+	add(-1, 1) == 0;
+}
+with test {
+	add(0,0) <= 0;
+	add(0,0) >= 0; 
+}
+
+\end{lstlisting}
+Test cases contain a set of boolean expressions. Multiple boolean expressions can be defined, they just must be separated with semi-colons. As shown above, you can define separate test cases one after another too. \\ 
+Snippets of code can also be used to set up a given test case's enviornment using the ``using'' keyword. That is, ``using'' is used to define code that is executed right before the test case is run. Consider the following:
+
+\begin{lstlisting}
+func void changeAge(struct person temp_person, int age)
+{
+temp_person.age = age;
+}
+with test {
+	sam.age == 11;
+}
+using {
+struct person sam;
+sam.age = 10;
+changeAge(sam, 11);
+}
+\end{lstlisting}
+``using'' is used to create a struct and then call function changeAge; it is setting up the enviornment for it's corresponding test. Variables defined in the ``using'' section of code can safely be referenced in its corresponding test case as shown. Basically, the code in the ``using'' section is executed right before the boolean expressions are evaluated and tested. \\
+The ``using'' section is optional. As a result some test cases may contain ``using'' sections and others might not. As per convention, each ``using'' section will match up with its closest test case. For, example:
+
+\begin{lstlisting}
+
+func int add(int x, int y) /* definition */
+{
+return x + y;
+}
+with test { /*  variables a, b defined below are NOT in this test case's scope*/
+	add(1,2) == 3;
+	add(-1, 1) == 0;
+}
+with test { /* variables a and b ARE in this test case's scope */
+	add(a, b) == 20;
+}
+using {
+int a = 10;
+int b = 10;
+}
+
+\end{lstlisting}
+
+As explained in the comments, the ``using'' section is matched up with the second test case.
+\\
+Test cases are compiled into a separate program which can subsequently be run. The program will run all test cases and output appropriate information. 
 
 \section{Program Structure and Scope}
 
