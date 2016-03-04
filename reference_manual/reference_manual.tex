@@ -9,6 +9,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{verbatim}
+\usepackage{fancyvrb}
 \usepackage{listings} % for code highlighting/formatting
 
 \usepackage{color} %defining colors for syntax highlighting
@@ -98,7 +99,7 @@ Identifiers are used to name a variable, a function, or other types of data.  An
 % Just a list of reserved keywords
 Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
 
-\texttt{int char float struct if else for while break continue with test using func return string print}
+\texttt{int, char, double, struct, if, else, for, while, with test, using, func, return, string}
 
 \subsection{Constants}
 % How to define constants such as x = 5
@@ -106,46 +107,36 @@ Our language includes integer, character, real number, and string constants. The
 
 \subsubsection{Integer Constants}
 % We should specify all ways you can define an integer
-Integer constants are a sequence of digits. An integer is taken to be decimal. Here are some examples:
+Integer constants are a sequence of digits. An integer is taken to be decimal. The regular expression for an integer is as follows:
 
-13
+\begin{Verbatim}[frame=single]
+digit = ['0' - '9']
+int = digit+
+\end{Verbatim}
 
-1357
+\subsubsection{Double Constants}
+% Do we want to allow for only ints?  If yes, delete this section
+Real number constants represent a floating point number. They are composed of a sequence of digits, representing the whole number portion, followed by a decimal and another sequence of digits, representing the fractional part. Here are some examples. The whole part or the fractional part may be omitted, but not both.  The regular expression for a double is as follows:
 
-23
-
-987
+\begin{Verbatim}[frame=single]
+double = int | digit*['.']digit+ | digit+['.']digit*
+\end{Verbatim}
 
 \subsubsection{Character Constants}
 % Same for character
-Character constants hold a single character and are enclosed in single quotes. They are stored in a variable of type char. Character constants that are preceded with a backslash have special meaning. Here are some examples:
+Character constants hold a single character and are enclosed in single quotes. They are stored in a variable of type char. Character constants that are preceded with a backslash have special meaning. The regex for a character is as follows:
 
-'a'
-
-'$\backslash$n' newline
-
-'$\backslash$t' tab
-
-
-\subsubsection{Real Number Constants}
-% Do we want to allow for only ints?  If yes, delete this section
-Real number constants represent a floating point number. They are composed of a sequence of digits, representing the whole number portion, followed by a decimal and another sequence of digits, representing the fractional part. Here are some examples. The whole part or the fractional part may be omitted, but not both.
-
-3.14
-
-0.4
-
-.7
-
-8
+\begin{Verbatim}[frame=single]
+char = ['a' - 'z' 'A' - 'z']
+\end{Verbatim}
 
 \subsubsection{String Constants}
 % How to define a string constant
-Strings are a sequence of characters enclosed by double quotes. A String is treated like a character array. Here are some examples:
+Strings are a sequence of characters enclosed by double quotes. A String is treated like a character array. The regex for a string is as follows:
 
-``Hello, world!"
-
-``JaTeste"
+\begin{Verbatim}[frame=single]
+string = char*
+\end{Verbatim}
 
 \subsection{Operators}
 % Just note they can be used, will be explained more later
@@ -165,20 +156,60 @@ The data types in JaTeste can be classified into three categories: primitive typ
 
 \subsection{Primitives}
 % Define primitives and values they can hold
+The primitives our language recognizes are int, char, and string
+
 \subsubsection{Integer Types}
-The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword 'int' is required to declare a variable with this type. 
+The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword \texttt{int} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+
 \begin{lstlisting}
-int a = 10;
-int b = a + 10;
+int a;
+a = 10;
+a = 21 * 2;
 \end{lstlisting}
 
+The grammar that recognizes an integer deceleration is: 
+\begin{Verbatim}[frame=single]
+typ ID
+\end{Verbatim}
+
+The grammar that recognizes an integer initialization is: 
+\begin{Verbatim}[frame=single]
+ID ASSIGN expr
+\end{Verbatim}
+
 \subsubsection{Character Type}
-The character type is an 8 bit value that is used to hold a single character. The keyword ``char'' is used to declare a variable with this type. 
+The character type is an 8 bit value that is used to hold a single character. The keyword \texttt{char} is used to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
 \begin{lstlisting}
-char c = 'h';
-char b = 'e';
-char d = 'l';
+char a;
+a = 'h';
 \end{lstlisting}
+
+The grammar that recognizes a char deceleration is: 
+\begin{Verbatim}[frame=single]
+typ ID SEMI
+\end{Verbatim}
+
+The grammar that recognizes a char initialization is: 
+\begin{Verbatim}[frame=single]
+typ ID ASSIGN expr SEMI
+\end{Verbatim}
+
+\subsubsection{String Type}
+The string type is variable length and used to hold a string of chars.  The keyword \texttt{string} is used to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+\begin{lstlisting}
+string a;
+a = "hello";
+\end{lstlisting}
+
+The grammar that recognizes a char deceleration is: 
+\begin{Verbatim}[frame=single]
+typ ID SEMI
+\end{Verbatim}
+
+The grammar that recognizes a char initialization is: 
+\begin{Verbatim}[frame=single]
+typ ID ASSIGN expr SEMI
+\end{Verbatim}
 
 \subsection{Structures}
 % I.e. structs
@@ -187,22 +218,22 @@ The structure data type is a collection of primitive types and other structure d
 \subsubsection{Defining Structures}
 
 \begin{lstlisting}
-
 struct person = {
 string name;
 int age;
 int height;
 };
 
-
 struct manager = {
 struct person name;
 int salary;
 };
-
-
 \end{lstlisting}
-Here we have defined two structs, the first being of type ``struct person'' and the second of type ``struct manager''. 
+Here we have defined two structs, the first being of type \texttt{struct person} and the second of type \texttt{struct manager}.  The grammar that recognizes defining a structure is as follows:
+
+\begin{Verbatim}[frame=single]
+STRUCT STRING_LITERAL ASSIGN LBRACE vdecl_list RBRACE
+\end{Verbatim}
 
 \subsubsection{Initializing Structures}
 To create a structure, the struct type is followed by a variable name. 
@@ -313,14 +344,25 @@ foo(42) * 10;
 8 - (9 / (2 + 1) );
 \end{lstlisting}
 
+The regex for an expression is as follows:
+\begin{Verbatim}[frame=single]
+expr SEMI
+\end{Verbatim}
+
 \subsection{Assignment Operators}
 % =, +=, -=, etc
 Assignment can be used to assign the value of an expression on the right side to a named variable on the left hand side of the equals operator.  The left hand side can either be a named variable that has already been declared or a named variable that is being declared and initialized in this assignment.  Examples include:
 \begin{lstlisting}
-int x = 5;
+int x;
+x = 5;
 float y;
 y = 9.9;
 \end{lstlisting}
+
+The grammar for assignment is as follows:
+\begin{Verbatim}[frame=single]
+ID ASSIGN expr
+\end{Verbatim}
 
 Additionally, the following operators can also be used for variations of assignment:
 
@@ -340,6 +382,14 @@ This can be done using the \texttt{++} operator to increment and the \texttt{--}
 \item \texttt{-} can be used for subtraction (on two operands) and negation (on one operand)
 \item \texttt{*} can be used for multiplication
 \item \texttt{/} can be used for division
+
+The grammar for the above operators, in order, is as follows:
+\begin{Verbatim}[frame=single]
+expr PLUS     expr
+expr MINUS    expr
+expr TIMES    expr
+expr DIVIDE   expr
+\end{Verbatim}
 \item \texttt{$\wedge$} can be used for exponents
 \item \texttt{$\%$} can be used for modular division
 \end{itemize}
@@ -349,10 +399,20 @@ This can be done using the \texttt{++} operator to increment and the \texttt{--}
 \begin{itemize}
 \item \texttt{==} can be used to evaluate equality
 \item \texttt{!=} can be used to evaluate inequality
-\item \texttt{>} can be used to evaluate is the left greater than the right
-\item \texttt{>=} can be used to evaluate is the left greater than or equal to the right
 \item \texttt{<} can be used to evaluate is the left less than the right
 \item \texttt{<=} can be used to evaluate is the left less than or equal to the right
+\item \texttt{>} can be used to evaluate is the left greater than the right
+\item \texttt{>=} can be used to evaluate is the left greater than or equal to the right
+
+The grammar for the above operators, in order, is as follows:
+\begin{Verbatim}[frame=single]
+expr EQ    expr
+expr NEQ   expr
+expr LT    expr
+expr LEQ   expr
+expr GT    expr
+expr GEQ   expr
+\end{Verbatim}
 \end{itemize}
 
 \subsection{Logical Operators}
@@ -362,6 +422,13 @@ This can be done using the \texttt{++} operator to increment and the \texttt{--}
 \item \texttt{$\&\&$} can be used to evaluate logical and
 \item \texttt{$\vert\vert$} can be used to evaluate logical or
 \end{itemize}
+
+The grammar for the above operators, in order, is as follows:
+\begin{Verbatim}[frame=single]
+NOT  expr
+expr AND  expr
+expr OR   expr
+\end{Verbatim}
 
 \subsection{Operator Precedence}
 
