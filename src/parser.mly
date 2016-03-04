@@ -1,9 +1,9 @@
 %{ open Ast %}
 
-%token LPAREN RPAREN LBRACE RBRACE SEMI
+%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token FUNC
-%token WTEST USING STRUCT
+%token WTEST USING STRUCT DOT
 %token EQ NEQ LT LEQ GT GEQ
 %token INT DOUBLE VOID CHAR STRING
 %token RETURN IF ELSE WHILE FOR
@@ -29,12 +29,14 @@ decls:
 	/* nothing */ 	{ [] } 
 	| decls fdecl   { Func($2)::$1 }
 	| decls vdecl   { Var($2)::$1 }
+	| decls sdecl   { Struct($2)::$1 }
 
 typ:
-	    INT { Int }
-	  | STRING { String }
-	  | DOUBLE { Double }
-	  | VOID { Void }
+	  | STRING 	{ Primitive(String) }
+	  | DOUBLE 	{ Primitive(Double) }
+	  | INT 	{ Primitive(Int) }
+	  | VOID 	{ Primitive(Void) }
+	  | STRUCT  	{ Struct }
 
 fdecl:
 	  FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
@@ -50,9 +52,16 @@ testdecl:
 usingdecl:
 	USING LBRACE stmt_list RBRACE { }
 
+vdecl_list: 
+	  /* nothing */ { [] }
+	| vdecl_list vdecl { $2::$1}
 
 vdecl:
 	typ ID SEMI {($1, $2) }
+
+sdecl:
+	STRUCT STRING_LITERAL ASSIGN LBRACE vdecl_list RBRACE {{
+		sname = $2; attributes = $5 }}
 
 stmt_list:
 	  /* nothing */ { [] }
@@ -60,6 +69,7 @@ stmt_list:
 
 stmt:
 	  expr SEMI { Expr $1 }
+
 
 expr:
 	  INT_LITERAL { Lit($1)}
