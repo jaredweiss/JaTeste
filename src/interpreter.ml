@@ -6,12 +6,15 @@ let rec eval_expr = function
 	| Assign(x, y) -> x ^ " = " ^ (eval_expr y)
 	| Binop(e1, op, e2) ->
 		let v1 = eval_expr e1 and v2 = eval_expr e2 in
-		match op with
+		(match op with
 		  Add -> v1 ^ "+"^ v2
 		| Sub -> v1 ^ "-"^ v2
+		| _ -> "")
+	| _ -> ""
 
 let rec eval_stmts = function
-	  Expr(x) -> eval_expr x
+	    Expr(x) -> eval_expr x
+	  | _ -> ""
 
 let rec eval_fun func1 = 
 		let fname = func1.fname in
@@ -27,7 +30,7 @@ let rec eval_prog prog =
 		match next_stmt with
 		  Func(x) -> eval_fun x
 		| Struct(x) -> "" (*TODO: Make this work*)
-		| Var(x) -> ""
+		| _ -> ""
 	
 
 
