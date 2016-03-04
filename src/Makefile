@@ -17,9 +17,6 @@ parser.ml parser.mli : parser.mly
 %.cmi : %.mli
 	ocamlc -c $<
 
-interpreter.tar.gz : $(TARFILES)
-	cd .. && tar zcf src/interpreter.tar.gz $(TARFILES:%=interpreter/%)
-
 .PHONY : clean
 clean :
 	rm -f interpreter parser.ml parser.mli scanner.ml *.cmo *.cmi
