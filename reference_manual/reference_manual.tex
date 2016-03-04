@@ -143,9 +143,9 @@ Real number constants represent a floating point number. They are composed of a 
 % How to define a string constant
 Strings are a sequence of characters enclosed by double quotes. A String is treated like a character array. Here are some examples:
 
-"Hello, world!"
+``Hello, world!"
 
-"JaTeste"
+``JaTeste"
 
 \subsection{Operators}
 % Just note they can be used, will be explained more later
@@ -156,6 +156,9 @@ Whitespace is considered to be a space, tab, or newline. It is used for token de
 
 \subsection{Comments}
 A comment is a sequence of characters beginning with a forward slash followed by an asterisk. It continues until it is ended with an asterisk followed by a forward slash. Comments are treated as whitespace. 
+\begin{lstlisting}
+/* this is a comment */
+\end{lstlisting}
 
 \section{Data Types}
 The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays.
@@ -163,7 +166,7 @@ The data types in JaTeste can be classified into three categories: primitive typ
 \subsection{Primitives}
 % Define primitives and values they can hold
 \subsubsection{Integer Types}
-The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 to 2,147,483,647$. Keyword 'int' is required to declare a variable with this type. 
+The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword 'int' is required to declare a variable with this type. 
 \begin{lstlisting}
 int a = 10;
 int b = a + 10;
@@ -179,7 +182,7 @@ char d = 'l';
 
 \subsection{Structures}
 % I.e. structs
-The structure data type is a collection of primitive types and other structures. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is made of. As an example, consider the following:
+The structure data type is a collection of primitive types and other structure data types. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is made of. As an example, consider the following:
 
 \subsubsection{Defining Structures}
 
@@ -199,28 +202,28 @@ int salary;
 
 
 \end{lstlisting}
-This syntax is very similar to C.
+Here we have defined two structs, the first being of type ``struct person'' and the second of type ``struct manager''. 
 
 \subsubsection{Initializing Structures}
-To create instances of structs: 
+To create a structure, the struct type is followed by a variable name. 
 \begin{lstlisting}
 struct manager yahoo_manager;
 struct person sam;
 \end{lstlisting}
 
-Here, we create two variables yahoo\_manager and sam. The former is of type ``struct manager'', and the latter is of type ``struct person''.
+Here, we create two variables yahoo\_manager and sam. The first is of type ``struct manager'', and the second is of type ``struct person''.
 
 \subsubsection{Accessing Structure Members}
 
- To access structs and modify its variables , a period following by the variable name is used:
+ To access structs and modify its variables, a period following by the variable name is used:
 
  \begin{lstlisting}
- yahoo_manager.name = sam;
+yahoo_manager.name = sam;
 yahoo_manager.age = 45;
-yahoo_manager = 65000;
+yahoo_manager.salary = 65000;
 \end{lstlisting}
 
-Ultimately, all structures are backed by some collection of primitives. For example, the first struct, manager, is made up of another struct and an int. Since the struct person is made up of two ints, manager is really just made up of three ints.
+Ultimately, all structures are backed by some collection of primitives. For example, the first structure, ``struct manager'', is made up of another struct and an int. Since ``struct person'' is made up of two ints, ``struct manager'' is really just made up of three ints. 
 
 
 \subsection{Arrays}
