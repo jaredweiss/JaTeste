@@ -1,6 +1,6 @@
 type op = Add | Sub
 
-type typ = Int | Void
+type typ = Int | Double | String | Void 
 type bind = typ * string
 
 type expr =

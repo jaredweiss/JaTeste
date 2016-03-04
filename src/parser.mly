@@ -32,6 +32,8 @@ decls:
 
 typ:
 	    INT { Int }
+	  | STRING { String }
+	  | DOUBLE { Double }
 	  | VOID { Void }
 
 fdecl:
@@ -47,7 +49,6 @@ testdecl:
 
 usingdecl:
 	USING LBRACE stmt_list RBRACE { }
-
 
 
 vdecl:
