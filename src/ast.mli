@@ -7,10 +7,17 @@ type bind = typ * string
 type expr =
 	  Lit 		of int
 	| Binop 	of expr * op * expr
+	| Unop 		of uop * expr
 	| Assign 	of string * expr
+	| Noexpr
 
 type stmt =
-	Expr of expr
+	  Block of stmt list   
+	| Expr of expr
+	| If of expr * stmt * stmt
+	| While of expr * stmt
+	| For of expr * expr * expr
+	| Return of expr
 
 type func_decl = {
 	typ		:	typ;

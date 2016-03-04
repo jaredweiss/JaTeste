@@ -1,7 +1,7 @@
 %{ open Ast %}
 
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
-%token PLUS MINUS TIMES DIVIDE ASSIGN
+%token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token FUNC
 %token WTEST USING STRUCT DOT
 %token EQ NEQ LT LEQ GT GEQ AND OR
@@ -15,6 +15,7 @@
 %token <string> ID
 %token EOF
 
+%nonassoc NOELSE 
 %nonassoc ELSE 
 %right ASSIGN 
 %left OR
@@ -38,11 +39,11 @@ decls:
 	| decls sdecl   { Struct($2)::$1 }
 
 typ:
-	  | STRING 	{ Primitive(String) }
-	  | DOUBLE 	{ Primitive(Double) }
-	  | INT 	{ Primitive(Int) }
-	  | VOID 	{ Primitive(Void) }
-	  | STRUCT  	{ Struct_typ }
+	| STRING 	{ Primitive(String) }
+	| DOUBLE 	{ Primitive(Double) }
+	| INT 		{ Primitive(Int) }
+	| VOID 		{ Primitive(Void) }
+	| STRUCT  	{ Struct_typ }
 
 fdecl:
 	  FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
@@ -74,7 +75,14 @@ stmt_list:
 	| stmt_list stmt { $2::$1}
 
 stmt:
-	  expr SEMI { Expr $1 }
+	    expr SEMI { Expr $1 }
+	  | LBRACE stmt RBRACE				   { $2 }
+	  | IF LPAREN expr RPAREN stmt ELSE stmt 	   { If($3, $5, $7) }
+	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	   { If($3, $5, Block([])) }
+	  | WHILE LPAREN expr RPAREN stmt 		   { While($3, $5) }
+  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN { For($3, $5, $7)}
+	  | RETURN SEMI					   { Return Noexpr}
+	  | RETURN expr SEMI				   { Return $2 }
 
 
 expr:
@@ -91,4 +99,10 @@ expr:
 	| expr GEQ expr 	{ Binop($1, Geq, $3)}
 	| expr AND  expr 	{ Binop($1, And, $3)}
 	| expr OR expr 		{ Binop($1, Or, $3)}
+	| NOT expr		{ Unop(Not, $2) }
 	| ID ASSIGN expr 	{ Assign($1, $3) }
+	| LBRACE expr RBRACE    { $2 }
+
+expr_opt:
+	  /* nothing */ { Noexpr }
+	| expr 		{ $1 }
