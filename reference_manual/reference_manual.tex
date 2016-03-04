@@ -8,7 +8,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-\usepackage{verbatim}
+\usepackage{fancyvrb}
 \usepackage{listings} % for code highlighting/formatting
 
 \usepackage{color} %defining colors for syntax highlighting
@@ -94,6 +94,11 @@ This chapter will describe how input code will be processed and how tokens will 
 % Specs on how to name variables, functions, data types, etc.
 Identifiers are used to name a variable, a function, or other types of data.  An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters.
 
+\begin{Verbatim}[frame=single]
+ID = "(['a'-'z' 'A'-'Z'] | '_') (['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_')*"
+\end{Verbatim}
+
+
 \subsection{Keywords}
 % Just a list of reserved keywords
 Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
@@ -154,11 +159,23 @@ Operators are special tokens such as multiply, equals, etc. that are applied to 
 \subsection{White Space}
 Whitespace is considered to be a space, tab, or newline. It is used for token delimitation, but has no meaning otherwise. 
 
+\begin{Verbatim}[frame=single]WHITESPACE = "[' '  '\t' '\r' '\n']"\end{Verbatim}
+
 \subsection{Comments}
 A comment is a sequence of characters beginning with a forward slash followed by an asterisk. It continues until it is ended with an asterisk followed by a forward slash. Comments are treated as whitespace. 
-\begin{lstlisting}
-/* this is a comment */
-\end{lstlisting}
+\begin{Verbatim}[frame=single]COMMENT = "/\* [^ \*/]* \*/ "\end{Verbatim}
+
+\subsection{Separators}
+Separators are used to separate tokens. Separators are single character tokens, except for whitespace which is a separator, but not a token. 
+\begin{Verbatim}[frame=single]'('	{ LPAREN }
+')'	{ RPAREN }
+'{'	{ LBRACE }
+'}'	{ RBRACE }
+';'	{ SEMI }
+'['	{ LBRACKET }
+']'	{ RBRACKET }
+'.'	{ DOT }
+','	{ COMMA }\end{Verbatim}
 
 \section{Data Types}
 The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays.
@@ -232,15 +249,19 @@ An array is a data structure that allows for the storage of one or more elements
 \subsubsection{Defining Arrays}
 An array is declared by specifying its data type, name, and size. The size must be positive. Here is an example of declaring an integer array of size 10:
 
+\begin{Verbatim}[frame=single]typ ID LBRACKET INT RBRACKET\end{Verbatim}
+
  \begin{lstlisting}
-int arr[10];
+int arr[5];
 \end{lstlisting}
 
 \subsubsection{Initializing Arrays}
-An array can be declared and initialized in the same line, by listing the element values separated by commas and surrounded by brackets. Here is an example:
+An array can be initialized by declared and initialized in the same line, by listing the element values separated by commas and surrounded by brackets. Here is an example:
+
+\begin{Verbatim}[frame=single]ID ASSIGN LBRACE expr RBRACE\end{Verbatim}
 
  \begin{lstlisting}
-int arr[5] = { 0, 1, 2, 3, 4 };
+arr = { 0, 1, 2, 3, 4 };
 \end{lstlisting}
 
 It is not required to initialize all of the elements. Elements that are not initialized will have a default value of zero. For example in this array, arr[3] and arr[4] would have a value of 0:
@@ -251,6 +272,8 @@ int arr[5] = { 0, 1, 2 };
 
 \subsubsection{Accessing Array Elements}
 To access an element in an array, use the array name followed by the element index surrounded by square brackets. Here is an example that assigns the value 1 to the first element (at index 0) in the array:
+
+\begin{Verbatim}[frame=single]ID LBRACKET INT RBRACKET ASSIGN expr\end{Verbatim}
 
  \begin{lstlisting}
 arr[0] = 1;
@@ -265,7 +288,14 @@ arr[5] = 1;
 
 
 \subsubsection{Multidimensional Arrays}
-A multidimensional array is an array of arrays. To declare a multidimensional array, add another square bracket pair indicating the size for each dimension. Here is an example of declaring and initializing a 2D array that holds 3 elements per dimension:
+A multidimensional array is an array of arrays. To declare a multidimensional array, add another square bracket pair indicating the size for each dimension. 
+
+\begin{Verbatim}[frame=single]typ ID LBRACKET INT RBRACKET LBRACKET INT RBRACKET\end{Verbatim}
+
+
+Here is an example of declaring and initializing a 2D array that holds 3 elements per dimension:
+
+\begin{Verbatim}[frame=single]typ ID LBRACKET INT RBRACKET LBRACKET INT RBRACKET ASSIGN LBRACE expr RBRACE\end{Verbatim}
 
  \begin{lstlisting}
 int a[2][3] = { {0, 1, 2}, {3, 4, 5} };
@@ -273,12 +303,16 @@ int a[2][3] = { {0, 1, 2}, {3, 4, 5} };
 
 To access an element in a multidimensional array, specify the desired index of all dimensions. For example:
 
+\begin{Verbatim}[frame=single]ID LBRACKET INT RBRACKET LBRACKET INT RBRACKET ASSIGN expr\end{Verbatim}
+
  \begin{lstlisting}
 a[0][1] = 1;
 \end{lstlisting}
 
 \subsubsection{Arrays of Structures}
 An array of structures is an array that holds elements of a structure type. Here is an example of declaring a struct array, that holds three struct inventory elements. 
+
+\begin{Verbatim}[frame=single]STRUCT STRING_LITERAL ID LBRACKET INT RBRACKET\end{Verbatim}
 
  \begin{lstlisting}
 struct inventory {
@@ -292,11 +326,15 @@ struct inventory in_array[3];
 
 To initialize the elements in a struct array, brackets are used to surround the members associated with each struct element. Here is an example:
 
+\begin{Verbatim}[frame=single]STRUCT STRING_LITERAL ID LBRACKET INT RBRACKET ASSIGN LBRACE expr RBRACE\end{Verbatim}
+
  \begin{lstlisting}
 struct inventory in_array[3] = { {1, 1.0}, {2, 2.0}, {3, 3.0} };
 \end{lstlisting}
 
 To access the members of the elements of a struct array, the member access operator is used, with the array name and element number preceding it. Here is an example:
+
+\begin{Verbatim}[frame=single]ID LBRACKET INT RBRACKET DOT ID ASSIGN expr\end{Verbatim}
 
  \begin{lstlisting}
 in_array[0].part = 1;
