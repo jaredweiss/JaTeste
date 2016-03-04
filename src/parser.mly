@@ -72,7 +72,7 @@ sdecl:
 
 stmt_list:
 	  /* nothing */ { [] }
-	| stmt_list stmt { $2::$1}
+	| stmt_list stmt { $2::$1 }
 
 stmt:
 	    expr SEMI { Expr $1 }
@@ -102,6 +102,7 @@ expr:
 	| NOT expr		{ Unop(Not, $2) }
 	| ID ASSIGN expr 	{ Assign($1, $3) }
 	| LBRACE expr RBRACE    { $2 }
+	| ID 			{ Id($1) }
 
 expr_opt:
 	  /* nothing */ { Noexpr }
