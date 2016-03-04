@@ -5,10 +5,13 @@
 %token FUNC
 %token WTEST USING STRUCT
 %token EQ NEQ LT LEQ GT GEQ
-%token INT DOUBLE VOID CHAR
-%token RETURN IF ELSE WHILE 
+%token INT DOUBLE VOID CHAR STRING
+%token RETURN IF ELSE WHILE FOR
 
-%token <int> LITERAL
+%token <int> INT_LITERAL
+%token <string> DOUBLE_LITERAL
+%token <char> CHAR_LITERAL
+%token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
 
@@ -20,7 +23,7 @@
 %type<Ast.program> program
 
 %%
-program: decls EOF { $1 } 
+program: decls EOF { List.rev $1 } 
 
 decls: 			  
 	/* nothing */ 	{ [] } 
@@ -58,7 +61,7 @@ stmt:
 	  expr SEMI { Expr $1 }
 
 expr:
-	  LITERAL { Lit($1)}
+	  INT_LITERAL { Lit($1)}
 	| expr PLUS expr { Binop($1, Add, $3) }
 	| expr MINUS expr { Binop($1, Sub, $3) }
 	| ID ASSIGN expr { Assign($1, $3) }
