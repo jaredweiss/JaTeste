@@ -43,15 +43,17 @@ typ:
 	| DOUBLE 	{ Primitive(Double) }
 	| INT 		{ Primitive(Int) }
 	| VOID 		{ Primitive(Void) }
-	| STRUCT  	{ Struct_typ }
+
+datatyp:
+	| STRUCT { Struct_typ }
 
 fdecl:
-	  FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE {{
-		typ = $2; fname = $3; body = $7 }}
-	| FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE testdecl {{
-		typ = $2; fname = $3; body = $7 }}
-	| FUNC typ ID LPAREN RPAREN LBRACE stmt_list RBRACE testdecl usingdecl {{
-		typ = $2; fname = $3; body = $7 }}
+	  FUNC typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE {{
+		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
+	| FUNC typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
+		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
+	| FUNC typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
+		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
 
 testdecl:
 	WTEST LBRACE stmt_list RBRACE usingdecl { }
@@ -61,13 +63,13 @@ usingdecl:
 
 vdecl_list: 
 	  /* nothing */ { [] }
-	| vdecl_list vdecl { $2::$1}
+	| vdecl_list vdecl { $2::$1 }
 
 vdecl:
-	typ ID SEMI {($1, $2) }
+	typ ID SEMI { ($1, $2) }
 
 sdecl:
-	STRUCT STRING_LITERAL ASSIGN LBRACE vdecl_list RBRACE {{
+	datatyp ID ASSIGN LBRACE vdecl_list RBRACE SEMI {{
 		sname = $2; attributes = $5 }}
 
 stmt_list:
@@ -76,13 +78,13 @@ stmt_list:
 
 stmt:
 	    expr SEMI { Expr $1 }
-	  | LBRACE stmt RBRACE				   { $2 }
-	  | IF LPAREN expr RPAREN stmt ELSE stmt 	   { If($3, $5, $7) }
-	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	   { If($3, $5, Block([])) }
-	  | WHILE LPAREN expr RPAREN stmt 		   { While($3, $5) }
+	  | LBRACE stmt RBRACE				       { $2 }
+	  | IF LPAREN expr RPAREN stmt ELSE stmt 	       { If($3, $5, $7) }
+	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	       { If($3, $5, Block([])) }
+	  | WHILE LPAREN expr RPAREN LBRACE vdecl_list stmt RBRACE 	       { While($3, $7) }
   	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN { For($3, $5, $7)}
-	  | RETURN SEMI					   { Return Noexpr}
-	  | RETURN expr SEMI				   { Return $2 }
+	  | RETURN SEMI					       { Return Noexpr}
+	  | RETURN expr SEMI				       { Return $2 }
 
 
 expr:

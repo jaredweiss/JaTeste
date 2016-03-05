@@ -21,8 +21,9 @@ type stmt =
 	| Return of expr
 
 type func_decl = {
-	typ		:	typ;
+	typ	:	typ;
 	fname	:	string;
+	vdecls	:	bind list;
 	body	: 	stmt list;
 }
 
