@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "TESTING VARIABLES - SHOULD ALL PASS..."
 echo "int a;" | tee ../src/interpreter
 echo "double a;" | tee ../src/interpreter
 echo "char a;" | tee ../src/interpreter

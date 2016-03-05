@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "TESTING VARIABLES - SHOULD ALL FAIL..."
 echo "int 9;" | tee ../src/interpreter
 echo "double &Z_as;" | tee ../src/interpreter
 echo "char #fsdsd;" | tee ../src/interpreter
