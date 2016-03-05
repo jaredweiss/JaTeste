@@ -8,9 +8,10 @@ type expr =
 	  Lit 		of int
 	| Binop 	of expr * op * expr
 	| Unop 		of uop * expr
-	| Assign 	of string * expr
+	| Assign 	of expr * expr
 	| Noexpr
 	| Id of string
+	| Struct_Access of expr * expr
 
 type stmt =
 	  Block of stmt list   

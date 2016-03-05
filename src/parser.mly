@@ -34,6 +34,7 @@
 %left PLUS MINUS 
 %left TIMES DIVIDE 
 %right NOT NEG
+%right DOT
 
 /* 
    Start symbol 
@@ -156,7 +157,8 @@ expr:
 	| expr AND  expr 	{ Binop($1, And, $3)}
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
-	| ID ASSIGN expr 	{ Assign($1, $3) }
+	| expr ASSIGN expr 	{ Assign($1, $3) }
+	| expr DOT expr 	{ Struct_Access($1, $3)}
 
 expr_opt:
 	  /* nothing */ { Noexpr }
