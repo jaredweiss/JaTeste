@@ -1,13 +1,19 @@
 %{ open Ast %}
 
+/*
+   Tokens/terminal symbols 
+*/
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token FUNC
 %token WTEST USING STRUCT DOT
-%token EQ NEQ LT LEQ GT GEQ AND OR INCR
+%token EQ NEQ LT LEQ GT GEQ AND OR 
 %token INT DOUBLE VOID CHAR STRING
 %token RETURN IF ELSE WHILE FOR
 
+/* 
+   Tokens with associated values 
+*/
 %token <int> INT_LITERAL
 %token <string> DOUBLE_LITERAL
 %token <char> CHAR_LITERAL
@@ -15,6 +21,9 @@
 %token <string> ID
 %token EOF
 
+/* 
+   Precedence rules 
+*/
 %nonassoc NOELSE 
 %nonassoc ELSE 
 %right ASSIGN 
@@ -26,10 +35,25 @@
 %left TIMES DIVIDE 
 %right NOT NEG
 
+/* 
+   Start symbol 
+*/
+
 %start program
+
+/* 
+   Returns AST of type program 
+*/
+
 %type<Ast.program> program
 
 %%
+
+/* 
+   Use List.rev on any rule that builds up a list in reverse. Lists are built in reverse
+   for efficiency reasons 
+ */
+
 program: decls EOF { List.rev $1 } 
 
 decls: 			  
@@ -46,12 +70,15 @@ prim_typ:
 	| VOID 		{ Primitive(Void) }
 
 struct_typ:
-	| STRUCT { Struct_typ }
+	| STRUCT ID { Struct_typ($2) }
 
 any_typ:
 	  prim_typ { $1 }
 	| struct_typ { $1 }
 
+/* 
+Rules for function syntax
+*/
 fdecl:
 	  FUNC any_typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE {{
 		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
@@ -60,40 +87,62 @@ fdecl:
 	| FUNC any_typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
 
+/* 
+"with test" rule 
+*/
 testdecl:
 	WTEST LBRACE stmt_list RBRACE usingdecl { }
 
+/* 
+"using" rule 
+*/
 usingdecl:
 	USING LBRACE stmt_list RBRACE { }
 
+
+/* 
+Rule for declaring a list of variables, including variables of type struct x 
+*/
 vdecl_list: 
 	  /* nothing */ { [] }
 	| vdecl_list vdecl { $2::$1 }
 
 vdecl:
-	prim_typ ID SEMI { ($1, $2) }
+	  prim_typ ID SEMI { ($1, $2) }
+	| struct_typ ID SEMI { ($1, $2)}
 
+/* 
+Rule for defining a struct 
+*/
 sdecl:
-	struct_typ ID ASSIGN LBRACE vdecl_list RBRACE SEMI {{
+	STRUCT ID ASSIGN LBRACE vdecl_list RBRACE SEMI {{
 		sname = $2; attributes = $5 }}
+
 
 stmt_list:
 	  /* nothing */ { [] }
 	| stmt_list stmt { $2::$1 }
 
+/* 
+Rule for statements. Statments include expressions 
+*/
 stmt:
-	    expr SEMI { Expr $1 }
-	  | LBRACE stmt RBRACE				       { $2 }
-	  | IF LPAREN expr RPAREN stmt ELSE stmt 	       { If($3, $5, $7) }
-	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	       { If($3, $5, Block([])) }
-	  | WHILE LPAREN expr RPAREN LBRACE vdecl_list stmt RBRACE 	       { While($3, $7) }
-  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7)}
-	  | RETURN SEMI					       { Return Noexpr}
-	  | RETURN expr SEMI				       { Return $2 }
+	    expr SEMI 						    { Expr $1 }
+	  | LBRACE stmt_list RBRACE				    { Block(List.rev $2) }
+	  | RETURN SEMI					            { Return Noexpr}
+	  | RETURN expr SEMI				            { Return $2 }
+	  | IF LPAREN expr RPAREN stmt ELSE stmt 	            { If($3, $5, $7) }
+	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	       	    { If($3, $5, Block([])) }
+	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
+  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
 
 
+/* 
+Rule for building expressions 
+*/
 expr:
 	  INT_LITERAL 		{ Lit($1)}
+	| ID 			{ Id($1) }
 	| expr PLUS expr 	{ Binop($1, Add, $3) }
 	| expr MINUS expr 	{ Binop($1, Sub, $3) }
 	| expr TIMES expr 	{ Binop($1, Mult, $3)}
@@ -108,9 +157,6 @@ expr:
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
 	| ID ASSIGN expr 	{ Assign($1, $3) }
-	| ID INCR 		{ Assign($1, Binop((Ast.Id($1), Ast.Add, Ast.Lit(1)))) }
-	| LBRACE expr RBRACE    { $2 }
-	| ID 			{ Id($1) }
 
 expr_opt:
 	  /* nothing */ { Noexpr }
