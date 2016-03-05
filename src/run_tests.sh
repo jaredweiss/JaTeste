@@ -1,4 +1,4 @@
 #!/bin/bash
 
-../test/test_variables_pass.sh
-../test/test_variables_fail.sh
+../test/test_variables.sh
+../test/test_comments.sh
