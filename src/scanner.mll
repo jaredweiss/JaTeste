@@ -30,6 +30,7 @@ rule token = parse
 	| ">"			{ GT }
 	| "<="			{ LEQ }
 	| ">="			{ GEQ }
+	| "++"			{ INCR }
 	| "void"		{ VOID }
 	| "struct"		{ STRUCT }
 	| "double"		{ DOUBLE }

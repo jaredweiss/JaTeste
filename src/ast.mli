@@ -36,5 +36,6 @@ type flow =
 	| Var 		of bind
 	| Struct 	of struct_decl
 	| Func 		of func_decl
+	| Stmt 		of stmt
 
 type program = flow list 

@@ -4,7 +4,7 @@
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token FUNC
 %token WTEST USING STRUCT DOT
-%token EQ NEQ LT LEQ GT GEQ AND OR
+%token EQ NEQ LT LEQ GT GEQ AND OR INCR
 %token INT DOUBLE VOID CHAR STRING
 %token RETURN IF ELSE WHILE FOR
 
@@ -37,22 +37,27 @@ decls:
 	| decls fdecl   { Func($2)::$1 }
 	| decls vdecl   { Var($2)::$1 }
 	| decls sdecl   { Struct($2)::$1 }
+	| decls stmt 	{ Stmt($2)::$1 }
 
-typ:
+prim_typ:
 	| STRING 	{ Primitive(String) }
 	| DOUBLE 	{ Primitive(Double) }
 	| INT 		{ Primitive(Int) }
 	| VOID 		{ Primitive(Void) }
 
-datatyp:
+struct_typ:
 	| STRUCT { Struct_typ }
 
+any_typ:
+	  prim_typ { $1 }
+	| struct_typ { $1 }
+
 fdecl:
-	  FUNC typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE {{
+	  FUNC any_typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE {{
 		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
-	| FUNC typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
+	| FUNC any_typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
 		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
-	| FUNC typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
+	| FUNC any_typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
 
 testdecl:
@@ -66,10 +71,10 @@ vdecl_list:
 	| vdecl_list vdecl { $2::$1 }
 
 vdecl:
-	typ ID SEMI { ($1, $2) }
+	prim_typ ID SEMI { ($1, $2) }
 
 sdecl:
-	datatyp ID ASSIGN LBRACE vdecl_list RBRACE SEMI {{
+	struct_typ ID ASSIGN LBRACE vdecl_list RBRACE SEMI {{
 		sname = $2; attributes = $5 }}
 
 stmt_list:
@@ -82,7 +87,7 @@ stmt:
 	  | IF LPAREN expr RPAREN stmt ELSE stmt 	       { If($3, $5, $7) }
 	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	       { If($3, $5, Block([])) }
 	  | WHILE LPAREN expr RPAREN LBRACE vdecl_list stmt RBRACE 	       { While($3, $7) }
-  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN { For($3, $5, $7)}
+  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7)}
 	  | RETURN SEMI					       { Return Noexpr}
 	  | RETURN expr SEMI				       { Return $2 }
 
@@ -103,6 +108,7 @@ expr:
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
 	| ID ASSIGN expr 	{ Assign($1, $3) }
+	| ID INCR 		{ Assign($1, Binop((Ast.Id($1), Ast.Add, Ast.Lit(1)))) }
 	| LBRACE expr RBRACE    { $2 }
 	| ID 			{ Id($1) }
 
