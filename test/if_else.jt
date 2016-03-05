@@ -1,0 +1,9 @@
+if (x == 42) {
+	print("Gotcha");
+}
+if else (x > 42) {
+	print("Sorry, too big");
+}
+else {
+	print("All good");
+}
