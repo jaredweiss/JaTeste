@@ -107,11 +107,14 @@ Rules for function syntax
 */
 fdecl:
 	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE {{
-		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = { stmts = [] }} }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
-		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = { stmts = [] }}  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
-		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = {stmts = [] }} }}
 
 /* 
 "with test" rule 
@@ -123,7 +126,7 @@ testdecl:
 "using" rule 
 */
 usingdecl:
-	USING LBRACE stmt_list RBRACE { }
+	USING LBRACE vdecl_list stmt_list RBRACE { }
 
 
 formal_opts_list:

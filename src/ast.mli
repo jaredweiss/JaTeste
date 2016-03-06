@@ -22,6 +22,17 @@ type stmt =
 	| For of expr * expr * expr * stmt
 	| Return of expr
 
+type with_using_decl = {
+	stmts : stmt list;
+}
+
+type with_test_decl = {
+	exprs : expr list;
+	using : with_using_decl;
+}
+
+
+
 (* Node that describes a function *)
 type func_decl = {
 	typ	:	typ;
@@ -29,7 +40,10 @@ type func_decl = {
 	formals :	bind list;
 	vdecls	:	bind list;
 	body	: 	stmt list;
+	tests   : 	with_test_decl;
 }
+
+
 
 (* Node that describes a given struct *)
 type struct_decl = {
