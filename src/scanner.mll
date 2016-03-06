@@ -18,21 +18,25 @@ rule token = parse
 	| ';'			{ SEMI }
 		
 	(* Operators *)
-	| '+'			{ PLUS }
-	| '-'			{ MINUS }
-	| '*'			{ TIMES }
-	| '/'			{ DIVIDE }
-	| '='			{ ASSIGN }
+	| "+"			{ PLUS }
+	| "-"			{ MINUS }
+	| "*"			{ TIMES }
+	| "/"			{ DIVIDE }
+	| "%"			{ MODULO }
+	| "^"			{ EXPO }
+	| "="			{ ASSIGN }
 	| "=="			{ EQ }
 	| "!="			{ NEQ }
 	| "!"			{ NOT }
+	| "&&"			{ AND }
+	| "||"			{ OR }
 	| "<"			{ LT }
 	| ">"			{ GT }
 	| "<="			{ LEQ }
 	| ">="			{ GEQ }
-	| '['			{ LBRACKET }
-	| ']'			{ RBRACKET }
-	| '.'			{ DOT }
+	| "["			{ LBRACKET }
+	| "]"			{ RBRACKET }
+	| "."			{ DOT }
 
 	(* Control flow *)
 	| "if"			{ IF }
