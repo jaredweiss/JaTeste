@@ -5,3 +5,7 @@
 *.cmi
 *.cmo
 *.swp
+scanner.ml
+interpreter
+parser.ml
+parser.mli

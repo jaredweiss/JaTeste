@@ -1,7 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 type uop = Neg | Not
-type prim = Int | Double | String | Void
-type typ = Primitive of prim | Struct_typ of string | Func_typ of string
+type prim = Int | Double | String | Char | Void
+type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim
 type bind = typ * string
 
 type expr =
@@ -12,6 +12,7 @@ type expr =
 	| Noexpr
 	| Id of string
 	| Struct_Access of expr * expr
+	| Array_create of int * prim
 
 type stmt =
 	  Block of stmt list   
@@ -21,6 +22,17 @@ type stmt =
 	| For of expr * expr * expr * stmt
 	| Return of expr
 
+type with_using_decl = {
+	stmts : stmt list;
+}
+
+type with_test_decl = {
+	exprs : expr list;
+	using : with_using_decl;
+}
+
+
+
 (* Node that describes a function *)
 type func_decl = {
 	typ	:	typ;
@@ -28,7 +40,10 @@ type func_decl = {
 	formals :	bind list;
 	vdecls	:	bind list;
 	body	: 	stmt list;
+	tests   : 	with_test_decl;
 }
+
+
 
 (* Node that describes a given struct *)
 type struct_decl = {

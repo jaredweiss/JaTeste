@@ -53,6 +53,17 @@ rule token = parse
 	| "char"		{ CHAR }
 	| "string"		{ STRING }
 	| "func" 		{ FUNC }
+	(* Pointers *)
+	| "int*"		{ INT_PT }
+	| "double*"		{ DOUBLE_PT }
+	| "char*"		{ CHAR_PT }
+	| "struct*"		{ STRUCT_PT }
+	(* Arrays *)
+	| "int[]"		{ INT_ARRAY }
+	| "char[]"		{ CHAR_ARRAY }
+	| "double[]"		{ DOUBLE_ARRAY }
+
+	| "new"			{ NEW }
 
 	(* Testing keywords *)
 	| "with test" 		{ WTEST }

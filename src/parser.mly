@@ -8,7 +8,10 @@
 %token FUNC
 %token WTEST USING STRUCT DOT
 %token EQ NEQ LT LEQ GT GEQ AND OR 
-%token INT DOUBLE VOID CHAR STRING
+%token INT DOUBLE VOID CHAR STRING 
+%token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
+%token INT_ARRAY DOUBLE_ARRAY CHAR_ARRAY
+%token NEW
 %token RETURN IF ELSE WHILE FOR
 
 /* 
@@ -66,28 +69,52 @@ decls:
 	| decls stmt 	{ Stmt($2)::$1 }
 
 prim_typ:
-	| STRING 	{ Primitive(String) }
-	| DOUBLE 	{ Primitive(Double) }
-	| INT 		{ Primitive(Int) }
-	| VOID 		{ Primitive(Void) }
+	| STRING 	{ String }
+	| DOUBLE 	{ Double }
+	| INT 		{ Int }
+	| CHAR 		{ Char}
+
+void_typ:
+	| VOID 		{ Void }
+	
+pointer_typ:
+	| INT_PT	{ Primitive(Int) }
+	| CHAR_PT	{ Primitive(Char) }
+	| STRUCT_PT ID	{ Struct_typ($2) }
 
 struct_typ:
-	| STRUCT ID { Struct_typ($2) }
+	| STRUCT ID { $2 }
+
+array_typ:
+	INT_ARRAY 	{ Int }
 
 any_typ:
-	  prim_typ { $1 }
-	| struct_typ { $1 }
+	  prim_typ 	{ Primitive($1) }
+	| struct_typ 	{ Struct_typ($1) }
+	| pointer_typ 	{ Pointer_typ($1) }
+	| void_typ 	{ Primitive($1) }
+	| array_typ	{ Array_typ($1) }
+
+
+any_typ_not_void:
+	  		  prim_typ 	{ Primitive($1) }
+			| struct_typ 	{ Struct_typ($1) }
+			| pointer_typ 	{ Pointer_typ($1) }
+			| array_typ	{ Array_typ($1) }
 
 /* 
 Rules for function syntax
 */
 fdecl:
 	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE {{
-		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = { stmts = [] }} }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
-		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = { stmts = [] }}  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
-		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = {stmts = [] }} }}
 
 /* 
 "with test" rule 
@@ -99,7 +126,7 @@ testdecl:
 "using" rule 
 */
 usingdecl:
-	USING LBRACE stmt_list RBRACE { }
+	USING LBRACE vdecl_list stmt_list RBRACE { }
 
 
 formal_opts_list:
@@ -107,10 +134,8 @@ formal_opts_list:
 	| formal_opt { $1 }
 
 formal_opt:
-	     prim_typ ID 			{[($1,$2)]}
-	   | struct_typ ID 			{[($1,$2)]} 
-	   | formal_opt COMMA prim_typ ID 	{($3,$4)::$1}
-	   | formal_opt COMMA struct_typ ID 	{($3,$4)::$1}
+	     any_typ_not_void ID 			{[($1,$2)]}
+	   | formal_opt COMMA any_typ_not_void ID 	{($3,$4)::$1}
 
 /* 
 Rule for declaring a list of variables, including variables of type struct x 
@@ -120,8 +145,7 @@ vdecl_list:
 	| vdecl_list vdecl { $2::$1 }
 
 vdecl:
-	  prim_typ ID SEMI { ($1, $2) }
-	| struct_typ ID SEMI { ($1, $2)}
+	  any_typ_not_void ID SEMI { ($1, $2) }
 
 /* 
 Rule for defining a struct 
@@ -170,6 +194,7 @@ expr:
 	| NOT expr		{ Unop(Not, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_Access($1, $3)}
+	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
 
 expr_opt:
 	  /* nothing */ { Noexpr }
