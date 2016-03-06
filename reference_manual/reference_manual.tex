@@ -547,6 +547,11 @@ return x + y;
 }
 \end{lstlisting}
 
+\begin{Verbatim}[frame=single]
+fdecl:
+	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE
+\end{Verbatim}
+
 This snippet of code first declares add, and then defines it. Declaring before defining is best practice. Importantly, functions can \emph{not} reference global variables; that is, the only variables they can act on are formal parameters and local variables. For example:
 
 \begin{lstlisting}
@@ -610,6 +615,19 @@ func void speak(int age, string name)
 	print_string ("My name is" + name + " and I am "  + age);
 }
 \end{lstlisting}
+
+
+\begin{Verbatim}[frame=single]
+formal_opts_list:
+	  /* nothing */ 
+	| formal_opt 
+
+formal_opt:
+	     any_typ_not_void ID 		
+	   | formal_opt COMMA any_typ_not_void ID 	
+\end{Verbatim}
+
+
 While functions may be defined with multiple formal parameters, that number must be fixed. That is, functions cannot accept a variable number of arguments. 
 \\
 TODO: Are we passing by value or reference?
@@ -641,6 +659,14 @@ with test {
 }
 
 \end{lstlisting}
+
+\begin{Verbatim}[frame=single]
+FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl 
+
+testdecl:
+	WTEST LBRACE stmt_list RBRACE usingdecl
+\end{Verbatim}
+
 Test cases contain a set of boolean expressions. Multiple boolean expressions can be defined, they just must be separated with semi-colons. As shown above, you can define separate test cases one after another too. \\ 
 Snippets of code can also be used to set up a given test case's enviornment using the ``using'' keyword. That is, ``using'' is used to define code that is executed right before the test case is run. Consider the following:
 
@@ -657,7 +683,19 @@ struct person sam;
 sam.age = 10;
 changeAge(sam, 11);
 }
+
+
 \end{lstlisting}
+
+
+\begin{Verbatim}[frame=single]
+FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl 
+
+usingdecl:
+	USING LBRACE vdecl_list stmt_list RBRACE 
+\end{Verbatim}
+
+
 ``using'' is used to create a struct and then call function changeAge; it is setting up the enviornment for it's corresponding test. Variables defined in the ``using'' section of code can safely be referenced in its corresponding test case as shown. Basically, the code in the ``using'' section is executed right before the boolean expressions are evaluated and tested. \\
 The ``using'' section is optional. As a result some test cases may contain ``using'' sections and others might not. As per convention, each ``using'' section will match up with its closest test case. For, example:
 
