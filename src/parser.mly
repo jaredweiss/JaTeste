@@ -81,12 +81,12 @@ any_typ:
 Rules for function syntax
 */
 fdecl:
-	  FUNC any_typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE {{
-		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
-	| FUNC any_typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
-		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
-	| FUNC any_typ ID LPAREN RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
-		typ = $2; fname = $3; vdecls = List.rev $7; body = List.rev $8 }}
+	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE {{
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
+	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
+	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev $9 }}
 
 /* 
 "with test" rule 
@@ -100,6 +100,16 @@ testdecl:
 usingdecl:
 	USING LBRACE stmt_list RBRACE { }
 
+
+formal_opts_list:
+	  /* nothing */    { [] }
+	| formal_opt { $1 }
+
+formal_opt:
+	     prim_typ ID 			{[($1,$2)]}
+	   | struct_typ ID 			{[($1,$2)]} 
+	   | formal_opt COMMA prim_typ ID 	{($3,$4)::$1}
+	   | formal_opt COMMA struct_typ ID 	{($3,$4)::$1}
 
 /* 
 Rule for declaring a list of variables, including variables of type struct x 

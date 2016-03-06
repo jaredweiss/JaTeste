@@ -25,6 +25,7 @@ type stmt =
 type func_decl = {
 	typ	:	typ;
 	fname	:	string;
+	formals :	bind list;
 	vdecls	:	bind list;
 	body	: 	stmt list;
 }
