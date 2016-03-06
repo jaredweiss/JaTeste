@@ -366,6 +366,7 @@ This can be done using the \texttt{++} operator to increment and the \texttt{--}
 \item \texttt{*} can be used for multiplication
 \item \texttt{/} can be used for division
 
+
 The grammar for the above operators, in order, is as follows:
 \begin{Verbatim}[frame=single]
 expr PLUS     expr
@@ -414,6 +415,26 @@ expr OR   expr
 \end{Verbatim}
 
 \subsection{Operator Precedence}
+We adhere to standard operator precedence rules. 
+
+
+\begin{Verbatim}[frame=single]
+/* 
+   Precedence rules 
+*/
+%nonassoc NOELSE 
+%nonassoc ELSE 
+%right ASSIGN 
+%left OR
+%left AND
+%left EQ NEQ
+%left LT GT LEQ GEQ 
+%left PLUS MINUS 
+%left TIMES DIVIDE MODULO
+%right EXPO
+%right NOT NEG
+%right DOT
+\end{Verbatim}
 
 \subsection{Order of Evaluation}
 % ++ vs * and such
