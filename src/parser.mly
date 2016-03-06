@@ -8,7 +8,7 @@
 %token FUNC
 %token WTEST USING STRUCT DOT
 %token EQ NEQ LT LEQ GT GEQ AND OR 
-%token INT DOUBLE VOID CHAR STRING
+%token INT DOUBLE VOID CHAR STRING INT_PT CHAR_PT STRUCT_PT
 %token RETURN IF ELSE WHILE FOR
 
 /* 
@@ -69,7 +69,12 @@ prim_typ:
 	| STRING 	{ Primitive(String) }
 	| DOUBLE 	{ Primitive(Double) }
 	| INT 		{ Primitive(Int) }
+	| CHAR 		{ Primitive(Char)}
 	| VOID 		{ Primitive(Void) }
+	| INT_PT	{ Pointer(Primitive(Int)) }
+	| CHAR_PT	{ Pointer(Primitive(Char)) }
+	| STRUCT_PT ID	{ Pointer((Struct_typ($2))) }
+
 
 struct_typ:
 	| STRUCT ID { Struct_typ($2) }

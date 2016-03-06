@@ -53,6 +53,9 @@ rule token = parse
 	| "char"		{ CHAR }
 	| "string"		{ STRING }
 	| "func" 		{ FUNC }
+	| "int*"		{ INT_PT }
+	| "char*"		{ CHAR_PT }
+	| "struct*"		{ STRUCT_PT }
 
 	(* Testing keywords *)
 	| "with test" 		{ WTEST }
