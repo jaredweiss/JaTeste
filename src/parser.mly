@@ -129,6 +129,9 @@ usingdecl:
 	USING LBRACE vdecl_list stmt_list RBRACE { }
 
 
+/*
+Formal parameter rules
+*/
 formal_opts_list:
 	  /* nothing */    { [] }
 	| formal_opt { $1 }
@@ -136,6 +139,14 @@ formal_opts_list:
 formal_opt:
 	     any_typ_not_void ID 			{[($1,$2)]}
 	   | formal_opt COMMA any_typ_not_void ID 	{($3,$4)::$1}
+
+actual_opts_list:
+	  /* nothing */ { [] }
+	| actual_opt 	{ $1 }
+
+actual_opt:
+	     expr { [$1] }
+	   | actual_opt COMMA expr {$3::$1}
 
 /* 
 Rule for declaring a list of variables, including variables of type struct x 
@@ -195,6 +206,7 @@ expr:
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_Access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
+	| ID LPAREN actual_opts_list RPAREN { Call($1, $3)}
 
 expr_opt:
 	  /* nothing */ { Noexpr }
