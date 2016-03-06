@@ -1,6 +1,7 @@
 open Ast
 
 
+(*
 let rec eval_expr = function
 	  Lit(x) -> string_of_int x
 	| Assign(x, y) -> x ^ " = " ^ (eval_expr y)
@@ -23,14 +24,10 @@ let rec eval_fun func1 =
 				| next_stmt::remaining_stmts -> (eval_stmts next_stmt ^ "\n") ^ (get_stmts remaining_stmts)
 		in fname ^ ": \n" ^ (get_stmts func1.body)
 
+*)
 let rec eval_prog prog =
-	match prog with
-	  [] -> ""
-	| p1::p2 -> let next_stmt = p1 in
-		match next_stmt with
-		  Func(x) -> eval_fun x
-		| Struct(x) -> "" (*TODO: Make this work*)
-		| _ -> ""
+		match prog with
+		_ ->  "Successfully parsed"
 	
 
 
