@@ -8,7 +8,9 @@
 %token FUNC
 %token WTEST USING STRUCT DOT
 %token EQ NEQ LT LEQ GT GEQ AND OR 
-%token INT DOUBLE VOID CHAR STRING INT_PT CHAR_PT STRUCT_PT
+%token INT DOUBLE VOID CHAR STRING 
+%token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
+%token INT_ARRAY DOUBLE_ARRAY CHAR_ARRAY
 %token RETURN IF ELSE WHILE FOR
 
 /* 
@@ -66,22 +68,38 @@ decls:
 	| decls stmt 	{ Stmt($2)::$1 }
 
 prim_typ:
-	| STRING 	{ Primitive(String) }
-	| DOUBLE 	{ Primitive(Double) }
-	| INT 		{ Primitive(Int) }
-	| CHAR 		{ Primitive(Char)}
-	| VOID 		{ Primitive(Void) }
-	| INT_PT	{ Pointer(Primitive(Int)) }
-	| CHAR_PT	{ Pointer(Primitive(Char)) }
-	| STRUCT_PT ID	{ Pointer((Struct_typ($2))) }
+	| STRING 	{ String }
+	| DOUBLE 	{ Double }
+	| INT 		{ Int }
+	| CHAR 		{ Char}
 
+void_typ:
+	| VOID 		{ Void }
+	
+pointer_typ:
+	| INT_PT	{ Primitive(Int) }
+	| CHAR_PT	{ Primitive(Char) }
+	| STRUCT_PT ID	{ Struct_typ($2) }
 
 struct_typ:
-	| STRUCT ID { Struct_typ($2) }
+	| STRUCT ID { $2 }
+
+array_typ:
+	INT_ARRAY 	{ Int }
 
 any_typ:
-	  prim_typ { $1 }
-	| struct_typ { $1 }
+	  prim_typ 	{ Primitive($1) }
+	| struct_typ 	{ Struct_typ($1) }
+	| pointer_typ 	{ Pointer_typ($1) }
+	| void_typ 	{ Primitive($1) }
+	| array_typ	{ Array_typ($1) }
+
+
+any_typ_not_void:
+	  		  prim_typ 	{ Primitive($1) }
+			| struct_typ 	{ Struct_typ($1) }
+			| pointer_typ 	{ Pointer_typ($1) }
+			| array_typ	{ Array_typ($1) }
 
 /* 
 Rules for function syntax
@@ -112,10 +130,8 @@ formal_opts_list:
 	| formal_opt { $1 }
 
 formal_opt:
-	     prim_typ ID 			{[($1,$2)]}
-	   | struct_typ ID 			{[($1,$2)]} 
-	   | formal_opt COMMA prim_typ ID 	{($3,$4)::$1}
-	   | formal_opt COMMA struct_typ ID 	{($3,$4)::$1}
+	     any_typ_not_void ID 			{[($1,$2)]}
+	   | formal_opt COMMA any_typ_not_void ID 	{($3,$4)::$1}
 
 /* 
 Rule for declaring a list of variables, including variables of type struct x 
@@ -125,8 +141,7 @@ vdecl_list:
 	| vdecl_list vdecl { $2::$1 }
 
 vdecl:
-	  prim_typ ID SEMI { ($1, $2) }
-	| struct_typ ID SEMI { ($1, $2)}
+	  any_typ_not_void ID SEMI { ($1, $2) }
 
 /* 
 Rule for defining a struct 

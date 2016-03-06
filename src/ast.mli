@@ -1,7 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 type uop = Neg | Not
 type prim = Int | Double | String | Char | Void
-type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer of typ
+type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim
 type bind = typ * string
 
 type expr =
