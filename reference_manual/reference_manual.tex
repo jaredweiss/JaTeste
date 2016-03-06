@@ -54,7 +54,7 @@
 	commentstyle=\color{syntaxGreen},
 	keywordstyle=\color{syntaxPurple},
 	stringstyle=\color{syntaxBlue},
-	emph={int,char,float,struct,string},
+	emph={int,char,double,struct,string},
 	emphstyle=\color{syntaxCyan},
 	backgroundcolor=\color{syntaxGreyBg},
 }
@@ -179,7 +179,7 @@ The data types in JaTeste can be classified into three categories: primitive typ
 
 \subsection{Primitives}
 % Define primitives and values they can hold
-The primitives our language recognizes are int, char, and string
+The primitives our language recognizes are int, double, char, and string
 
 \subsubsection{Integer Types}
 The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword \texttt{int} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
@@ -196,6 +196,25 @@ typ ID
 \end{Verbatim}
 
 The grammar that recognizes an integer initialization is: 
+\begin{Verbatim}[frame=single]
+ID ASSIGN expr
+\end{Verbatim}
+
+\subsubsection{Double Types}
+The double data type is a 64 bit value.  Keyword \texttt{double} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+
+\begin{lstlisting}
+double a;
+a = 9.9;
+a = 17 / 3;
+\end{lstlisting}
+
+The grammar that recognizes a double deceleration is: 
+\begin{Verbatim}[frame=single]
+typ ID
+\end{Verbatim}
+
+The grammar that recognizes a double initialization is: 
 \begin{Verbatim}[frame=single]
 ID ASSIGN expr
 \end{Verbatim}
