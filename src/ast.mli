@@ -12,6 +12,7 @@ type expr =
 	| Noexpr
 	| Id of string
 	| Struct_Access of expr * expr
+	| Array_create of int * prim
 
 type stmt =
 	  Block of stmt list   

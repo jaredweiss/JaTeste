@@ -11,6 +11,7 @@
 %token INT DOUBLE VOID CHAR STRING 
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
 %token INT_ARRAY DOUBLE_ARRAY CHAR_ARRAY
+%token NEW
 %token RETURN IF ELSE WHILE FOR
 
 /* 
@@ -190,6 +191,7 @@ expr:
 	| NOT expr		{ Unop(Not, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_Access($1, $3)}
+	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
 
 expr_opt:
 	  /* nothing */ { Noexpr }

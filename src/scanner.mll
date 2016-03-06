@@ -63,6 +63,8 @@ rule token = parse
 	| "char[]"		{ CHAR_ARRAY }
 	| "double[]"		{ DOUBLE_ARRAY }
 
+	| "new"			{ NEW }
+
 	(* Testing keywords *)
 	| "with test" 		{ WTEST }
 	| "using"		{ USING }
