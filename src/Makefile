@@ -1,6 +1,6 @@
-TARFILES = Makefile scanner.mll parser.mly ast.mli interpreter.ml
+TARFILES = Makefile scanner.mll parser.mly ast.ml interpreter.ml
 
-OBJS = parser.cmo scanner.cmo interpreter.cmo
+OBJS = ast.cmo parser.cmo scanner.cmo interpreter.cmo
 
 interpreter : $(OBJS)
 	ocamlc -o interpreter $(OBJS)
@@ -29,4 +29,5 @@ parser.cmo: ast.cmi parser.cmi
 parser.cmx: ast.cmi parser.cmi 
 scanner.cmo: parser.cmi 
 scanner.cmx: parser.cmx 
-parser.cmi: ast.cmi 
+parser.cmi: ast.cmi
+
