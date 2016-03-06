@@ -13,6 +13,7 @@ type expr =
 	| Id of string
 	| Struct_Access of expr * expr
 	| Array_create of int * prim
+	| Call of string * expr list
 
 type stmt =
 	  Block of stmt list   
@@ -30,7 +31,6 @@ type with_test_decl = {
 	exprs : expr list;
 	using : with_using_decl;
 }
-
 
 
 (* Node that describes a function *)

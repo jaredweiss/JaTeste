@@ -621,6 +621,11 @@ add(); /* this is wrong and will not compile because add expects two ints as par
 
 \end{lstlisting}
 
+\begin{Verbatim}[frame=single]
+fdecl:
+	 ID LPAREN actual_opts_list RPAREN { Call($1, $3)}
+\end{Verbatim}
+
 Functions can only be called after they have been declared and/or defined. Functions are first class objects and so can be used anywhere a normal data type can be used. Of course, a function's return type must be compatible with the context it's being used in. For example, a function that returns a char cannot be used as an actual parameter to a function that expects an int.  Consider the following:
 
 \begin{lstlisting}

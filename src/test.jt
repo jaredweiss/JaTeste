@@ -1,0 +1,39 @@
+func int add()
+{
+	a = 10;
+	10 + 10 - 9;
+	b = 100;
+} with test {
+	a = 10;
+} using {
+	int coolvar;
+	coolvar = 1000;
+}
+
+for (i = 0; i < 10; i = i + 1) {
+	for (j = 0; j < 10; j = j + 1) {
+		a = 0;
+	}
+}
+
+struct person = {
+	int age;
+	int height;
+	char c;
+};
+
+int* int_pt;
+
+func int sub (int* x, int y)
+{
+	x = 10;
+	add(1,1);
+	add();
+}
+
+struct* person person_pt;
+struct person sam;
+
+sam.age = 10;
+int[] arr;
+arr = new int[10];
