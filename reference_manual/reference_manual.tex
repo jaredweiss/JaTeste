@@ -93,7 +93,7 @@ This chapter will describe how input code will be processed and how tokens will 
 
 \subsection{Identifiers}
 % Specs on how to name variables, functions, data types, etc.
-Identifiers are used to name a variable, a function, or other types of data.  An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters.
+Identifiers are used to name a variable, a function, or other types of data.  An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters. The set of keyword, listed below, cannot be used as identifiers. 
 
 \begin{Verbatim}[frame=single]
 ID = "(['a'-'z' 'A'-'Z'] | '_') (['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_')*"
@@ -104,7 +104,7 @@ ID = "(['a'-'z' 'A'-'Z'] | '_') (['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_')*"
 % Just a list of reserved keywords
 Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
 
-\texttt{int, char, double, struct, if, else, for, while, with test, using, func, return, string, int*, char*, struct *, double*, new, int[], char[], double[]}
+\texttt{int, char, double, struct, if, else, for, while, with test, using, func, return, string, int*, char*, struct*, double*, new, int[], char[], double[]}
 
 \subsection{Constants}
 % How to define constants such as x = 5
@@ -169,18 +169,15 @@ Separators are used to separate tokens. Separators are single character tokens, 
 '{'	{ LBRACE }
 '}'	{ RBRACE }
 ';'	{ SEMI }
-'['	{ LBRACKET }
-']'	{ RBRACKET }
-'.'	{ DOT }
 ','	{ COMMA }
 \end{Verbatim}
 
 \section{Data Types}
-The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays.
+The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays. 
 
 \subsection{Primitives}
 % Define primitives and values they can hold
-The primitives our language recognizes are int, double, char, and string
+The primitives our language recognizes are int, double, char, and string. 
 
 \subsubsection{Integer Types}
 The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword \texttt{int} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
@@ -279,11 +276,15 @@ STRUCT STRING_LITERAL ASSIGN LBRACE vdecl_list RBRACE
 \end{Verbatim}
 
 \subsubsection{Initializing Structures}
-To create a structure, the struct type is followed by a variable name. 
+To create a structure, the new keyword is used as follow:
 \begin{lstlisting}
-struct manager yahoo_manager;
-struct person sam;
+struct manager yahoo_manager = new struct manager;
+struct person sam = new struct person;
 \end{lstlisting}
+
+\begin{Verbatim}[frame=single]
+NEW STRUCT ID 
+\end{Verbatim}
 
 Here, we create two variables yahoo\_manager and sam. The first is of type ``struct manager'', and the second is of type ``struct person''.
 
@@ -340,7 +341,7 @@ Accessing arrays is simply an expression:
 \end{Verbatim}
 
 
-JaTeste does not test for index out of bounds, so the following code would compile although it is incorrect. 
+JaTeste does not test for index out of bounds, so the following code would compile although it is incorrect; thus it is up to the programmer to make sure he or she does not write past the end of arrays. 
 
  \begin{lstlisting}
 arr = new int[2];
@@ -360,26 +361,34 @@ foo(42) * 10;
 The grammar for expressions is: 
 \begin{Verbatim}[frame=single]
 expr:
+expr:
 	  INT_LITERAL 	
-	| ID 			
-	| expr PLUS expr 
-	| expr MINUS expr 	
-	| expr TIMES expr 	
-	| expr DIVIDE expr 
-	| expr EQ  expr 	
+	| ID 		
+	| expr PLUS expr
+	| expr MINUS expr
+	| expr TIMES expr 
+	| expr DIVIDE expr 	
+	| expr EQ  expr 
+	| expr EXPO  expr 
+	| expr MODULO  expr 	
 	| expr NEQ  expr 	
-	| expr LT expr 	
+	| expr LT expr 		
 	| expr LEQ  expr 
-	| expr GT expr 	
-	| expr GEQ expr 
-	| expr AND  expr
-	| expr OR expr 	
+	| expr GT expr 		
+	| expr GEQ expr 	
+	| expr AND  expr 	
+	| expr OR expr 		
 	| NOT expr		
-	| expr ASSIGN expr 
-	| expr DOT expr 
+	| AMPERSAND expr	
+	| expr ASSIGN expr
+	| expr DOT expr 	
+	| expr LBRACKET INT_LITERAL RBRACKET 	   
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET
-	| ID LPAREN actual_opts_list RPAREN
+	| NEW STRUCT ID 			
+	| ID LPAREN actual_opts_list RPAREN          
 \end{Verbatim}
+
+
 
 \subsection{Assignment Operators}
 % =, +=, -=, etc
@@ -397,16 +406,16 @@ y = 9.9;
 
 All assignments are pass by value. Our language supports pointers and so pass by reference can be mimicked using addresses (explained below).
 
-Additionally, the following operators can also be used for variations of assignment:
+\subsection{Incrementing and Decrementing}
+% ++, --, etc.
+The following operators can also be used for variations of assignment:
 
 \begin{itemize}
 \item \texttt{+=} increments the left hand side by the result of the right hand side
 \item \texttt{-=} decrements the left hand side by the result of the right hand side
 \end{itemize}
 
-\subsection{Incrementing and Decrementing}
-% ++, --, etc.
-This can be done using the \texttt{++} operator to increment and the \texttt{--} operator to decrement a value.  If the operator is placed before a value it will be incremented / decremented first, then it will be evaluated.  If the operator is placed following a value, it will be evaluated with its original value and then incremented / decremented.
+ The \texttt{++} operator to used to increment and the \texttt{--} operator is used to decrement a value.  If the operator is placed before a value it will be incremented / decremented first, then it will be evaluated.  If the operator is placed following a value, it will be evaluated with its original value and then incremented / decremented.
 
 \subsection{Arithmetic Operators}
 % +, -, ...
@@ -417,6 +426,7 @@ This can be done using the \texttt{++} operator to increment and the \texttt{--}
 \item \texttt{/} can be used for division
 \item \texttt{$\wedge$} can be used for exponents
 \item \texttt{$\%$} can be used for modular division
+\item \texttt{\&} can be used to get the address of an identifier
 \end{itemize}
 
 
@@ -430,6 +440,7 @@ The grammar for the above operators, in order, is as follows:
 	| expr EQ  expr 
 	| expr EXPO  expr 
 	| expr MODULO  expr 
+	| AMPERSAND expr
 \end{Verbatim}
 
 
@@ -487,15 +498,18 @@ We adhere to standard operator precedence rules.
 %left PLUS MINUS 
 %left TIMES DIVIDE MODULO
 %right EXPO
-%right NOT NEG
+%right NOT NEG AMPERSAND
+%right RBRACKET
+%left LBRACKET
 %right DOT
 \end{Verbatim}
 
 \subsection{Order of Evaluation}
 % ++ vs * and such
+Order of evaluation is dependent on the operator. For example, assignment is right associative, while addition is left associative. Associativity is indicated in the table above.
 
 \section{Statements}
-Statements include: \texttt{if, while, for, return}, as well all expressions, as explained in the following sections. 
+Statements include: \texttt{if, while, for, return}, as well all expressions, as explained in the following sections. That is, statements include all expressions, as well as snippets of code that are used solely for their side effects.
 
 \begin{Verbatim}[frame=single]
 stmt:
@@ -512,7 +526,7 @@ stmt:
 
 \subsection{If Statement}
 % explain if, else if, else
-The if, else if, else construct will work as expected in other languages. Else clauses match with the closest corresponding if clause.
+The if, else if, else construct will work as expected in other languages. Else clauses match with the closest corresponding if clause. Thus, their is no ambiguity when it comes to which if-else clauses match.
 
 \begin{lstlisting}
 if (x == 42) {
@@ -594,7 +608,7 @@ The grammar that recognizes a block of code is as follows:
 LBRACE stmt RBRACE
 \end{Verbatim}
 
-This is used to define scope. 
+Code blocks are used to define scope. Local variables are always given precedence over global variables. 
 
 \subsection{Return Statement}
 The \texttt{return} statement is used to exit out of a function and return a value.  The return value must be the same type that is specified by the function deceleration.  Return can be used as follows:
@@ -611,10 +625,12 @@ The grammar that recognizes a return statement is as follows:
 RETURN SEMI
 RETURN expr SEMI
 \end{Verbatim}
+
 Note that functions can be declared as returning void; this is done as follows: 
 \begin{lstlisting}
 return ;
 \end{lstlisting}
+This adheres to the expectation that all functions return something.
 
 \section{Functions}
 Functions allow you to group snippets of code together that can subsequently be called from other parts of your program, depending on scope. Functions are global, unless they are prepended with the keyword ``private''. While not necessary, it is encouraged that you declare functions before defining them. Functions are usually declared at the top of the file they're defined in. Functions that aren't declared can only be called after they have been defined. 
@@ -680,7 +696,8 @@ add(); /* this is wrong and will not compile because add expects two ints as par
 	 ID LPAREN actual_opts_list RPAREN { Call($1, $3)}
 \end{Verbatim}
 
-Functions can only be called after they have been declared and/or defined. Functions are first class objects and so can be used anywhere a normal data type can be used. Of course, a function's return type must be compatible with the context it's being used in. For example, a function that returns a char cannot be used as an actual parameter to a function that expects an int.  Consider the following:
+Note, calling functions is simply another expression. This means they are guaranteed to return a value and so can be used as part of other expressions.
+Functions are first class objects and so can be used anywhere a normal data type can be used. Of course, a function's return type must be compatible with the context it's being used in. For example, a function that returns a char cannot be used as an actual parameter to a function that expects an int.  Consider the following:
 
 \begin{lstlisting}
 func int add_int(int a, int b); /* declaration */
@@ -727,7 +744,13 @@ formal_opt:
 \end{Verbatim}
 
 
-While functions may be defined with multiple formal parameters, that number must be fixed. That is, functions cannot accept a variable number of arguments. As mentioned above, our language is pass by value. However, there is explicit support for passing pointers and addresses using * and $\&$.
+While functions may be defined with multiple formal parameters, that number must be fixed. That is, functions cannot accept a variable number of arguments. As mentioned above, our language is pass by value. However, there is explicit support for passing pointers and addresses using * and $\&$. 
+
+\begin{lstlisting}
+int* int_pt;
+int a = 10;
+int_pt  = &a;
+\end{lstlisting}
 
 % \subsection{Main Function}
 % Do we want a main function?
@@ -825,8 +848,6 @@ Test cases are compiled into a separate program which can subsequently be run. T
 \subsection{scanner.mll}
 
 \begin{lstlisting}
-
-
 { open Parser }
 
 (* Regex shorthands *)
@@ -858,6 +879,7 @@ rule token = parse
 	| "!="			{ NEQ }
 	| "!"			{ NOT }
 	| "&&"			{ AND }
+	| "&"			{ AMPERSAND }
 	| "||"			{ OR }
 	| "<"			{ LT }
 	| ">"			{ GT }
@@ -913,6 +935,8 @@ rule token = parse
 and comment = parse
 	"*/" { token lexbuf }
 	| _ { comment lexbuf }
+
+
 	
 \end{lstlisting}
 
@@ -920,92 +944,227 @@ and comment = parse
 \subsection{parser.mly}
 
 \begin{lstlisting}
-{ open Parser }
+%{ open Ast %}
 
-(* Regex shorthands *)
-let digit = ['0' - '9']
-let int = digit+
-let double = int | digit*['.']digit+ | digit+['.']digit*
-let char = '''['a' - 'z' 'A' - 'Z']'''
-let string = char+
+/*
+   Tokens/terminal symbols 
+*/
+%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
+%token PLUS MINUS TIMES DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
+%token FUNC
+%token WTEST USING STRUCT DOT
+%token EQ NEQ LT LEQ GT GEQ AND OR 
+%token INT DOUBLE VOID CHAR STRING 
+%token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
+%token INT_ARRAY DOUBLE_ARRAY CHAR_ARRAY
+%token NEW
+%token RETURN IF ELSE WHILE FOR
 
-rule token = parse
-	   [' ' '\t' '\r' '\n' ] { token lexbuf } (* White space *)
-	| "/*"			{ comment lexbuf }
-	| '('			{ LPAREN }
-	| ')'			{ RPAREN }
-	| '{'			{ LBRACE}
-	| '}'			{ RBRACE}
-	| ','			{ COMMA }
-	| ';'			{ SEMI }
-		
-	(* Operators *)
-	| "+"			{ PLUS }
-	| "-"			{ MINUS }
-	| "*"			{ TIMES }
-	| "/"			{ DIVIDE }
-	| "%"			{ MODULO }
-	| "^"			{ EXPO }
-	| "="			{ ASSIGN }
-	| "=="			{ EQ }
-	| "!="			{ NEQ }
-	| "!"			{ NOT }
-	| "&&"			{ AND }
-	| "||"			{ OR }
-	| "<"			{ LT }
-	| ">"			{ GT }
-	| "<="			{ LEQ }
-	| ">="			{ GEQ }
-	| "["			{ LBRACKET }
-	| "]"			{ RBRACKET }
-	| "."			{ DOT }
+/* 
+   Tokens with associated values 
+*/
+%token <int> INT_LITERAL
+%token <string> DOUBLE_LITERAL
+%token <char> CHAR_LITERAL
+%token <string> STRING_LITERAL
+%token <string> ID
+%token EOF
 
-	(* Control flow *)
-	| "if"			{ IF }
-	| "else"		{ ELSE }
-	| "return" 		{ RETURN }
-	| "while" 		{ WHILE }
-	| "for"			{ FOR }
+/* 
+   Precedence rules 
+*/
+%nonassoc NOELSE 
+%nonassoc ELSE 
+%right ASSIGN 
+%left OR
+%left AND
+%left EQ NEQ
+%left LT GT LEQ GEQ 
+%left PLUS MINUS 
+%left TIMES DIVIDE MODULO
+%right EXPO
+%right NOT NEG AMPERSAND
+%right RBRACKET
+%left LBRACKET
+%right DOT
+
+/* 
+   Start symbol 
+*/
+
+%start program
+
+/* 
+   Returns AST of type program 
+*/
+
+%type<Ast.program> program
+
+%%
+
+/* 
+   Use List.rev on any rule that builds up a list in reverse. Lists are built in reverse
+   for efficiency reasons 
+ */
+
+program: decls EOF { List.rev $1 } 
+
+decls: 			  
+	/* nothing */ 	{ [] } 
+	| decls fdecl   { Func($2)::$1 }
+	| decls vdecl   { Var($2)::$1 }
+	| decls sdecl   { Struct($2)::$1 }
+	| decls stmt 	{ Stmt($2)::$1 }
+
+prim_typ:
+	| STRING 	{ String }
+	| DOUBLE 	{ Double }
+	| INT 		{ Int }
+	| CHAR 		{ Char}
+
+void_typ:
+	| VOID 		{ Void }
 	
-	(* Datatypes *)
-	| "void"		{ VOID }
-	| "struct"		{ STRUCT }
-	| "double"		{ DOUBLE }
-	| "int"			{ INT }
-	| "char"		{ CHAR }
-	| "string"		{ STRING }
-	| "func" 		{ FUNC }
-	(* Pointers *)
-	| "int*"		{ INT_PT }
-	| "double*"		{ DOUBLE_PT }
-	| "char*"		{ CHAR_PT }
-	| "struct*"		{ STRUCT_PT }
-	(* Arrays *)
-	| "int[]"		{ INT_ARRAY }
-	| "char[]"		{ CHAR_ARRAY }
-	| "double[]"		{ DOUBLE_ARRAY }
+pointer_typ:
+	| INT_PT	{ Primitive(Int) }
+	| CHAR_PT	{ Primitive(Char) }
+	| STRUCT_PT ID	{ Struct_typ($2) }
 
-	| "new"			{ NEW }
+struct_typ:
+	| STRUCT ID { $2 }
 
-	(* Testing keywords *)
-	| "with test" 		{ WTEST }
-	| "using"		{ USING }
+array_typ:
+	INT_ARRAY 	{ Int }
 
-	| ['a' - 'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm)}
-	| int as lxm   		{ INT_LITERAL(int_of_string lxm)}
-	| double as lxm 	{ DOUBLE_LITERAL(lxm) }
-	| char as lxm 		{ CHAR_LITERAL(String.get lxm 1) }
-	| string as lxm 	{ STRING_LITERAL(lxm) } 
-
-	| eof { EOF }
-	| _ as char { raise (Failure ("illegal character " ^
-			Char.escaped char))}
+any_typ:
+	  prim_typ 	{ Primitive($1) }
+	| struct_typ 	{ Struct_typ($1) }
+	| pointer_typ 	{ Pointer_typ($1) }
+	| void_typ 	{ Primitive($1) }
+	| array_typ	{ Array_typ($1) }
 
 
-(* Whitespace*)
-and comment = parse
-	"*/" { token lexbuf }
-	| _ { comment lexbuf }
+any_typ_not_void:
+	  		  prim_typ 	{ Primitive($1) }
+			| struct_typ 	{ Struct_typ($1) }
+			| pointer_typ 	{ Pointer_typ($1) }
+			| array_typ	{ Array_typ($1) }
+
+/* 
+Rules for function syntax
+*/
+fdecl:
+	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE {{
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = { stmts = [] }} }}
+	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = { stmts = [] }}  }}
+	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = {exprs = [];  using = {stmts = [] }} }}
+
+/* 
+"with test" rule 
+*/
+testdecl:
+	WTEST LBRACE stmt_list RBRACE usingdecl { }
+
+/* 
+"using" rule 
+*/
+usingdecl:
+	USING LBRACE vdecl_list stmt_list RBRACE { }
+
+
+/*
+Formal parameter rules
+*/
+formal_opts_list:
+	  /* nothing */    { [] }
+	| formal_opt { $1 }
+
+formal_opt:
+	     any_typ_not_void ID 			{[($1,$2)]}
+	   | formal_opt COMMA any_typ_not_void ID 	{($3,$4)::$1}
+
+actual_opts_list:
+	  /* nothing */ { [] }
+	| actual_opt 	{ $1 }
+
+actual_opt:
+	     expr { [$1] }
+	   | actual_opt COMMA expr {$3::$1}
+
+/* 
+Rule for declaring a list of variables, including variables of type struct x 
+*/
+vdecl_list: 
+	  /* nothing */ { [] }
+	| vdecl_list vdecl { $2::$1 }
+
+vdecl:
+	  any_typ_not_void ID SEMI { ($1, $2) }
+
+/* 
+Rule for defining a struct 
+*/
+sdecl:
+	STRUCT ID ASSIGN LBRACE vdecl_list RBRACE SEMI {{
+		sname = $2; attributes = $5 }}
+
+
+stmt_list:
+	  /* nothing */ { [] }
+	| stmt_list stmt { $2::$1 }
+
+/* 
+Rule for statements. Statements include expressions 
+*/
+stmt:
+	    expr SEMI 						    { Expr $1 }
+	  | LBRACE stmt_list RBRACE				    { Block(List.rev $2) }
+	  | RETURN SEMI					            { Return Noexpr}
+	  | RETURN expr SEMI				            { Return $2 }
+	  | IF LPAREN expr RPAREN stmt ELSE stmt 	            { If($3, $5, $7) }
+	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	       	    { If($3, $5, Block([])) }
+	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
+  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
+
+
+/* 
+Rule for building expressions 
+*/
+expr:
+	  INT_LITERAL 		{ Lit($1)}
+	| ID 			{ Id($1) }
+	| expr PLUS expr 	{ Binop($1, Add, $3) }
+	| expr MINUS expr 	{ Binop($1, Sub, $3) }
+	| expr TIMES expr 	{ Binop($1, Mult, $3)}
+	| expr DIVIDE expr 	{ Binop($1, Div, $3)}
+	| expr EQ  expr 	{ Binop($1, Equal, $3)}
+	| expr EXPO  expr 	{ Binop($1, Exp, $3)}
+	| expr MODULO  expr 	{ Binop($1, Mod, $3)}
+	| expr NEQ  expr 	{ Binop($1, Neq, $3)}
+	| expr LT expr 		{ Binop($1, Less, $3)}
+	| expr LEQ  expr 	{ Binop($1, Leq, $3)}
+	| expr GT expr 		{ Binop($1, Greater, $3)}
+	| expr GEQ expr 	{ Binop($1, Geq, $3)}
+	| expr AND  expr 	{ Binop($1, And, $3)}
+	| expr OR expr 		{ Binop($1, Or, $3)}
+	| NOT expr		{ Unop(Not, $2) }
+	| AMPERSAND expr	{ Unop(Addr, $2) }
+	| expr ASSIGN expr 	{ Assign($1, $3) }
+	| expr DOT expr 	{ Struct_Access($1, $3)}
+	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
+	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
+	| NEW STRUCT ID 			     { Struct_create($3)}
+	| ID LPAREN actual_opts_list RPAREN          { Call($1, $3)}
+
+expr_opt:
+	  /* nothing */ { Noexpr }
+	| expr 		{ $1 }
+
 
 
 
