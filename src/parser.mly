@@ -212,6 +212,7 @@ expr:
 	| expr DOT expr 	{ Struct_Access($1, $3)}
 	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
+	| NEW STRUCT ID 			     { Struct_create($3)}
 	| ID LPAREN actual_opts_list RPAREN          { Call($1, $3)}
 
 expr_opt:
