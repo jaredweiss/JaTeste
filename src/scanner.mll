@@ -29,6 +29,7 @@ rule token = parse
 	| "!="			{ NEQ }
 	| "!"			{ NOT }
 	| "&&"			{ AND }
+	| "&"			{ AMPERSAND }
 	| "||"			{ OR }
 	| "<"			{ LT }
 	| ">"			{ GT }

@@ -104,7 +104,7 @@ ID = "(['a'-'z' 'A'-'Z'] | '_') (['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_')*"
 % Just a list of reserved keywords
 Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
 
-\texttt{int, char, double, struct, if, else, for, while, with test, using, func, return, string}
+\texttt{int, char, double, struct, if, else, for, while, with test, using, func, return, string, int*, char*, struct *, double*, new, int[], char[], double[]}
 
 \subsection{Constants}
 % How to define constants such as x = 5
@@ -142,13 +142,14 @@ Strings are a sequence of characters enclosed by double quotes. A String is trea
 \begin{Verbatim}[frame=single]
 string = char*
 \end{Verbatim}
+Strings are immutable; once they have been defined, they cannot change.
 
 \subsection{Operators}
 % Just note they can be used, will be explained more later
 Operators are special tokens such as multiply, equals, etc. that are applied to one or two operands.  Their use will be explained further in chapter 4.
 
 \subsection{White Space}
-Whitespace is considered to be a space, tab, or newline. It is used for token delimitation, but has no meaning otherwise. 
+Whitespace is considered to be a space, tab, or newline. It is used for token delimitation, but has no meaning otherwise. That is, when compiled, white space is thrown away.
 
 \begin{Verbatim}[frame=single]
 WHITESPACE = "[' '  '\t' '\r' '\n']"
@@ -255,7 +256,7 @@ typ ID ASSIGN expr SEMI
 
 \subsection{Structures}
 % I.e. structs
-The structure data type is a collection of primitive types and other structure data types. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is made of. As an example, consider the following:
+The structure data type is a user-defined collection of primitive types and other structure data types. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is actually made of. As an example, consider the following:
 
 \subsubsection{Defining Structures}
 
@@ -295,8 +296,12 @@ yahoo_manager.name = sam;
 yahoo_manager.age = 45;
 yahoo_manager.salary = 65000;
 \end{lstlisting}
-
-Ultimately, all structures are backed by some collection of primitives. For example, the first structure, ``struct manager'', is made up of another struct and an int. Since ``struct person'' is made up of two ints, ``struct manager'' is really just made up of three ints. 
+ Ultimately, all structures are backed by some collection of primitives. For example, the first structure, ``struct manager'', is made up of another struct and an int. Since ``struct person'' is made up of two ints, ``struct manager'' is really just made up of three ints. Note accessing members of structs is actually just another expression and thus always returns some value.
+ 
+ 
+\begin{Verbatim}[frame=single]
+expr DOT expr 
+\end{Verbatim}
 
 
 \subsection{Arrays}
@@ -329,6 +334,12 @@ To access an element in an array, use the array name followed by the element ind
 arr[0] = 1;
 \end{lstlisting}
 
+Accessing arrays is simply an expression:
+\begin{Verbatim}[frame=single]
+ expr LBRACKET INT_LITERAL RBRACKET 
+\end{Verbatim}
+
+
 JaTeste does not test for index out of bounds, so the following code would compile although it is incorrect. 
 
  \begin{lstlisting}
@@ -346,9 +357,28 @@ foo(42) * 10;
 8 - (9 / (2 + 1) );
 \end{lstlisting}
 
-The regex for an expression is as follows:
+The grammar for expressions is: 
 \begin{Verbatim}[frame=single]
-expr SEMI
+expr:
+	  INT_LITERAL 	
+	| ID 			
+	| expr PLUS expr 
+	| expr MINUS expr 	
+	| expr TIMES expr 	
+	| expr DIVIDE expr 
+	| expr EQ  expr 	
+	| expr NEQ  expr 	
+	| expr LT expr 	
+	| expr LEQ  expr 
+	| expr GT expr 	
+	| expr GEQ expr 
+	| expr AND  expr
+	| expr OR expr 	
+	| NOT expr		
+	| expr ASSIGN expr 
+	| expr DOT expr 
+	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET
+	| ID LPAREN actual_opts_list RPAREN
 \end{Verbatim}
 
 \subsection{Assignment Operators}
@@ -361,10 +391,11 @@ float y;
 y = 9.9;
 \end{lstlisting}
 
-The grammar for assignment is as follows:
 \begin{Verbatim}[frame=single]
-ID ASSIGN expr
+ expr ASSIGN expr 
 \end{Verbatim}
+
+All assignments are pass by value. Our language supports pointers and so pass by reference can be mimicked using addresses (explained below).
 
 Additionally, the following operators can also be used for variations of assignment:
 
@@ -384,18 +415,23 @@ This can be done using the \texttt{++} operator to increment and the \texttt{--}
 \item \texttt{-} can be used for subtraction (on two operands) and negation (on one operand)
 \item \texttt{*} can be used for multiplication
 \item \texttt{/} can be used for division
+\item \texttt{$\wedge$} can be used for exponents
+\item \texttt{$\%$} can be used for modular division
+\end{itemize}
+
 
 
 The grammar for the above operators, in order, is as follows:
 \begin{Verbatim}[frame=single]
-expr PLUS     expr
-expr MINUS    expr
-expr TIMES    expr
-expr DIVIDE   expr
+	| expr PLUS expr 	
+	| expr MINUS expr 	
+	| expr TIMES expr 
+	| expr DIVIDE expr 
+	| expr EQ  expr 
+	| expr EXPO  expr 
+	| expr MODULO  expr 
 \end{Verbatim}
-\item \texttt{$\wedge$} can be used for exponents
-\item \texttt{$\%$} can be used for modular division
-\end{itemize}
+
 
 \subsection{Comparison Operators}
 % ==, >, <, etc.
@@ -459,11 +495,24 @@ We adhere to standard operator precedence rules.
 % ++ vs * and such
 
 \section{Statements}
-Statements include: \texttt{if, while, for, return} as explained in the following sections
+Statements include: \texttt{if, while, for, return}, as well all expressions, as explained in the following sections. 
+
+\begin{Verbatim}[frame=single]
+stmt:
+	    expr SEMI 					
+	  | LBRACE stmt_list RBRACE				
+	  | RETURN SEMI					
+	  | RETURN expr SEMI				 
+	  | IF LPAREN expr RPAREN stmt ELSE stmt 	     
+	  | IF LPAREN expr RPAREN stmt \%prec NOELSE 	     
+	  | WHILE LPAREN expr RPAREN stmt 		   
+  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt 
+
+\end{Verbatim}
 
 \subsection{If Statement}
 % explain if, else if, else
-The if, else if, else construct will work as expected in other languages.
+The if, else if, else construct will work as expected in other languages. Else clauses match with the closest corresponding if clause.
 
 \begin{lstlisting}
 if (x == 42) {
@@ -545,6 +594,8 @@ The grammar that recognizes a block of code is as follows:
 LBRACE stmt RBRACE
 \end{Verbatim}
 
+This is used to define scope. 
+
 \subsection{Return Statement}
 The \texttt{return} statement is used to exit out of a function and return a value.  The return value must be the same type that is specified by the function deceleration.  Return can be used as follows:
 
@@ -560,13 +611,17 @@ The grammar that recognizes a return statement is as follows:
 RETURN SEMI
 RETURN expr SEMI
 \end{Verbatim}
+Note that functions can be declared as returning void; this is done as follows: 
+\begin{lstlisting}
+return ;
+\end{lstlisting}
 
 \section{Functions}
 Functions allow you to group snippets of code together that can subsequently be called from other parts of your program, depending on scope. Functions are global, unless they are prepended with the keyword ``private''. While not necessary, it is encouraged that you declare functions before defining them. Functions are usually declared at the top of the file they're defined in. Functions that aren't declared can only be called after they have been defined. 
 
 \subsection{Function Declarations}
 
-The keyword ``func'' is used to declare a function. A return type is also required using keyword ``return''; if your function doesn't return anything then use keyword ``void'' instead.  Functions are declared with or without parameters; if parameters are used, their types must be specified. A function can be defined with multiple, different parameters. Though a function can only have one return type, it can also be any data type. 
+The keyword ``func'' is used to declare a function. A return type is also required using keyword ``return''; if your function doesn't return anything then use keyword ``void'' instead.  Functions are declared with or without parameters; if parameters are used, their types must be specified. A function can be defined with multiple, different parameters. Though a function can only have one return type, it can also be any data type, including void.
 
 \begin{lstlisting}
 func int add(int a, int b); /* this functions has two int parameters as input and returns an int */
@@ -622,7 +677,6 @@ add(); /* this is wrong and will not compile because add expects two ints as par
 \end{lstlisting}
 
 \begin{Verbatim}[frame=single]
-fdecl:
 	 ID LPAREN actual_opts_list RPAREN { Call($1, $3)}
 \end{Verbatim}
 
@@ -673,9 +727,7 @@ formal_opt:
 \end{Verbatim}
 
 
-While functions may be defined with multiple formal parameters, that number must be fixed. That is, functions cannot accept a variable number of arguments. 
-\\
-TODO: Are we passing by value or reference?
+While functions may be defined with multiple formal parameters, that number must be fixed. That is, functions cannot accept a variable number of arguments. As mentioned above, our language is pass by value. However, there is explicit support for passing pointers and addresses using * and $\&$.
 
 % \subsection{Main Function}
 % Do we want a main function?

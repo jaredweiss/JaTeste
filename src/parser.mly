@@ -4,7 +4,7 @@
    Tokens/terminal symbols 
 */
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
-%token PLUS MINUS TIMES DIVIDE ASSIGN NOT MODULO EXPO
+%token PLUS MINUS TIMES DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
 %token FUNC
 %token WTEST USING STRUCT DOT
 %token EQ NEQ LT LEQ GT GEQ AND OR 
@@ -37,7 +37,9 @@
 %left PLUS MINUS 
 %left TIMES DIVIDE MODULO
 %right EXPO
-%right NOT NEG
+%right NOT NEG AMPERSAND
+%right RBRACKET
+%left LBRACKET
 %right DOT
 
 /* 
@@ -195,6 +197,8 @@ expr:
 	| expr TIMES expr 	{ Binop($1, Mult, $3)}
 	| expr DIVIDE expr 	{ Binop($1, Div, $3)}
 	| expr EQ  expr 	{ Binop($1, Equal, $3)}
+	| expr EXPO  expr 	{ Binop($1, Exp, $3)}
+	| expr MODULO  expr 	{ Binop($1, Mod, $3)}
 	| expr NEQ  expr 	{ Binop($1, Neq, $3)}
 	| expr LT expr 		{ Binop($1, Less, $3)}
 	| expr LEQ  expr 	{ Binop($1, Leq, $3)}
@@ -203,10 +207,12 @@ expr:
 	| expr AND  expr 	{ Binop($1, And, $3)}
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
+	| AMPERSAND expr	{ Unop(Addr, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_Access($1, $3)}
+	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
-	| ID LPAREN actual_opts_list RPAREN { Call($1, $3)}
+	| ID LPAREN actual_opts_list RPAREN          { Call($1, $3)}
 
 expr_opt:
 	  /* nothing */ { Noexpr }
