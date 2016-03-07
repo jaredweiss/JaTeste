@@ -1,5 +1,6 @@
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or
-type uop = Neg | Not
+type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or |
+Mod | Exp
+type uop = Neg | Not | Addr
 type prim = Int | Double | String | Char | Void
 type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim
 type bind = typ * string
@@ -13,6 +14,7 @@ type expr =
   | Id of string
   | Struct_Access of expr * expr
   | Array_create of int * prim
+  | Array_access of expr * int
   | Call of string * expr list
 
 type stmt =
