@@ -34,6 +34,7 @@ func int sub (int* x, int y)
 struct* person person_pt;
 struct person sam;
 
-sam.age = 10;
+sam.age = 10 ^ 10;
 int[] arr;
 arr = new int[10];
+arr[10] = 10;
