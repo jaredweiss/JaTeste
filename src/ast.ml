@@ -12,6 +12,7 @@ type expr =
   | Assign  of expr * expr
   | Noexpr
   | Id of string
+  | Struct_create of string
   | Struct_Access of expr * expr
   | Array_create of int * prim
   | Array_access of expr * int
