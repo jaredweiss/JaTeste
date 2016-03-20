@@ -110,25 +110,25 @@ Rules for function syntax
 fdecl:
 	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = {exprs = [];  using = { stmts = [] }} }}
+		$9; tests = {exprs = [];  using = { vdecls = []; stmts = [] }} }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = {exprs = [];  using = { stmts = [] }}  }}
+		$9; tests = {exprs = $11;  using = { vdecls = []; stmts = [] }}  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = {exprs = [];  using = {stmts = [] }} }}
+		$9; tests = {exprs = $11;  using = { vdecls = (fst $12); stmts = (snd $12)}} }}
 
 /* 
 "with test" rule 
 */
 testdecl:
-	WTEST LBRACE stmt_list RBRACE usingdecl { }
+	WTEST LBRACE expr_list RBRACE usingdecl { $3 }
 
 /* 
 "using" rule 
 */
 usingdecl:
-	USING LBRACE vdecl_list stmt_list RBRACE { }
+	USING LBRACE vdecl_list stmt_list RBRACE { ($3, $4) }
 
 
 /*
@@ -157,6 +157,10 @@ vdecl_list:
 	  /* nothing */ { [] }
 	| vdecl_list vdecl { $2::$1 }
 
+/*
+Includes declaring a struct
+*/
+
 vdecl:
 	  any_typ_not_void ID SEMI { ($1, $2) }
 
@@ -164,8 +168,8 @@ vdecl:
 Rule for defining a struct 
 */
 sdecl:
-	STRUCT ID ASSIGN LBRACE vdecl_list RBRACE SEMI {{
-		sname = $2; attributes = $5 }}
+	STRUCT ID LBRACE vdecl_list RBRACE SEMI {{
+		sname = $2; attributes = $4 }}
 
 
 stmt_list:
@@ -185,6 +189,9 @@ stmt:
 	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
   	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
 
+expr_list:
+	 /* nothing */ { [] }
+	| expr_list expr SEMI { $2::$1 }
 
 /* 
 Rule for building expressions 
