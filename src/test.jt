@@ -4,10 +4,14 @@ func int add()
 	10 + 10 - 9;
 	b = 100;
 } with test {
-	a = 10;
+	a == 10; b == 9;
 } using {
 	int coolvar;
+	struct person me;
 	coolvar = 1000;
+	while (i < 10) {
+		coolvar = coolvar + 1;
+	}
 }
 
 for (i = 0; i < 10; i = i + 1) {
@@ -16,7 +20,7 @@ for (i = 0; i < 10; i = i + 1) {
 	}
 }
 
-struct person = {
+struct person {
 	int age;
 	int height;
 	char c;
@@ -33,8 +37,13 @@ func int sub (int* x, int y)
 
 struct* person person_pt;
 struct person sam;
+sam  = new struct person;
+
+int num;
+num = sub(10,10 - 9);
 
 sam.age = 10 ^ 10;
 int[] arr;
 arr = new int[10];
 arr[10] = 10;
+a = arr[10];

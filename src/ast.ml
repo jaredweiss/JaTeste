@@ -1,5 +1,4 @@
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or |
-Mod | Exp
+type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or | Mod | Exp
 type uop = Neg | Not | Addr
 type prim = Int | Double | String | Char | Void
 type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim
@@ -27,6 +26,7 @@ type stmt =
   | Return of expr
 
 type with_using_decl = {
+  vdecls : bind list;
   stmts : stmt list;
 }
 
@@ -64,7 +64,7 @@ type flow =
 (* Root of tree *)
 type program = flow list 
 
-
+(*
 let string_of_op = function
     Add -> "+"
   | Sub -> "-"
@@ -125,3 +125,4 @@ let string_of_fdecl fdecl =
 let string_of_program (vars, funcs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs)
+  *)
