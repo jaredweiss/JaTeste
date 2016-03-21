@@ -83,7 +83,16 @@ let list_with_indent indent args =
 let string_of_fdecl fdecl indent = "function: " ^ fdecl.fname ^ "(\n" ^
 String.concat "" (list_with_indent (indent + 1) fdecl.formals) ^  ")\n" ^ 
 String.concat ""  (list_with_indent (indent + 1) fdecl.vdecls) ^ "\n" ^
-String.concat "" (List.map (fun x -> ((add_indent (indent + 1)) ^ string_of_stmt indent x)) fdecl.body)
+String.concat "" (List.map (fun x -> ((add_indent (indent + 1)) ^
+string_of_stmt indent x)) fdecl.body) ^ (add_indent (indent + 1)) ^ "test: \n" ^  
+String.concat "" (List.map (fun x -> ((add_indent (indent + 1)) ^ string_of_expr
+(indent + 1) x)) fdecl.tests.exprs) ^ "\n" ^ (add_indent (indent + 1)) ^ "\n"
+^ (add_indent (indent + 1)) ^ "using\n" ^ 
+String.concat "" (list_with_indent (indent + 1) fdecl.tests.using.vdecls) ^
+"\n" ^
+String.concat "" (List.map (fun x -> ((add_indent (indent + 1)) ^
+string_of_stmt indent x)) fdecl.tests.using.stmts) ^ (add_indent (indent + 1)) 
+
 (*
   string_of_typ fdecl.typ ^ " " ^
   fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
