@@ -62,8 +62,9 @@ let rec string_of_stmt indent stmt = match stmt with
   | If(e, s1, s2) ->   "if" ^ "\n" ^ (add_indent (indent + 1)) ^
   string_of_expr  (indent + 1) e ^ "\n" ^ string_of_stmt (indent + 1) s1 ^ (add_indent (indent + 1)) ^ "else" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_stmt (indent + 1) s2
   | For(e1, e2, e3, s) -> 
-      "for (" ^ string_of_expr  (indent) e1  ^ " ; " ^ string_of_expr (indent) e2 ^ " ; " ^
-      string_of_expr  (indent + 1) e3  ^ ") " ^ string_of_stmt (indent + 1) s
+      "for \n" ^ (add_indent (indent + 1)) ^ string_of_expr  (indent + 1) e1  ^ " \n " ^ (add_indent (indent +
+      1)) ^ string_of_expr (indent + 1) e2 ^ " \n " ^ (add_indent (indent + 1)) ^
+      string_of_expr  (indent + 1) e3  ^ "\n " ^ (add_indent (indent + 1)) ^ string_of_stmt (indent + 1) s
   | While(e, s) -> "while" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr
   (indent + 1) e ^ "\n" ^ string_of_stmt (indent + 1) s ^ "\n"
 
