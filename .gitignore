@@ -9,3 +9,4 @@ scanner.ml
 interpreter
 parser.ml
 parser.mli
+*.toc
