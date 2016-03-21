@@ -122,7 +122,7 @@ fdecl:
 "with test" rule 
 */
 testdecl:
-	WTEST LBRACE expr_list RBRACE usingdecl { $3 }
+	WTEST LBRACE expr_list RBRACE { $3 }
 
 /* 
 "using" rule 
