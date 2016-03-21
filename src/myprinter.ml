@@ -26,37 +26,6 @@ let string_of_uop = function
   | Not -> "!"
   | Addr -> "&"
 
-let rec string_of_expr indent expr = match expr with
-    Lit(l) -> string_of_int l
-  | Id(s) -> "Id" ^ "-" ^s
-  | Binop(e1, o, e2) -> "Binop" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr
-  (indent + 1) e1 ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_op o ^ "\n" ^
-  (add_indent (indent + 1)) ^ string_of_expr (indent + 1) e2
-  | Unop(o, e) -> string_of_uop o ^ string_of_expr  (indent + 1) e
-  | Assign(v, e) -> "Assign" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr (indent
-  + 1) v ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr  (indent + 1) e
-  | Noexpr -> ""
-  | Struct_create(s) -> "new struct"
-  | Struct_Access(e1,e2) -> ""
-  | Array_create(i, prim) -> ""
-  | Array_access(e1, i) -> ""
-  | Call(s, expr) -> ""
-
-
-let rec string_of_stmt indent stmt = match stmt with
-    Block(stmts) -> String.concat "" (List.map (fun x -> ((add_indent indent) ^ string_of_stmt indent x)) stmts)
-      (*"\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "\n" *)
-  | Expr(expr) -> string_of_expr (indent) expr ^ "\n";
-  | Return(expr) -> "return " ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr  (indent + 1) expr ^ "\n";
-  | If(e, s, Block([])) -> "if (" ^ string_of_expr  (indent + 1) e ^ ")\n" ^ string_of_stmt (indent + 1) s
-  | If(e, s1, s2) ->   "if (" ^ string_of_expr  (indent + 1) e ^ ")\n" ^
-      string_of_stmt (indent + 1) s1 ^ "else\n" ^ string_of_stmt (indent + 1) s2
-  | For(e1, e2, e3, s) -> 
-      "for (" ^ string_of_expr  (indent) e1  ^ " ; " ^ string_of_expr (indent) e2 ^ " ; " ^
-      string_of_expr  (indent + 1) e3  ^ ") " ^ string_of_stmt (indent + 1) s
-  | While(e, s) -> "while" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr
-  (indent + 1) e ^ "\n" ^ string_of_stmt (indent + 1) s ^ "\n"
-
 let string_of_prim_type typ =
 	match typ with
 	| Int -> "int"
@@ -64,6 +33,39 @@ let string_of_prim_type typ =
 	| Char -> "char"
 	| Void -> "void"
 	| _ -> ""
+
+
+let rec string_of_expr indent expr = match expr with
+    Lit(l) -> string_of_int l
+  | Id(s) -> "Id" ^ "-" ^s
+  | Binop(e1, o, e2) -> "Binop" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr
+  (indent + 1) e1 ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_op o ^ "\n" ^
+  (add_indent (indent + 1)) ^ string_of_expr (indent + 1) e2
+  | Unop(o, e) -> "Unop" ^ string_of_uop o ^ string_of_expr  (indent + 1) e
+  | Assign(v, e) -> "Assign" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr (indent
+  + 1) v ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr  (indent + 1) e
+  | Noexpr -> ""
+  | Struct_create(s) -> "new struct" ^ s
+  | Struct_Access(e1,e2) -> "Struct access " ^ "\n" ^ (add_indent (indent +
+  1)) ^ string_of_expr (indent + 1)  e1 ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr (indent + 1) e2
+  | Array_create(i, prim) -> "Array create size: " ^ string_of_int i ^ " type: " ^ string_of_prim_type prim
+  | Array_access(e1, i) -> "Array access" ^ "\n" ^ (add_indent (indent + 1)) ^
+  string_of_expr (indent + 1) e1 ^ "\n" ^ (add_indent (indent + 1)) ^ "index: " ^ string_of_int i
+  | Call(s, expr) -> "Call " ^ s  
+
+
+let rec string_of_stmt indent stmt = match stmt with
+    Block(stmts) -> String.concat "" (List.map (fun x -> ((add_indent indent) ^ string_of_stmt indent x)) stmts)
+      (*"\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "\n" *)
+  | Expr(expr) -> string_of_expr (indent) expr ^ "\n";
+  | Return(expr) -> "return " ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr  (indent + 1) expr ^ "\n";
+  | If(e, s1, s2) ->   "if" ^ "\n" ^ (add_indent (indent + 1)) ^
+  string_of_expr  (indent + 1) e ^ "\n" ^ string_of_stmt (indent + 1) s1 ^ (add_indent (indent + 1)) ^ "else" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_stmt (indent + 1) s2
+  | For(e1, e2, e3, s) -> 
+      "for (" ^ string_of_expr  (indent) e1  ^ " ; " ^ string_of_expr (indent) e2 ^ " ; " ^
+      string_of_expr  (indent + 1) e3  ^ ") " ^ string_of_stmt (indent + 1) s
+  | While(e, s) -> "while" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr
+  (indent + 1) e ^ "\n" ^ string_of_stmt (indent + 1) s ^ "\n"
 
 let string_of_typ typ = 
 	match typ with
@@ -96,7 +98,7 @@ let rec string_of_program indent prog=
 	| Var(s)::(rest as a) -> (string_of_vdecl (indent + 1) s)  ^ (string_of_program indent a) 	
 	| Func(s)::(rest as a) -> (string_of_fdecl s (indent + 1)) ^ (string_of_program indent a) 
 	| Stmt(s)::(rest as a) -> (string_of_stmt (indent + 1) s) ^ (string_of_program indent a)
-	| Struct(s)::(rest) -> ""
+	| Struct(s)::(rest as a) -> string_of_program indent a
 	| [] -> ""
   (*
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
