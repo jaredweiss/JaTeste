@@ -56,7 +56,6 @@ type flow =
   | Var     of bind
   | Struct  of struct_decl
   | Func    of func_decl
-  | Stmt    of stmt
 
 (* Root of tree *)
 type program = flow list 

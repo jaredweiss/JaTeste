@@ -68,7 +68,6 @@ decls:
 	| decls fdecl   { Func($2)::$1 }
 	| decls vdecl   { Var($2)::$1 }
 	| decls sdecl   { Struct($2)::$1 }
-	| decls stmt 	{ Stmt($2)::$1 }
 
 prim_typ:
 	| STRING 	{ String }
