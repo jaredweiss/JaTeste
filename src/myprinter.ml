@@ -51,7 +51,7 @@ let rec string_of_expr indent expr = match expr with
   | Array_create(i, prim) -> "Array create size: " ^ string_of_int i ^ " type: " ^ string_of_prim_type prim
   | Array_access(e1, i) -> "Array access" ^ "\n" ^ (add_indent (indent + 1)) ^
   string_of_expr (indent + 1) e1 ^ "\n" ^ (add_indent (indent + 1)) ^ "index: " ^ string_of_int i
-  | Call(s, expr) -> "Call " ^ s  
+  | Call(s, _) -> "Call " ^ s  
 
 
 let rec string_of_stmt indent stmt = match stmt with
@@ -71,12 +71,12 @@ let rec string_of_stmt indent stmt = match stmt with
 let string_of_typ typ = 
 	match typ with
     Primitive(s) -> string_of_prim_type s
-  | Struct_typ(s) -> "struct"
-  | Func_typ(s) -> "func"
-  | Pointer_typ(s) -> "ptr"
-  | Array_typ(s) -> "array"
+  | Struct_typ(_) -> "struct"
+  | Func_typ(_) -> "func"
+  | Pointer_typ(_) -> "ptr"
+  | Array_typ(_) -> "array"
 
-let string_of_vdecl indent (t, id) = "Id" ^ "-" ^ id ^ "(" ^ string_of_typ t ^ ")\n"
+let string_of_vdecl indent (t, id) = ignore(indent); "Id" ^ "-" ^ id ^ "(" ^ string_of_typ t ^ ")\n"
 
 let list_with_indent indent args = 
 	List.map (fun x -> ((add_indent indent) ^ string_of_vdecl indent x)) args
@@ -89,7 +89,7 @@ string_of_stmt indent x)) fdecl.body) ^ (add_indent (indent + 1)) ^ "test: \n" ^
 String.concat "" (List.map (fun x -> ((add_indent (indent + 1)) ^ string_of_expr
 (indent + 1) x)) fdecl.tests.exprs) ^ "\n" ^ (add_indent (indent + 1)) ^ "\n"
 ^ (add_indent (indent + 1)) ^ "using\n" ^ 
-String.concat "" (list_with_indent (indent + 1) fdecl.tests.using.vdecls) ^
+String.concat "" (list_with_indent (indent + 1) fdecl.tests.using.uvdecls) ^
 "\n" ^
 String.concat "" (List.map (fun x -> ((add_indent (indent + 1)) ^
 string_of_stmt indent x)) fdecl.tests.using.stmts) ^ (add_indent (indent + 1)) 
@@ -105,10 +105,10 @@ string_of_stmt indent x)) fdecl.tests.using.stmts) ^ (add_indent (indent + 1))
 
 let rec string_of_program indent prog= 
 	match  prog with
-	| Var(s)::(rest as a) -> (string_of_vdecl (indent + 1) s)  ^ (string_of_program indent a) 	
-	| Func(s)::(rest as a) -> (string_of_fdecl s (indent + 1)) ^ (string_of_program indent a) 
-	| Stmt(s)::(rest as a) -> (string_of_stmt (indent + 1) s) ^ (string_of_program indent a)
-	| Struct(s)::(rest as a) -> string_of_program indent a
+	| Var(s)::(a) -> (string_of_vdecl (indent + 1) s)  ^ (string_of_program indent a) 	
+	| Func(s)::(a) -> (string_of_fdecl s (indent + 1)) ^ (string_of_program indent a) 
+	| Stmt(s)::(a) -> (string_of_stmt (indent + 1) s) ^ (string_of_program indent a)
+	| Struct(_)::(a) -> string_of_program indent a
 	| [] -> ""
   (*
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^

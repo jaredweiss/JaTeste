@@ -26,7 +26,7 @@ type stmt =
   | Return of expr
 
 type with_using_decl = {
-  vdecls : bind list;
+  uvdecls : bind list;
   stmts : stmt list;
 }
 
