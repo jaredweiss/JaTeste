@@ -107,7 +107,6 @@ let rec string_of_program indent prog=
 	match  prog with
 	| Var(s)::(a) -> (string_of_vdecl (indent + 1) s)  ^ (string_of_program indent a) 	
 	| Func(s)::(a) -> (string_of_fdecl s (indent + 1)) ^ (string_of_program indent a) 
-	| Stmt(s)::(a) -> (string_of_stmt (indent + 1) s) ^ (string_of_program indent a)
 	| Struct(_)::(a) -> string_of_program indent a
 	| [] -> ""
   (*

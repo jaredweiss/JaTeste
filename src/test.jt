@@ -1,3 +1,17 @@
+int global_var;
+
+func int main()
+{
+	int a;
+	a = add(1, 1);
+	for (i = 0; i < 10; i = i + 1) {
+		a = 1;
+	}
+	add();
+	return 0;
+}
+
+int a;
 func int add()
 {
 	a = 10;
@@ -11,12 +25,6 @@ func int add()
 	coolvar = 1000;
 	while (i < 10) {
 		coolvar = coolvar + 1;
-	}
-}
-
-for (i = 0; i < 10; i = i + 1) {
-	for (j = 0; j < 10; j = j + 1) {
-		a = 0;
 	}
 }
 
@@ -37,13 +45,12 @@ func int sub (int* x, int y)
 
 struct* person person_pt;
 struct person sam;
-sam  = new struct person;
 
-int num;
-num = sub(10,10 - 9);
 
-sam.age = 10 ^ 10;
-int[] arr;
-arr = new int[10];
-arr[10] = 10;
-a = arr[10];
+func int sub(int a, int b) {
+	return a - b;
+} with test {
+	sub(10,5) == 5;
+} using {
+	struct person sam;
+}
