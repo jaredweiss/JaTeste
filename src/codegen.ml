@@ -16,9 +16,9 @@ let translate program =
 
 	let print_f = L.var_arg_function_type i32_t [| L.pointer_type i8_t|] in
 	let printf_func = L.declare_function "print" print_f the_module in
-	
-	let ftype = L.function_type i32_t [||] in
 
-	L.define_function "main" ftype the_module,
+	let add_global p = () in
+
+	List.iter add_global program;
 
 	the_module;

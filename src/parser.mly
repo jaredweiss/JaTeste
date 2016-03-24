@@ -4,13 +4,13 @@
    Tokens/terminal symbols 
 */
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
-%token PLUS MINUS TIMES DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
+%token PLUS MINUS STAR DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
 %token FUNC
 %token WTEST USING STRUCT DOT
 %token EQ NEQ LT LEQ GT GEQ AND OR 
 %token INT DOUBLE VOID CHAR STRING 
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
-%token INT_ARRAY DOUBLE_ARRAY CHAR_ARRAY
+%token ARRAY
 %token NEW
 %token RETURN IF ELSE WHILE FOR
 
@@ -35,7 +35,7 @@
 %left EQ NEQ
 %left LT GT LEQ GEQ 
 %left PLUS MINUS 
-%left TIMES DIVIDE MODULO
+%left STAR DIVIDE MODULO
 %right EXPO
 %right NOT NEG AMPERSAND
 %right RBRACKET
@@ -78,16 +78,17 @@ prim_typ:
 void_typ:
 	| VOID 		{ Void }
 	
-pointer_typ:
-	| INT_PT	{ Primitive(Int) }
-	| CHAR_PT	{ Primitive(Char) }
-	| STRUCT_PT ID	{ Struct_typ($2) }
-
 struct_typ:
 	| STRUCT ID { $2 }
 
 array_typ:
-	INT_ARRAY 	{ Int }
+	prim_typ ARRAY 	{ $1 }
+
+pointer_typ:
+	| prim_typ STAR 		{ Primitive($1) }
+	| struct_typ STAR 		{ Struct_typ($1) }
+	| array_typ STAR 		{ Array_typ($1) }
+
 
 any_typ:
 	  prim_typ 	{ Primitive($1) }
@@ -200,7 +201,7 @@ expr:
 	| ID 			{ Id($1) }
 	| expr PLUS expr 	{ Binop($1, Add, $3) }
 	| expr MINUS expr 	{ Binop($1, Sub, $3) }
-	| expr TIMES expr 	{ Binop($1, Mult, $3)}
+	| expr STAR expr 	{ Binop($1, Mult, $3)}
 	| expr DIVIDE expr 	{ Binop($1, Div, $3)}
 	| expr EQ  expr 	{ Binop($1, Equal, $3)}
 	| expr EXPO  expr 	{ Binop($1, Exp, $3)}

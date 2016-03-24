@@ -32,6 +32,7 @@ let string_of_prim_type typ =
 	| String -> "string"
 	| Char -> "char"
 	| Void -> "void"
+	| Double -> "double"
 	| _ -> ""
 
 
@@ -68,12 +69,12 @@ let rec string_of_stmt indent stmt = match stmt with
   | While(e, s) -> "while" ^ "\n" ^ (add_indent (indent + 1)) ^ string_of_expr
   (indent + 1) e ^ "\n" ^ string_of_stmt (indent + 1) s ^ "\n"
 
-let string_of_typ typ = 
+let rec string_of_typ typ = 
 	match typ with
     Primitive(s) -> string_of_prim_type s
   | Struct_typ(_) -> "struct"
   | Func_typ(_) -> "func"
-  | Pointer_typ(_) -> "ptr"
+  | Pointer_typ(t) -> "ptr" ^ " of " ^ string_of_typ t
   | Array_typ(_) -> "array"
 
 let string_of_vdecl indent (t, id) = ignore(indent); "Id" ^ "-" ^ id ^ "(" ^ string_of_typ t ^ ")\n"

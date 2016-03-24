@@ -11,6 +11,6 @@ let _ =
 	print_string (string_of_program 0 ast);
 	Semant.check ast;
 	(* print_string (Ast.string_of_program ast) *)
-	(*let m = Codegen.translate ast in
+	let m = Codegen.translate ast in
 	Llvm_analysis.assert_valid_module m;
-	print_string (Llvm.string_of_llmodule m;*)
+	print_string (Llvm.string_of_llmodule m)

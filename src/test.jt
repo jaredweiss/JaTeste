@@ -3,6 +3,12 @@ int global_var;
 func int main()
 {
 	int a;
+	int *pt;
+	double *pt;
+	int[] *intarray;
+	double [] doublearray;
+	struct person *pt;
+	char [] myarray;
 	a = add(1, 1);
 	for (i = 0; i < 10; i = i + 1) {
 		a = 1;
@@ -34,16 +40,14 @@ struct person {
 	char c;
 };
 
-int* int_pt;
-
-func int sub (int* x, int y)
+func int sub (int x, int y)
 {
 	x = 10;
 	add(1,1);
 	add();
 }
 
-struct* person person_pt;
+struct person person_pt;
 struct person sam;
 
 
