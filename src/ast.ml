@@ -54,9 +54,8 @@ type struct_decl = {
 (* Program is made up of a list of these *)
 type flow = 
   | Var     of bind
-  | Struct  of struct_decl
-  | Func    of func_decl
+  | Struct  of struct_decl 
+  | Func    of func_decl 
 
 (* Root of tree *)
-type program = flow list 
-
+type program = Program of bind list * func_decl list * struct_decl list

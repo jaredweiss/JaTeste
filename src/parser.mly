@@ -61,13 +61,19 @@
    for efficiency reasons 
  */
 
-program: decls EOF { List.rev $1 } 
+program: var_decls func_decls struc_decls  EOF { Program($1, $2, $3) } 
 
-decls: 			  
-	/* nothing */ 	{ [] } 
-	| decls fdecl   { Func($2)::$1 }
-	| decls vdecl   { Var($2)::$1 }
-	| decls sdecl   { Struct($2)::$1 }
+var_decls: 			  
+	/* nothing */ { [] }
+	| var_decls vdecl   { $2::$1 }
+
+func_decls:	
+	 fdecl {[$1]}
+	| func_decls fdecl  {$2::$1}
+
+struc_decls:
+	  /*nothing*/ { [] }
+	| struc_decls sdecl {$2::$1}
 
 prim_typ:
 	| STRING 	{ String }
