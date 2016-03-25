@@ -1,4 +1,7 @@
 int global_var;
+struct person person_pt;
+struct person sam;
+int a;
 
 func int main()
 {
@@ -17,7 +20,6 @@ func int main()
 	return 0;
 }
 
-int a;
 func int add()
 {
 	a = 10;
@@ -34,12 +36,6 @@ func int add()
 	}
 }
 
-struct person {
-	int age;
-	int height;
-	char c;
-};
-
 func int sub (int x, int y)
 {
 	x = 10;
@@ -47,8 +43,6 @@ func int sub (int x, int y)
 	add();
 }
 
-struct person person_pt;
-struct person sam;
 
 
 func int sub(int a, int b) {
@@ -58,3 +52,11 @@ func int sub(int a, int b) {
 } using {
 	struct person sam;
 }
+
+struct person {
+	int age;
+	int height;
+	char c;
+};
+
+

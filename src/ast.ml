@@ -58,4 +58,4 @@ type flow =
   | Func    of func_decl 
 
 (* Root of tree *)
-type program = Program of bind list * func_decl list * struct_decl list
+type program = bind list * func_decl list * struct_decl list

@@ -61,7 +61,7 @@
    for efficiency reasons 
  */
 
-program: var_decls func_decls struc_decls  EOF { Program($1, $2, $3) } 
+program: var_decls func_decls struc_decls  EOF { ($1, $2, $3) } 
 
 var_decls: 			  
 	/* nothing */ { [] }
