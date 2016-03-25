@@ -4,6 +4,7 @@ module A = Ast
 module StringMap = Map.Make(String)
 
 
+(* Overall function to translate Ast.program to LLVM module *)
 let translate (globals, functions, structs) = 
 	ignore(globals);ignore(functions);ignore(structs);
 	let context = L.global_context () in
@@ -45,9 +46,10 @@ let translate (globals, functions, structs) =
     List.fold_left function_decl StringMap.empty functions in
 
 	(* Method to build body of function *)
-let build_function_body fdecl =
-    let (the_function, _) = StringMap.find fdecl.A.fname function_decls in
-    let builder = L.builder_at_end context (L.entry_block the_function) in
+	let build_function_body fdecl =
+    	 let (the_function, _) = StringMap.find fdecl.A.fname function_decls in
+	  (* builder is the LLVM instruction builder *)
+          let builder = L.builder_at_end context (L.entry_block the_function) in
 
 	let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
 
@@ -106,8 +108,9 @@ let build_function_body fdecl =
       | _ -> L.build_ret (L.const_int i32_t 0) )
 	in
 	
-	(* Here is where we go through each function and build the body of the function *)
+	(* Here we go through each function and build the body of the function *)
 	List.iter build_function_body functions;
 
 
+	(* The LLVM module we return that contains the translated code *)
  	the_module

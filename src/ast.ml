@@ -51,11 +51,5 @@ type struct_decl = {
   attributes  : bind list;
 }
 
-(* Program is made up of a list of these *)
-type flow = 
-  | Var     of bind
-  | Struct  of struct_decl 
-  | Func    of func_decl 
-
-(* Root of tree *)
+(* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
 type program = bind list * func_decl list * struct_decl list
