@@ -12,5 +12,14 @@ let translate (globals, functions, structs) =
 	and i1_t = L.i1_type context
 	and void_t = L.void_type context in
 
+	 let ltype_of_typ = function
+      		  A.Primitive(A.Int) -> i32_t
+    		| _ -> void_t in
+
+ let global_vars =
+    let global_var m (t, n) =
+      let init = L.const_int (ltype_of_typ t) 0
+      in StringMap.add n (L.define_global n init the_module) m in
+    List.fold_left global_var StringMap.empty globals in
 	
 	the_module;
