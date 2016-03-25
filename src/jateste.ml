@@ -1,5 +1,3 @@
-open Myprinter;;
-
 let eval_prog prog =
 		match prog with
 		_ ->  "Successfully parsed\n"

@@ -1,5 +1,5 @@
 module StringMap = Map.Make(String)
 
-let check program =  ()
+let check program =  ignore(program); ()
 	
 

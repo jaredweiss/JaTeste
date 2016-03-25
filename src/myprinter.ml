@@ -1,3 +1,4 @@
+(*
 open Ast
 
 let rec add_indent indent = 
@@ -102,14 +103,16 @@ string_of_stmt indent x)) fdecl.tests.using.stmts) ^ (add_indent (indent + 1))
   String.concat "" (List.map string_of_vdecl fdecl.formals) ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
-  *)
+  *) *)
 
 let rec string_of_program indent prog= 
-	match  prog with
+	(ignore prog);ignore(indent);
+(*	match  prog with
 	| Var(s)::(a) -> (string_of_vdecl (indent + 1) s)  ^ (string_of_program indent a) 	
 	| Func(s)::(a) -> (string_of_fdecl s (indent + 1)) ^ (string_of_program indent a) 
 	| Struct(_)::(a) -> string_of_program indent a
-	| [] -> ""
+	| [] -> "" *)
+	()
   (*
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs)

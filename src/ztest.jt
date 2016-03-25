@@ -1,0 +1,13 @@
+int i;
+
+func int main()
+{
+	int a;
+	print(2);
+	return 1;
+}
+
+struct person  {
+	int age;
+};
+
