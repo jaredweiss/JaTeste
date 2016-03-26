@@ -5,7 +5,7 @@ let digit = ['0' - '9']
 let int = digit+
 let double = int | digit*['.']digit+ | digit+['.']digit*
 let char = '''['a' - 'z' 'A' - 'Z']'''
-let string = char+
+let string = '"' ['a' - 'z']+ '"'
 
 rule token = parse
 	   [' ' '\t' '\r' '\n' ] { token lexbuf } (* White space *)
