@@ -1,3 +1,5 @@
+open Printf 
+
 let eval_prog prog =
 		match prog with
 		_ ->  "Successfully parsed\n"
@@ -8,6 +10,9 @@ let _ =
 
 	print_string (eval_prog ast);
 	Semant.check ast;
+	let file = "file.bc" in
+	let oc = open_out file in
 	let m = Codegen.translate ast in 
 	Llvm_analysis.assert_valid_module m;
-	print_string (Llvm.string_of_llmodule m) 
+	fprintf oc "%s\n" (Llvm.string_of_llmodule m);
+	print_string (Llvm.string_of_llmodule m)
