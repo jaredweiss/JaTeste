@@ -3,7 +3,9 @@ int i;
 func int main()
 {
 	int a;
-	print(2);
+	a = 10;
+	print("Hello, world!");
+	print("dude");
 	return 1;
 }
 

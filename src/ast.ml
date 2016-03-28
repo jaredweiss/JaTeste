@@ -6,6 +6,7 @@ type bind = typ * string
 
 type expr =
     Lit     of int
+  | String_Lit of string
   | Binop   of expr * op * expr
   | Unop    of uop * expr
   | Assign  of expr * expr

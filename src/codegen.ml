@@ -3,27 +3,38 @@ module A = Ast
 
 module StringMap = Map.Make(String)
 
+	let context = L.global_context () 
+	let the_module = L.create_module context "Jateste" 
+
 
 (* Overall function to translate Ast.program to LLVM module *)
 let translate (globals, functions, structs) = 
 	ignore(globals);ignore(functions);ignore(structs);
-	let context = L.global_context () in
-	let the_module = L.create_module context "Jateste" 
-	and i32_t = L.i32_type context
+	let i32_t = L.i32_type context
 	and i8_t = L.i8_type context
 	and i1_t = L.i1_type context
+	and d_t = L.double_type context
 	and void_t = L.void_type context in
+	let str_t = L.pointer_type i8_t in
 
 	ignore(i32_t);
 	ignore(i1_t);
 	ignore(i8_t);
 	ignore(void_t);
 
+	let typ_of = function
+		  "string" -> A.Primitive(A.String)
+		| _ -> A.Primitive(A.Int)
+		in 
+
 	 let ltype_of_typ = function
 		  A.Primitive(A.Int) -> i32_t
+		| A.Primitive(A.Double) -> d_t
+		| A.Primitive(A.Char) -> i8_t
+		| A.Primitive(A.String) -> str_t
     		| _ -> void_t in
 
-(* HashMap of all global variables *)
+	(* HashMap of all global variables *)
  	let global_vars =
          let global_var m (t, n) =
            let init = L.const_int (ltype_of_typ t) 0
@@ -51,7 +62,8 @@ let translate (globals, functions, structs) =
 	  (* builder is the LLVM instruction builder *)
           let builder = L.builder_at_end context (L.entry_block the_function) in
 
-	let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+	let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in 
+	let str_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
 
 	(* This is where we push local variables onto the stack and add them to a local HashMap*)
 	let local_vars = 
@@ -85,9 +97,12 @@ let translate (globals, functions, structs) =
 	let rec expr builder = function 
 	   A.Lit l -> L.const_int i32_t l
 	 | A.Id s -> L.build_load (find_var s) s builder
-	 | A.Call("print", [e]) -> L.build_call printf_func [|int_format_str; (expr builder e) |] "printf" builder
+	 | A.Call("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
+	 | A.String_Lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
+	 | A.Assign (e1, e2) -> let x = 10 in L.const_int i32_t 0
 	 | _ -> L.const_int i32_t 0 
 	in
+
 
 	(* This is where we build the LLVM statements *)
 	let rec stmt builder = function 
