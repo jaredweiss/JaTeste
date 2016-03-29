@@ -23,13 +23,10 @@ exception InvalidStruct of string
 	 with | Not_found -> raise(InvalidStruct name)
 
 	let declare_struct s =
-	let struct_t = L.named_struct_type context s.A.sname in
+	 let struct_t = L.named_struct_type context s.A.sname in
 	Hashtbl.add struct_types s.A.sname struct_t
 
-	let define_struct_body s =
-	let struct_t = Hashtbl.find struct_types s.A.sname in
-	L.struct_set_body struct_t [||] false
-
+	
 	let rec ltype_of_typ = function
 		  A.Primitive(A.Int) -> i32_t
 		| A.Primitive(A.Double) -> d_t
@@ -39,6 +36,13 @@ exception InvalidStruct of string
 		| A.Pointer_typ(s) -> L.pointer_type (ltype_of_typ s)
     		| _ -> void_t 
 
+	(* Function that builds LLVM struct *)
+	let define_struct_body s =
+	 let struct_t = Hashtbl.find struct_types s.A.sname in
+	  let attribute_types = List.map (fun (t, _) -> t) s.A.attributes in
+	   let attributes = List.map ltype_of_typ attribute_types in		
+	    let attributes_array = Array.of_list attributes in 
+	L.struct_set_body struct_t attributes_array false
 
 	(* Where we add global variabes to global data section *)
 	let allocate_globals globs = 
@@ -49,7 +53,7 @@ exception InvalidStruct of string
 		| A.Pointer_typ(_) -> Hashtbl.add  global_variables n (L.declare_global (ltype_of_typ t) n the_module)
 		| _ -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
 		in
-		List.map global_var_2 globs
+	List.map global_var_2 globs
 
 	
 	(* Translations functions to LLVM code in text section  *)
@@ -71,10 +75,10 @@ exception InvalidStruct of string
          let function_decl m fdecl =
            let name = fdecl.A.fname
             and formal_types =
-        Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.A.formals)
-      in let ftype = L.function_type (ltype_of_typ fdecl.A.typ) formal_types in
-      StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    List.fold_left function_decl StringMap.empty functions in
+            Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.A.formals)
+            in let ftype = L.function_type (ltype_of_typ fdecl.A.typ) formal_types in
+             StringMap.add name (L.define_function name ftype the_module, fdecl) m in
+    	List.fold_left function_decl StringMap.empty functions in
 	
 	(* Method to build body of function *)
 	let build_function_body fdecl =
@@ -90,10 +94,10 @@ exception InvalidStruct of string
 	 let add_formal m(t, n) p = L.set_value_name n p;
 	  let local = L.build_alloca (ltype_of_typ t) n builder in
 	  ignore (L.build_store p local builder);
-	  StringMap.add n local m in
+	StringMap.add n local m in
 
 	let add_local m (t, n) =
-        let local_var = L.build_alloca (ltype_of_typ t) n builder
+         let local_var = L.build_alloca (ltype_of_typ t) n builder
         in StringMap.add n local_var m in
 
 	(* This is where we push formal arguments onto the stack *)

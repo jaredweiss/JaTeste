@@ -16,5 +16,6 @@ func int main()
 
 struct person  {
 	int age;
+	int height;
 };
 
