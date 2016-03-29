@@ -9,6 +9,7 @@ exception InvalidStruct of string
 	let the_module = L.create_module context "Jateste" 
 
 	let i32_t = L.i32_type context
+	let i64_t = L.i32_type context
 	let i8_t = L.i8_type context
 	let i1_t = L.i1_type context
 	let d_t = L.double_type context
@@ -26,14 +27,18 @@ exception InvalidStruct of string
 	 let struct_t = L.named_struct_type context s.A.sname in
 	Hashtbl.add struct_types s.A.sname struct_t
 
-	
+	let prim_ltype_of_typ = function
+		  A.Int -> i32_t
+		| A.Double -> d_t
+		| A.Char -> i8_t
+		| A.Void -> void_t
+		| A.String -> str_t
+
 	let rec ltype_of_typ = function
-		  A.Primitive(A.Int) -> i32_t
-		| A.Primitive(A.Double) -> d_t
-		| A.Primitive(A.Char) -> i8_t
-		| A.Primitive(A.String) -> str_t
-		| A.Struct_typ(s) -> L.pointer_type (find_struct_name s)
+		| A.Primitive(s) -> prim_ltype_of_typ s
+		| A.Struct_typ(s) ->  find_struct_name s
 		| A.Pointer_typ(s) -> L.pointer_type (ltype_of_typ s)
+		| A.Array_typ(t,n) -> L.array_type (prim_ltype_of_typ t) n
     		| _ -> void_t 
 
 	(* Function that builds LLVM struct *)
@@ -45,25 +50,17 @@ exception InvalidStruct of string
 	L.struct_set_body struct_t attributes_array false
 
 	(* Where we add global variabes to global data section *)
-	let allocate_globals globs = 
 	 let global_var_2 (t, n) =
 		match t with
 		  A.Primitive(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
 		| A.Struct_typ(_) -> Hashtbl.add  global_variables n (L.declare_global (ltype_of_typ t) n the_module)
 		| A.Pointer_typ(_) -> Hashtbl.add  global_variables n (L.declare_global (ltype_of_typ t) n the_module)
-		| _ -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
-		in
-	List.map global_var_2 globs
+		| A.Array_typ(_,_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
+		| A.Func_typ(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
 
 	
 	(* Translations functions to LLVM code in text section  *)
-	let translate_function (globals, functions, structs) = 
-	ignore(globals);ignore(functions);ignore(structs);
-
-	ignore(i32_t);
-	ignore(i1_t);
-	ignore(i8_t);
-	ignore(void_t);
+	let translate_function (functions) = 
 
 	(* Here we define the built in print function *)
  	let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -143,8 +140,8 @@ exception InvalidStruct of string
 	let builder = stmt builder (A.Block fdecl.A.body) in
 		
 	add_terminal builder (match fdecl.A.typ with
-        A.Primitive(A.Void) -> L.build_ret_void
-      | _ -> L.build_ret (L.const_int i32_t 0) )
+          A.Primitive(A.Void) -> L.build_ret_void
+        | _ -> L.build_ret (L.const_int i32_t 0) )
 	in
 	
 	(* Here we go through each function and build the body of the function *)
@@ -153,8 +150,8 @@ exception InvalidStruct of string
 
 	(* Overall function that translates Ast.program to LLVM module *)
 	let gen_llvm (g, f, s) = 
-	let _ = List.map declare_struct s in
-	let _ = List.map define_struct_body s in
-	let _ = allocate_globals g in
-	let _ = translate_function (g, f, s) in
+	let _ = List.iter declare_struct s in
+	let _ = List.iter define_struct_body s in
+	let _ = List.iter global_var_2 g in
+	let _ = translate_function (f) in
 	the_module

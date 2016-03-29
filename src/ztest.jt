@@ -1,6 +1,8 @@
 int i;
 int * pt;
-struct person sam;
+string john;
+struct person global_person;
+int[10] arr;
 
 func int main()
 {
@@ -8,11 +10,17 @@ func int main()
 	int *my_pt;
 	struct person *pat;
 	struct person sam;
+	struct house ah;
 	a = 10;
 	print("Hello, world!");
 	print("dude");
 	return 1;
 }
+
+struct house  {
+	int price;
+	string location;
+};
 
 struct person  {
 	int age;
