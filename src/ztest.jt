@@ -1,8 +1,13 @@
 int i;
+int * pt;
+struct person sam;
 
 func int main()
 {
 	int a;
+	int *my_pt;
+	struct person *pat;
+	struct person sam;
 	a = 10;
 	print("Hello, world!");
 	print("dude");
