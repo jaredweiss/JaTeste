@@ -66,7 +66,7 @@ rule token = parse
 	| int as lxm   		{ INT_LITERAL(int_of_string lxm)}
 	| double as lxm 	{ DOUBLE_LITERAL(lxm) }
 	| char as lxm 		{ CHAR_LITERAL(String.get lxm 1) }
-	| string as lxm 	{ STRING_LITERAL(lxm) } 
+	| '"' {let buffer = Buffer.create 1 in STRING_LITERAL(string_find buffer lexbuf) }
 
 	| eof { EOF }
 	| _ as char { raise (Failure ("illegal character " ^
@@ -77,4 +77,8 @@ rule token = parse
 and comment = parse
 	"*/" { token lexbuf }
 	| _ { comment lexbuf }
+
+and string_find buffer = parse 
+	  '"' {Buffer.contents buffer }
+	| _ as chr { Buffer.add_char buffer chr; string_find buffer lexbuf }
 
