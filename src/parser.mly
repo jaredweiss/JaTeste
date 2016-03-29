@@ -95,20 +95,26 @@ pointer_typ:
 	| struct_typ STAR 		{ Struct_typ($1) }
 	| array_typ STAR 		{ Array_typ(fst $1, snd $1) }
 
+double_pointer_typ:
+	| pointer_typ STAR 		{ Pointer_typ($1)  }
+
+
 
 any_typ:
-	  prim_typ 	{ Primitive($1) }
-	| struct_typ 	{ Struct_typ($1) }
-	| pointer_typ 	{ Pointer_typ($1) }
-	| void_typ 	{ Primitive($1) }
-	| array_typ	{ Array_typ(fst $1, snd $1) }
+	  prim_typ 		{ Primitive($1) }
+	| struct_typ 		{ Struct_typ($1) }
+	| pointer_typ 		{ Pointer_typ($1) }
+	| double_pointer_typ 	{ Pointer_typ($1) }
+	| void_typ 		{ Primitive($1) }
+	| array_typ		{ Array_typ(fst $1, snd $1) }
 
 
 any_typ_not_void:
-	  		  prim_typ 	{ Primitive($1) }
-			| struct_typ 	{ Struct_typ($1) }
-			| pointer_typ 	{ Pointer_typ($1) }
-			| array_typ	{ Array_typ(fst $1, snd $1) }
+	  	  prim_typ 	{ Primitive($1) }
+		| struct_typ 	{ Struct_typ($1) }
+		| pointer_typ 	{ Pointer_typ($1) }
+		| double_pointer_typ 	{ Pointer_typ($1) }
+		| array_typ	{ Array_typ(fst $1, snd $1) }
 
 /* 
 Rules for function syntax
@@ -134,7 +140,7 @@ testdecl:
 "using" rule 
 */
 usingdecl:
-	USING LBRACE vdecl_list stmt_list RBRACE { ($3, $4) }
+	USING LBRACE vdecl_list stmt_list RBRACE { (List.rev $3, List.rev $4) }
 
 
 /*
@@ -175,7 +181,7 @@ Rule for defining a struct
 */
 sdecl:
 	STRUCT ID LBRACE vdecl_list RBRACE SEMI {{
-		sname = $2; attributes = $4 }}
+		sname = $2; attributes = List.rev $4 }}
 
 
 stmt_list:
@@ -222,7 +228,7 @@ expr:
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
 	| AMPERSAND expr	{ Unop(Addr, $2) }
-	| expr ASSIGN expr 	{ Assign($1, $3) }
+	| ID ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_Access($1, $3)}
 	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }

@@ -119,8 +119,10 @@ exception InvalidStruct of string
 	   A.Lit l -> L.const_int i32_t l
 	 | A.Id s -> L.build_load (find_var s) s builder
 	 | A.Call("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
+	 | A.Call(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
+			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.A.typ with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	 | A.String_Lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
-	 | A.Assign (_, _) -> L.const_int i32_t 0
+	 | A.Assign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (find_var l) builder); e_temp
 	 | _ -> L.const_int i32_t 0 
 	in
 
@@ -133,6 +135,7 @@ exception InvalidStruct of string
 						  A.Primitive(A.Void) -> L.build_ret_void builder
 						| _ -> L.build_ret (expr builder r) builder); builder
 	
+	| A.If(_, _, _) -> builder
 	| _ -> builder
 	in
 	
