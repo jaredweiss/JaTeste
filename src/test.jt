@@ -1,8 +1,17 @@
 int global_var;
+struct person person_pt;
+struct person sam;
+int a;
 
 func int main()
 {
 	int a;
+	int *pt;
+	double *pt;
+	int[] *intarray;
+	double [] doublearray;
+	struct person *pt;
+	char [] myarray;
 	a = add(1, 1);
 	for (i = 0; i < 10; i = i + 1) {
 		a = 1;
@@ -11,7 +20,6 @@ func int main()
 	return 0;
 }
 
-int a;
 func int add()
 {
 	a = 10;
@@ -28,23 +36,13 @@ func int add()
 	}
 }
 
-struct person {
-	int age;
-	int height;
-	char c;
-};
-
-int* int_pt;
-
-func int sub (int* x, int y)
+func int sub (int x, int y)
 {
 	x = 10;
 	add(1,1);
 	add();
 }
 
-struct* person person_pt;
-struct person sam;
 
 
 func int sub(int a, int b) {
@@ -54,3 +52,11 @@ func int sub(int a, int b) {
 } using {
 	struct person sam;
 }
+
+struct person {
+	int age;
+	int height;
+	char c;
+};
+
+

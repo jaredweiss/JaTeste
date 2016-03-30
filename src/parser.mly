@@ -4,13 +4,13 @@
    Tokens/terminal symbols 
 */
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
-%token PLUS MINUS TIMES DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
+%token PLUS MINUS STAR DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
 %token FUNC
 %token WTEST USING STRUCT DOT
 %token EQ NEQ LT LEQ GT GEQ AND OR 
 %token INT DOUBLE VOID CHAR STRING 
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
-%token INT_ARRAY DOUBLE_ARRAY CHAR_ARRAY
+%token ARRAY
 %token NEW
 %token RETURN IF ELSE WHILE FOR
 
@@ -35,7 +35,7 @@
 %left EQ NEQ
 %left LT GT LEQ GEQ 
 %left PLUS MINUS 
-%left TIMES DIVIDE MODULO
+%left STAR DIVIDE MODULO
 %right EXPO
 %right NOT NEG AMPERSAND
 %right RBRACKET
@@ -61,13 +61,19 @@
    for efficiency reasons 
  */
 
-program: decls EOF { List.rev $1 } 
+program: var_decls func_decls struc_decls  EOF { ($1, $2, $3) } 
 
-decls: 			  
-	/* nothing */ 	{ [] } 
-	| decls fdecl   { Func($2)::$1 }
-	| decls vdecl   { Var($2)::$1 }
-	| decls sdecl   { Struct($2)::$1 }
+var_decls: 			  
+	/* nothing */ { [] }
+	| var_decls vdecl   { $2::$1 }
+
+func_decls:	
+	 fdecl {[$1]}
+	| func_decls fdecl  {$2::$1}
+
+struc_decls:
+	  /*nothing*/ { [] }
+	| struc_decls sdecl {$2::$1}
 
 prim_typ:
 	| STRING 	{ String }
@@ -78,30 +84,37 @@ prim_typ:
 void_typ:
 	| VOID 		{ Void }
 	
-pointer_typ:
-	| INT_PT	{ Primitive(Int) }
-	| CHAR_PT	{ Primitive(Char) }
-	| STRUCT_PT ID	{ Struct_typ($2) }
-
 struct_typ:
 	| STRUCT ID { $2 }
 
 array_typ:
-	INT_ARRAY 	{ Int }
+	prim_typ LBRACKET INT_LITERAL RBRACKET  	{ ($1, $3) }
+
+pointer_typ:
+	| prim_typ STAR 		{ Primitive($1) }
+	| struct_typ STAR 		{ Struct_typ($1) }
+	| array_typ STAR 		{ Array_typ(fst $1, snd $1) }
+
+double_pointer_typ:
+	| pointer_typ STAR 		{ Pointer_typ($1)  }
+
+
 
 any_typ:
-	  prim_typ 	{ Primitive($1) }
-	| struct_typ 	{ Struct_typ($1) }
-	| pointer_typ 	{ Pointer_typ($1) }
-	| void_typ 	{ Primitive($1) }
-	| array_typ	{ Array_typ($1) }
+	  prim_typ 		{ Primitive($1) }
+	| struct_typ 		{ Struct_typ($1) }
+	| pointer_typ 		{ Pointer_typ($1) }
+	| double_pointer_typ 	{ Pointer_typ($1) }
+	| void_typ 		{ Primitive($1) }
+	| array_typ		{ Array_typ(fst $1, snd $1) }
 
 
 any_typ_not_void:
-	  		  prim_typ 	{ Primitive($1) }
-			| struct_typ 	{ Struct_typ($1) }
-			| pointer_typ 	{ Pointer_typ($1) }
-			| array_typ	{ Array_typ($1) }
+	  	  prim_typ 	{ Primitive($1) }
+		| struct_typ 	{ Struct_typ($1) }
+		| pointer_typ 	{ Pointer_typ($1) }
+		| double_pointer_typ 	{ Pointer_typ($1) }
+		| array_typ	{ Array_typ(fst $1, snd $1) }
 
 /* 
 Rules for function syntax
@@ -127,7 +140,7 @@ testdecl:
 "using" rule 
 */
 usingdecl:
-	USING LBRACE vdecl_list stmt_list RBRACE { ($3, $4) }
+	USING LBRACE vdecl_list stmt_list RBRACE { (List.rev $3, List.rev $4) }
 
 
 /*
@@ -168,7 +181,7 @@ Rule for defining a struct
 */
 sdecl:
 	STRUCT ID LBRACE vdecl_list RBRACE SEMI {{
-		sname = $2; attributes = $4 }}
+		sname = $2; attributes = List.rev $4 }}
 
 
 stmt_list:
@@ -197,10 +210,11 @@ Rule for building expressions
 */
 expr:
 	  INT_LITERAL 		{ Lit($1)}
+	| STRING_LITERAL	{ String_Lit($1) }  
 	| ID 			{ Id($1) }
 	| expr PLUS expr 	{ Binop($1, Add, $3) }
 	| expr MINUS expr 	{ Binop($1, Sub, $3) }
-	| expr TIMES expr 	{ Binop($1, Mult, $3)}
+	| expr STAR expr 	{ Binop($1, Mult, $3)}
 	| expr DIVIDE expr 	{ Binop($1, Div, $3)}
 	| expr EQ  expr 	{ Binop($1, Equal, $3)}
 	| expr EXPO  expr 	{ Binop($1, Exp, $3)}
@@ -214,7 +228,7 @@ expr:
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
 	| AMPERSAND expr	{ Unop(Addr, $2) }
-	| expr ASSIGN expr 	{ Assign($1, $3) }
+	| ID ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_Access($1, $3)}
 	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }

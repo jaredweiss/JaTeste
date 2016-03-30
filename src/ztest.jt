@@ -1,0 +1,36 @@
+int i;
+int * pt;
+string john;
+struct person global_person;
+int[10] arr;
+
+func int main()
+{
+	int a;
+	int *my_pt;
+	int **double_pt;
+	struct person *pat;
+	struct person sam;
+	struct house ah;
+	a = 10;
+	print("Hello, world!");
+	print("dude");
+	a = add(1,1);
+	return 1;
+}
+
+func int add(int x, int y)
+{
+	return x + y;
+}
+
+struct house  {
+	int price;
+	string location;
+};
+
+struct person  {
+	int age;
+	int height;
+};
+

@@ -1,14 +1,15 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or | Mod | Exp
 type uop = Neg | Not | Addr
 type prim = Int | Double | String | Char | Void
-type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim
+type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim * int
 type bind = typ * string
 
 type expr =
     Lit     of int
+  | String_Lit of string
   | Binop   of expr * op * expr
   | Unop    of uop * expr
-  | Assign  of expr * expr
+  | Assign  of string * expr
   | Noexpr
   | Id of string
   | Struct_create of string
@@ -51,12 +52,5 @@ type struct_decl = {
   attributes  : bind list;
 }
 
-(* Program is made up of a list of these *)
-type flow = 
-  | Var     of bind
-  | Struct  of struct_decl
-  | Func    of func_decl
-
-(* Root of tree *)
-type program = flow list 
-
+(* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
+type program = bind list * func_decl list * struct_decl list

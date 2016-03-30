@@ -1,8 +1,5 @@
 module StringMap = Map.Make(String)
 
-let check program = 
-	(ignore program);
-	let check_elements elements = (ignore elements); () in
+let check program =  ignore(program); ()
 	
 
-List.iter check_elements program;
