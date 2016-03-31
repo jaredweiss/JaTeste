@@ -9,7 +9,8 @@ let _ =
 	let ast = Parser.program Scanner.token lexbuf in
 
 	print_string (eval_prog ast);
-	Semant.check ast;
+	let sprogram = Semant.check ast in
+	ignore(sprogram);
 	let file = "file.bc" in
 	let oc = open_out file in
 	let m = Codegen.gen_llvm ast in 
