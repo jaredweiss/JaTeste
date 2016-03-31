@@ -14,7 +14,6 @@ func int main()
 	struct house ah;
 	a = 10;
 	print("Hello, world!");
-	print("dude");
 	a = add(1,1);
 	return 1;
 }

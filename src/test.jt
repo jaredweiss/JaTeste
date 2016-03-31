@@ -1,4 +1,5 @@
 int global_var;
+int a_cool_var;
 struct person person_pt;
 struct person sam;
 int a;
@@ -11,7 +12,9 @@ func int main()
 	int[] *intarray;
 	double [] doublearray;
 	struct person *pt;
+	string man;
 	char [] myarray;
+	man = "ok";
 	a = add(1, 1);
 	for (i = 0; i < 10; i = i + 1) {
 		a = 1;
@@ -38,9 +41,11 @@ func int add()
 
 func int sub (int x, int y)
 {
+	struct person ps;
 	x = 10;
 	add(1,1);
 	add();
+	return 1;
 }
 
 

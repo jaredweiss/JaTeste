@@ -44,23 +44,23 @@ let rec stmt_sast stmt =
 
 
 let with_using_sast r = 
-	let tmp = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map stmt_sast r.A.stmts)} in
+	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map stmt_sast r.A.stmts)} in
 	 tmp
 
 let with_test_sast r =
-	let tmp = {S.sexprs = (List.map expr_sast r.A.exprs) ; S.susing = (with_using_sast r.A.using)} in
+	let tmp:(S.swith_test_decl) = {S.sexprs = (List.map expr_sast r.A.exprs) ; S.susing = (with_using_sast r.A.using)} in
 	tmp 
 
 let func_decl_sast r = 
-	let tmp = {S.styp = r.A.typ; S.sfname = r.A.fname; S.sformals = r.A.formals; S.svdecls = r.A.vdecls ; S.sbody = (List.map stmt_sast r.A.body); S.stests = (with_test_sast r.A.tests) } in
+	let tmp:(S.sfunc_decl) = {S.styp = r.A.typ; S.sfname = r.A.fname; S.sformals = r.A.formals; S.svdecls = r.A.vdecls ; S.sbody = (List.map stmt_sast r.A.body); S.stests = (with_test_sast r.A.tests) } in
 	tmp	
 
 let struct_sast r = 
-	let tmp = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes } in
+	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes } in
 	tmp
 
 let program_sast (globals, functions, structs) = 
-	let tmp = (globals, (List.map func_decl_sast functions), (List.map struct_sast structs)) in
+	let tmp:(S.sprogram) = (globals, (List.map func_decl_sast functions), (List.map struct_sast structs)) in
 	tmp
 
 let check_structs structs = ignore(structs); ()
@@ -74,5 +74,5 @@ let check (globals, functions, structs) =
 	let _ = check_structs structs in
 	let _ = check_globals globals in
 	let _ = check_functions functions in
-	let sprogram = program_sast (globals, functions, structs) in
+	let sprogram:(S.sprogram) = program_sast (globals, functions, structs) in
 	sprogram
