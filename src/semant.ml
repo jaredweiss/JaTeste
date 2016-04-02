@@ -13,10 +13,19 @@ type env = {
 	scope : symbol_table;
 }
 
-type tmpr = {
-	age : int;
-}
+let report_duplicate exceptf list =
+    let rec helper = function
+        n1 :: n2 :: _ when n1 = n2 -> raise (Failure (exceptf n1))
+      | _ :: t -> helper t
+      | [] -> ()
+    in helper (List.sort compare list)
 
+let check_not_void exceptf = function
+      (A.Primitive(A.Void), n) -> raise (Failure (exceptf n))
+    | _ -> ()
+
+let check_assign lvaluet rvaluet err =
+     if lvaluet == rvaluet then lvaluet else raise err
 
 let rec expr_sast expr =
 	match expr with
@@ -63,12 +72,23 @@ let program_sast (globals, functions, structs) =
 	let tmp:(S.sprogram) = (globals, (List.map func_decl_sast functions), (List.map struct_sast structs)) in
 	tmp
 
-let check_structs structs = ignore(structs); ()
+let check_structs structs = 
+	(report_duplicate(fun n -> "duplicate struct " ^ n) (List.map (fun n -> n.A.sname) structs)); 
 
-let check_globals globals = ignore(globals);()
+	ignore (List.map (fun n -> (report_duplicate(fun n -> "duplicate struct field " ^ n) (List.map (fun n -> snd n) n.A.attributes))) structs);
 
-let check_functions functions = ignore(functions);()
+	ignore (List.map (fun n -> (List.iter (check_not_void (fun n -> "Illegal void field" ^ n)) n.A.attributes)) structs);
+()
 
+let check_globals globals = 
+	ignore (report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals)); 
+	List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
+()
+
+let check_function_names names = ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) names)); ()
+
+let check_functions functions = (check_function_names functions);
+()
 
 let check (globals, functions, structs) =  
 	let _ = check_structs structs in

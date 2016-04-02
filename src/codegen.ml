@@ -10,7 +10,7 @@ exception InvalidStruct of string
 	let the_module = L.create_module context "Jateste" 
 
 	let i32_t = L.i32_type context
-	let i64_t = L.i32_type context
+	let i64_t = L.i64_type context
 	let i8_t = L.i8_type context
 	let i1_t = L.i1_type context
 	let d_t = L.double_type context

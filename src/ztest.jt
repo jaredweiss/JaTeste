@@ -31,5 +31,6 @@ struct house  {
 struct person  {
 	int age;
 	int height;
+	void bl;
 };
 
