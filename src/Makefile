@@ -16,6 +16,10 @@ clean :
 	rm -rf testall.log *.diff jateste scanner.ml parser.ml parser.mli
 	rm -rf *.cmx *.cmi *.cmo *.cmx *.o
 
+.PHONY : test
+test :
+	make -f Makefile.tests
+
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 
 OBJS = ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx jateste.cmx
