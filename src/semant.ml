@@ -87,8 +87,14 @@ let check_globals globals =
 
 let check_function_names names = ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) names)); ()
 
-let check_functions functions = (check_function_names functions);
-()
+let check_function_not_print names = 
+ignore(if List.mem "print" (List.map (fun n -> n.A.fname) names ) then raise (Failure ("function print may not be defined")) else ()); ()
+
+let check_function_body funct =
+report_duplicate (fun n -> "duplicate local " ^ n) (List.map snd funct.A.vdecls);
+ ()
+
+let check_functions functions = (check_function_names functions); (check_function_not_print functions); ignore(List.iter check_function_body functions); ()
 
 let check (globals, functions, structs) =  
 	let _ = check_structs structs in
