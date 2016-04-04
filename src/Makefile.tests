@@ -6,17 +6,19 @@
 
 define parser-test-passing =
 @echo "Testing '$^'";
-@if [ '$(shell ./jateste.native < ../test/parsing_tests/test.jt | grep 'Successfully parsed')' = 'Successfully parsed' ] ; then \
-    echo "File '$^' passed!"; \
+@if [ '$(shell ./jateste.native < $^ | grep 'Successfully parsed')' = 'Successfully parsed' ] ; then \
+    echo " \033[0;32m ---->  \033[0mTest passed!"; \
 else \
-    echo "File '$^' did not pass, something broke!"; \
+    echo " \033[0;31m ---->  \e[0mTest did not pass, something broke!"; \
     exit 1; \
 fi
 endef
 
 # Run parser tests
-#test-parser: test-parser-comments test-parser-expressions test-parser-statements test-parser-vars
+test-parser: test-parser-basic test-parser-full
 
+test-parser-basic: ../test/parsing_tests/basic_test.jt
+	$(parser-test-passing)
 
-test-parser-comments: ../test/parsing_tests/test.jt 
+test-parser-full: ../test/parsing_tests/full_test.jt
 	$(parser-test-passing)
