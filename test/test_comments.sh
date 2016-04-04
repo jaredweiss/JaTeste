@@ -1,10 +1,10 @@
 #!/bin/bash
 
 echo "TESTING COMMENTS - SHOULD PASS..."
-echo "/* This is a comment */" | tee ../src/interpreter
-echo "/* */" | tee ../src/interpreter
-echo -e "/* Last one was empty \n This is two lines */" | tee ../src/interpreter
+echo "/* This is a comment */" | ../src/jateste.native
+echo "/* */" | ../src/jateste.native
+echo -e "/* Last one was empty \n This is two lines */" | ../src/jateste.native
 
 echo "TESTING COMMENT - SHOULD FAIL..."
-echo "Bad comment */" | tee ../src/interpreter
-echo "/* Another bad one" | tee ../src/interpreter
+echo "Bad comment */" | ../src/jateste.native
+echo "/* Another bad one" | ../src/jateste.native
