@@ -1,0 +1,22 @@
+#									JaTeste! 							#
+#																		#
+# 						Special Makefile for running tests 				#
+#																		#
+#########################################################################
+
+define parser-test-passing =
+@echo "Testing '$^'";
+@if [ '$(shell ./jateste.native < ../test/parsing_tests/test.jt | grep 'Successfully parsed')' = 'Successfully parsed' ] ; then \
+    echo "File '$^' passed!"; \
+else \
+    echo "File '$^' did not pass, something broke!"; \
+    exit 1; \
+fi
+endef
+
+# Run parser tests
+#test-parser: test-parser-comments test-parser-expressions test-parser-statements test-parser-vars
+
+
+test-parser-comments: ../test/parsing_tests/test.jt 
+	$(parser-test-passing)
