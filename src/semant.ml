@@ -4,6 +4,7 @@ module StringMap = Map.Make(String)
 
 type variable_decls = A.bind list;;
 
+(* Symbol table used for checking scope *)
 type symbol_table = {
 	parent : symbol_table option;
 	variables : variable_decls list;
@@ -13,6 +14,7 @@ type env = {
 	scope : symbol_table;
 }
 
+(* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
     let rec helper = function
         n1 :: n2 :: _ when n1 = n2 -> raise (Failure (exceptf n1))
@@ -20,10 +22,12 @@ let report_duplicate exceptf list =
       | [] -> ()
     in helper (List.sort compare list)
 
+(* Helper function to check a typ is not void *)
 let check_not_void exceptf = function
       (A.Primitive(A.Void), n) -> raise (Failure (exceptf n))
     | _ -> ()
 
+(* Helper function to check two types match up *)
 let check_assign lvaluet rvaluet err =
      if lvaluet == rvaluet then lvaluet else raise err
 
@@ -68,10 +72,14 @@ let struct_sast r =
 	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes } in
 	tmp
 
+(* Entry to transform AST to SAST *)
 let program_sast (globals, functions, structs) = 
 	let tmp:(S.sprogram) = (globals, (List.map func_decl_sast functions), (List.map struct_sast structs)) in
 	tmp
 
+(* Functions to check the semantics of JaTeste Program *)
+
+(* Struct semantic checker *)
 let check_structs structs = 
 	(report_duplicate(fun n -> "duplicate struct " ^ n) (List.map (fun n -> n.A.sname) structs)); 
 
@@ -80,16 +88,32 @@ let check_structs structs =
 	ignore (List.map (fun n -> (List.iter (check_not_void (fun n -> "Illegal void field" ^ n)) n.A.attributes)) structs);
 ()
 
+(* Globa variables semantic checker *)
 let check_globals globals = 
 	ignore (report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals)); 
 	List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
 ()
 
-let check_function_names names = ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) names)); ()
+(* Function names (aka can't have two functions with same name) semantic checker *)
+let check_function_names names = 
+	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) names)); ()
 
-let check_functions functions = (check_function_names functions);
-()
+(* Checks programmer hasn't defined function print as it's reserved *)
+let check_function_not_print names = 
+	ignore(if List.mem "print" (List.map (fun n -> n.A.fname) names ) then raise (Failure ("function print may not be defined")) else ()); ()
 
+(* Check the body of the function here *)
+let check_function_body funct =
+	report_duplicate (fun n -> "duplicate local " ^ n) (List.map snd funct.A.vdecls);
+ ()
+
+(* Entry point to check functions *)
+let check_functions functions = 
+	(check_function_names functions); 
+	(check_function_not_print functions); 
+	(List.iter check_function_body functions); ()
+
+(* Entry point for semantic checking AST. Output should be a SAST *)
 let check (globals, functions, structs) =  
 	let _ = check_structs structs in
 	let _ = check_globals globals in

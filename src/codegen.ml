@@ -124,6 +124,16 @@ exception InvalidStruct of string
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	 | S.SString_Lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
 	 | S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (find_var l) builder); e_temp
+	 | S.SBinop (e1, op, e2) -> 
+		let e1' = expr builder e1 
+		and e2' = expr builder e2 in
+		(match op with 
+		  A.Add -> L.build_add
+		| A.Sub -> L.build_sub
+		| A.Mult -> L.build_mul
+		| A.Equal -> L.build_icmp L.Icmp.Eq
+		| _ -> L.build_add
+		) e1' e2' "tmp" builder	
 	 | _ -> L.const_int i32_t 0 
 	in
 
@@ -136,7 +146,15 @@ exception InvalidStruct of string
 						  A.Primitive(A.Void) -> L.build_ret_void builder
 						| _ -> L.build_ret (expr builder r) builder); builder
 	
-	| S.SIf(_, _, _) -> builder
+	| S.SIf(pred, then_stmt, else_stmt) -> 
+		let bool_val = expr builder pred in
+		let merge_bb = L.append_block context "merge" the_function in
+		let then_bb = L.append_block context "then" the_function in
+		add_terminal (stmt (L.builder_at_end context then_bb) then_stmt) (L.build_br merge_bb);
+		let else_bb = L.append_block context "else" the_function in 
+		add_terminal (stmt (L.builder_at_end context else_bb) else_stmt) (L.build_br merge_bb);	
+		ignore (L.build_cond_br bool_val then_bb else_bb builder);
+		L.builder_at_end context merge_bb
 	| _ -> builder
 	in
 	
