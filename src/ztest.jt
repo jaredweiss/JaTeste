@@ -14,13 +14,29 @@ func int main()
 	struct house ah;
 	a = 10;
 	print("Hello, world!");
-	a = add(1,1);
+	a = add(3,39);
+	if (a == 42) {
+		print("a is 42");
+	} else {
+		print("a is not 42");
+	}
 	return 1;
 }
 
 func int add(int x, int y)
 {
 	return x + y;
+}
+
+func int subtract(int x, int y)
+{
+	int answ;
+	
+	{
+		answ = x - y;
+	}	
+
+	return answ;
 }
 
 struct house  {
