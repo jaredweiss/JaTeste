@@ -8,6 +8,7 @@ int [10] arr;
 func int main()
 {
 	int a;
+	int subs;
 	int i;
 	int *my_pt;
 	int **double_pt;
@@ -16,23 +17,14 @@ func int main()
 	sam;
 	a = 10;
 	print("Hello, world!");
-	if (j == 10) {
-		print("j is 10");
+	if (j < 20) {
+		print("j is less than 20");
 	} else {
-		print("j is not 10");
+		print("j is not less than 10");
 	}
 	a = add(3,39);
-	if (j == 10) {
-		print("j is 10");
-	} else {
-		print("j is not 10");
-	}
-	if (a == 42) {
-		print("a is 42");
-	} else {
-		print("a is not 42");
-	}
 
+	subs = subtract(10,2);
 	return 1;
 }
 
@@ -45,7 +37,6 @@ func int add(int x, int y)
 func int subtract(int x, int y)
 {
 	int answ;
-	
 	{
 		answ = x - y;
 	}	
