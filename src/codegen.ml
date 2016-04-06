@@ -50,13 +50,34 @@ exception InvalidStruct of string
 	    let attributes_array = Array.of_list attributes in 
 	L.struct_set_body struct_t attributes_array false
 
+let define_global_with_value (t, n) = 
+	match t with 
+		  A.Primitive(p) -> 
+			(match p with
+			  A.Int -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
+			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
+			| A.Double -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
+			| A.Void -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
+			| A.String -> let init = L.const_string context "" in (L.define_global n init the_module))		
+		| A.Struct_typ(s) -> let init = L.const_named_struct (find_struct_name s) [||] in (L.define_global n init the_module)		
+
+		| A.Pointer_typ(_) ->let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init the_module)		
+
+		| A.Array_typ(p,_) ->let init = L.const_array (prim_ltype_of_typ p) [||] in (L.define_global n init the_module)		
+
+		| A.Func_typ(_) ->let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)		
+
+
+
+
+
 	(* Where we add global variabes to global data section *)
 	 let global_var_2 (t, n) =
 		match t with
-		  A.Primitive(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
-		| A.Struct_typ(_) -> Hashtbl.add  global_variables n (L.declare_global (ltype_of_typ t) n the_module)
-		| A.Pointer_typ(_) -> Hashtbl.add  global_variables n (L.declare_global (ltype_of_typ t) n the_module)
-		| A.Array_typ(_,_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
+		  A.Primitive(_) -> Hashtbl.add global_variables n (define_global_with_value (t,n))
+		| A.Struct_typ(_) -> Hashtbl.add  global_variables n (define_global_with_value (t,n))
+		| A.Pointer_typ(_) -> Hashtbl.add  global_variables n (define_global_with_value (t,n))
+		| A.Array_typ(_,_) -> Hashtbl.add global_variables n (define_global_with_value (t,n))
 		| A.Func_typ(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
 
 	
