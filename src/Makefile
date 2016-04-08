@@ -10,14 +10,20 @@ jateste.native :
 
 # "make clean" removes all generated files
 
-.PHONY : clean
+.PHONY: clean
 clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff jateste scanner.ml parser.ml parser.mli
 	rm -rf *.cmx *.cmi *.cmo *.cmx *.o
+	@$(MAKE) -C ../test/ clean
 
 .PHONY: all
-all: clean jateste.native
+all: clean jateste.native test
+
+.PHONY: test
+test:
+	@echo "\033[0;32m========= Running All Tests! ==========\033[0m"
+	@$(MAKE) -C ../test/
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 

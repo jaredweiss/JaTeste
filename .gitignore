@@ -9,3 +9,6 @@ scanner.ml
 interpreter
 parser.ml
 parser.mli
+src/_build/
+src/jateste.native
+*.ll
