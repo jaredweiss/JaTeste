@@ -103,9 +103,24 @@ let check_globals globals env =
 
 ()
 
-let check_stmt stmt = 
+let rec check_expr expr =
+	match expr with
+	  A.Lit(s) -> ignore(s);()	
+	| A.String_Lit(s) -> ignore(s); ()
+	| A.Binop(e1,op,e2) -> ignore(e1);ignore(op);ignore(e2);()
+	| A.Unop(uop,e) -> ignore(uop);ignore(e);()
+	| A.Assign(s,e) -> ignore(s);ignore(e);()
+	| A.Noexpr -> ()
+	| A.Id(s) -> ignore(s);()
+	| A.Struct_create(s) -> ignore(s);()
+	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);()
+	| A.Array_create(i,p) -> ignore(i);ignore(p);()
+	| A.Array_access(e, i) -> ignore(e); ignore(i); ()
+	| A.Call(s,el) -> ignore(s);ignore(el);()
+
+let rec check_stmt stmt = 
 	match stmt with
-	  A.Block(l) -> ignore(l); ()
+	  A.Block(l) -> ignore(List.map check_stmt l);()
 	| A.Expr(e) -> ignore(e); ()
 	| A.If(e1,s,e2) ->ignore(e1);ignore(s);ignore(e2); ()
 	| A.While(e,s) -> ignore(e);ignore(s);()
