@@ -10,8 +10,9 @@ let eval_prog prog =
 let executable_filename filename =
 	let len = String.length filename in
 	let str = String.sub filename 0 (len - 3) in
-	print_string str;
-	str 
+	let exec = String.concat "" [str ; ".ll"] in
+	print_string exec;
+	exec 
 
 let _ =
 	let arguments = Sys.argv in
@@ -21,7 +22,7 @@ let _ =
 	let ast:(A.program) = Parser.program Scanner.token lexbuf in
 	print_string (eval_prog ast);
 	let sast:(S.sprogram) = Semant.check ast in
-	let file = "file.ll" in
+	let file = exec_name in
 	let oc = open_out file in
 	let m = Codegen.gen_llvm sast in 
 	Llvm_analysis.assert_valid_module m;
