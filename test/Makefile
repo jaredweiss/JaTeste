@@ -12,6 +12,7 @@ define run-test =
 endef
 
 all-tests: test-hello-world
+	@echo "\033[0;32m========= All Tests Passed! ==========\033[0m"
 
 
 .PHONY: clean

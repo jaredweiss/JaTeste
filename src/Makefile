@@ -18,10 +18,11 @@ clean :
 	@$(MAKE) -C ../test/ clean
 
 .PHONY: all
-all: clean jateste.native
+all: clean jateste.native test
 
 .PHONY: test
 test:
+	@echo "\033[0;32m========= Running All Tests! ==========\033[0m"
 	@$(MAKE) -C ../test/
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
