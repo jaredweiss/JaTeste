@@ -1,10 +1,67 @@
+int global_var;
+int a_cool_var;
+struct person person_pt;
+struct person sam;
+int a;
+
+func int main()
+{
+	int a;
+	int *pt;
+	double *pt;
+	int[] *intarray;
+	double [] doublearray;
+	struct person *pt;
+	string man;
+	char [] myarray;
+	man = "ok";
+	a = add(1, 1);
+	for (i = 0; i < 10; i = i + 1) {
+		a = 1;
+	}
+	add();
+	return 0;
+}
+
 func int add()
 {
 	a = 10;
 	10 + 10 - 9;
 	b = 100;
 } with test {
-	a = 10;
+	a == 10; b == 9;
 } using {
+	int coolvar;
+	struct person me;
 	coolvar = 1000;
+	while (i < 10) {
+		coolvar = coolvar + 1;
+	}
 }
+
+func int sub (int x, int y)
+{
+	struct person ps;
+	x = 10;
+	add(1,1);
+	add();
+	return 1;
+}
+
+
+
+func int sub(int a, int b) {
+	return a - b;
+} with test {
+	sub(10,5) == 5;
+} using {
+	struct person sam;
+}
+
+struct person {
+	int age;
+	int height;
+	char c;
+};
+
+
