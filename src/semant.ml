@@ -7,21 +7,19 @@ type variable_decls = A.bind;;
 (* Symbol table used for checking scope *)
 type symbol_table = {
 	parent : symbol_table option;
-	variables : variable_decls list;
+	variables : (string, A.typ) Hashtbl.t;
 }
 
 type env = {
 	scope : symbol_table;
 }
 
-let rec find_var (st : symbol_table) var = 
-	try 
-	 List.find (fun (_,s) -> s = var) st.variables 
+let rec find_var (scope : symbol_table) var =
+	try Hashtbl.find scope.variables var
 	with Not_found ->
-	 match (st.parent) with
+	match scope.parent with
 	  Some(parent) -> find_var parent var
-	| _ -> raise Not_found
-	
+	| _ -> raise Not_found	
 
 (* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
@@ -105,6 +103,16 @@ let check_globals globals env =
 
 ()
 
+let check_stmt stmt = 
+	match stmt with
+	  A.Block(l) -> ignore(l); ()
+	| A.Expr(e) -> ignore(e); ()
+	| A.If(e1,s,e2) ->ignore(e1);ignore(s);ignore(e2); ()
+	| A.While(e,s) -> ignore(e);ignore(s);()
+	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s);()
+	| A.Return(e) -> ignore(e);()
+	
+
 (* Function names (aka can't have two functions with same name) semantic checker *)
 let check_function_names names = 
 	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) names)); ()
@@ -115,7 +123,11 @@ let check_function_not_print names =
 
 (* Check the body of the function here *)
 let check_function_body funct =
+	report_duplicate (fun n -> "duplicate formal arg " ^ n) (List.map snd funct.A.formals);
 	report_duplicate (fun n -> "duplicate local " ^ n) (List.map snd funct.A.vdecls);
+	let formals_and_locals = List.append funct.A.formals funct.A.vdecls in
+	report_duplicate (fun n -> "same name for formal and local var " ^ n) (List.map snd formals_and_locals);
+	ignore(List.map check_stmt funct.A.body);	
  ()
 
 (* Entry point to check functions *)
@@ -126,7 +138,7 @@ let check_functions functions =
 
 (* Entry point for semantic checking AST. Output should be a SAST *)
 let check (globals, functions, structs) =  
-	let prog_env:env = {scope = {parent = None ; variables = []}} in
+	let prog_env:env = {scope = {parent = None ; variables = Hashtbl.create 10 }} in
 	let _ = check_structs structs in
 	let _ = check_globals globals prog_env in
 	let _ = check_functions functions in

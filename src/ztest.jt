@@ -5,7 +5,7 @@ int *pt;
 struct person sam;
 int [10] arr;
 
-func int main()
+func int main(int argc, char **argv)
 {
 	int a;
 	int subs;
@@ -16,6 +16,9 @@ func int main()
 	struct house ah;
 	sam;
 	a = 10;
+	{
+		a  = 10;
+	}
 	print("Hello, world!");
 	if (j < 20) {
 		print("j is less than 20");

@@ -2,16 +2,11 @@ open Printf
 module A = Ast
 module S = Sast
 
-let eval_prog prog =
-		match prog with
-		_ ->  "Successfully parsed\n"
-
 
 let executable_filename filename =
 	let len = String.length filename in
 	let str = String.sub filename 0 (len - 3) in
 	let exec = String.concat "" [str ; ".ll"] in
-	print_string exec;
 	exec 
 
 let _ =
@@ -20,7 +15,6 @@ let _ =
 	let exec_name = executable_filename Sys.argv.(1) in
 	let lexbuf = Lexing.from_channel source_file in
 	let ast:(A.program) = Parser.program Scanner.token lexbuf in
-	print_string (eval_prog ast);
 	let sast:(S.sprogram) = Semant.check ast in
 	let file = exec_name in
 	let oc = open_out file in
