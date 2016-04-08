@@ -2,7 +2,7 @@ module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
 
-type variable_decls = A.bind list;;
+type variable_decls = A.bind;;
 
 (* Symbol table used for checking scope *)
 type symbol_table = {
@@ -13,6 +13,15 @@ type symbol_table = {
 type env = {
 	scope : symbol_table;
 }
+
+let rec find_var (st : symbol_table) var = 
+	try 
+	 List.find (fun (_,s) -> s = var) st.variables 
+	with Not_found ->
+	 match (st.parent) with
+	  Some(parent) -> find_var parent var
+	| _ -> raise Not_found
+	
 
 (* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
@@ -89,9 +98,11 @@ let check_structs structs =
 ()
 
 (* Globa variables semantic checker *)
-let check_globals globals = 
+let check_globals globals env = 
+	ignore(env);
 	ignore (report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals)); 
 	List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
+
 ()
 
 (* Function names (aka can't have two functions with same name) semantic checker *)
@@ -115,8 +126,9 @@ let check_functions functions =
 
 (* Entry point for semantic checking AST. Output should be a SAST *)
 let check (globals, functions, structs) =  
+	let prog_env:env = {scope = {parent = None ; variables = []}} in
 	let _ = check_structs structs in
-	let _ = check_globals globals in
+	let _ = check_globals globals prog_env in
 	let _ = check_functions functions in
 	let sprogram:(S.sprogram) = program_sast (globals, functions, structs) in
 	sprogram

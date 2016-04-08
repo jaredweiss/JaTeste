@@ -1,37 +1,42 @@
-int i;
-int * pt;
-string john;
-struct person global_person;
-int[10] arr;
+int j;
+char c;
+string johnstr;
+int *pt;
+struct person sam;
+int [10] arr;
 
 func int main()
 {
 	int a;
+	int subs;
+	int i;
 	int *my_pt;
 	int **double_pt;
 	struct person *pat;
-	struct person sam;
 	struct house ah;
+	sam;
 	a = 10;
 	print("Hello, world!");
-	a = add(3,39);
-	if (a == 42) {
-		print("a is 42");
+	if (j < 20) {
+		print("j is less than 20");
 	} else {
-		print("a is not 42");
+		print("j is not less than 10");
 	}
+	a = add(3,39);
+
+	subs = subtract(10,2);
 	return 1;
 }
 
 func int add(int x, int y)
 {
+	j = 10;
 	return x + y;
 }
 
 func int subtract(int x, int y)
 {
 	int answ;
-	
 	{
 		answ = x - y;
 	}	
