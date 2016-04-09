@@ -61,7 +61,7 @@
    for efficiency reasons 
  */
 
-program: var_decls func_decls struc_decls  EOF { ($1, $2, $3) } 
+program: var_decls func_decls struc_decls  EOF { (List.rev $1, List. rev $2, List.rev $3) } 
 
 var_decls: 			  
 	/* nothing */ { [] }

@@ -14,8 +14,11 @@ let _ =
 	let source_file = open_in arguments.((Array.length Sys.argv - 1)) in
 	let exec_name = executable_filename Sys.argv.(1) in
 	let lexbuf = Lexing.from_channel source_file in
+	(print_string "Scanned\n");
 	let ast:(A.program) = Parser.program Scanner.token lexbuf in
+	(print_string "Parsed\n");
 	let sast:(S.sprogram) = Semant.check ast in
+	(print_string "Semantic check passed\n");
 	let file = exec_name in
 	let oc = open_out file in
 	let m = Codegen.gen_llvm sast in 
