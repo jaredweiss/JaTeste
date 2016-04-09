@@ -6,4 +6,8 @@ exception InvalidExpr of string
 
 exception InvalidBooleanExpression 
 
+exception InvalidReturnType
+
+exception BugCatch of string
+
 

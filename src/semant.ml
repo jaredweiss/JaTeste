@@ -17,6 +17,7 @@ type symbol_table = {
 (* Environment*)
 type environment = {
 	scope : symbol_table;
+	return_type : A.typ option;
 }
 
 let string_of_typ t =
@@ -164,14 +165,20 @@ let check_is_bool expr env =
 
 	| _ ->  raise (Exceptions.InvalidBooleanExpression)
 
+let check_return_expr expr env = 
+	match env.return_type with
+	  Some(rt) -> if rt = check_expr expr env then () else raise Exceptions.InvalidReturnType
+	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
+
+
 let rec check_stmt stmt env = 
 	match stmt with
 	  A.Block(l) -> ignore(List.map (fun n -> (check_stmt n env)) l);()
 	| A.Expr(e) -> ignore(check_expr e env); ()
 	| A.If(e1,s1,s2) ->ignore(check_is_bool e1 env);check_stmt s1 env;check_stmt s2 env; ()
-	| A.While(e,s) -> ignore(e);ignore(s);()
+	| A.While(e,s) -> ignore(check_is_bool e env);check_stmt s env;()
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s);()
-	| A.Return(e) -> ignore(e);()
+	| A.Return(e) -> ignore(check_return_expr e env);()
 	
 (* Function names (aka can't have two functions with same name) semantic checker *)
 let check_function_names names = 
@@ -194,7 +201,7 @@ let check_function_body funct env =
 		| _ -> ()
 	) formals_and_locals;
 	(* Create new enviornment -> symbol table parent is set to previous scope's symbol table *)
-	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}} in
+	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ)} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
 	ignore(List.map (fun n -> check_stmt n new_env) funct.A.body);	
@@ -208,7 +215,7 @@ let check_functions functions env =
 
 (* Entry point for semantic checking AST. Output should be a SAST *)
 let check (globals, functions, structs) =  
-	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }} in
+	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None} in
 	let _ = check_structs structs in
 	let _ = check_globals globals prog_env in
 	let _ = check_functions functions prog_env in
