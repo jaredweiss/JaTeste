@@ -2,7 +2,6 @@ module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
 
-exception InvalidStruct of string
 
 type variable_decls = A.bind;;
 
@@ -18,7 +17,15 @@ type symbol_table = {
 (* Environment*)
 type environment = {
 	scope : symbol_table;
+	return_type : A.typ option;
 }
+
+let string_of_typ t =
+	match t with
+	  A.Primitive(A.Int) -> "Int"
+	| A.Primitive(A.String) -> "String"
+	| A.Primitive(A.Char) -> "Char"
+	| _ -> "not sure"
 
 (* Search symbol tables to see if the given var exists somewhere *)
 let rec find_var (scope : symbol_table) var =
@@ -26,7 +33,9 @@ let rec find_var (scope : symbol_table) var =
 	with Not_found ->
 	match scope.parent with
 	  Some(parent) -> find_var parent var
-	| _ -> raise Not_found	
+	| _ -> raise (Exceptions.UndeclaredVariable var)	
+
+let type_of_identifier var env = find_var env.scope var
 
 (* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
@@ -48,8 +57,9 @@ let check_assign lvaluet rvaluet err =
 (* Search hash table to see if the struct is valid *)
 let check_valid_struct s =
 	try Hashtbl.find struct_types s
-	with | Not_found -> raise (InvalidStruct s)
+	with | Not_found -> raise (Exceptions.InvalidStruct s)
 
+			
 (* convert expr to sast expr *)
 let rec expr_sast expr =
 	match expr with
@@ -114,7 +124,6 @@ let check_globals globals env =
 	ignore(env);
 	ignore (report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals)); 
 	List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
-	ignore(List.iter (fun (_,s) -> print_string ("checking global " ^ s ^ "\n")) globals);
 	(* Check that any global structs are actually valid structs that have been defined *)
 	List.iter (fun (t,_) -> match t with 
 		  A.Struct_typ(nm) -> ignore(check_valid_struct nm); ()
@@ -127,46 +136,50 @@ let check_globals globals env =
 
 let rec check_expr expr env =
 	match expr with
-	  A.Lit(s) -> ignore(s);()	
-	| A.String_Lit(s) -> ignore(s); ()
+	  A.Lit(_) -> A.Primitive(A.Int)
+	| A.String_Lit(_) -> A.Primitive(A.String)
 	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
 		(match op with
-		  A.Add -> ()
-		| A.Sub -> ()
-		| A.Mult -> ()
-		| A.Div -> ()
-		| A.Equal -> ()
-		| A.Neq -> ()
-		| A.Less -> ()
-		| A.Leq -> ()
-		| A.Greater -> ()
-		| A.Geq -> ()
-		| A.And -> ()
-		| A.Or -> ()
-		| A.Mod -> ()
-		| A.Exp -> ()
-); ignore(e1'); ignore(e2');
-	()
-	| A.Unop(uop,e) -> ignore(uop);ignore(e);()
-	| A.Assign(s,e) -> ignore(s);ignore(e);()
-	| A.Noexpr -> ()
-	| A.Id(s) -> ignore(find_var env.scope s);()
-	| A.Struct_create(s) -> ignore(s);()
-	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);()
-	| A.Array_create(i,p) -> ignore(i);ignore(p);()
-	| A.Array_access(e, i) -> ignore(e); ignore(i); ()
-	| A.Call(s,el) -> ignore(s);ignore(el);()
+		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.Equal | A.Neq when e1' = e2' -> ignore("got equal");A.Primitive(A.Int)
+		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
+) 
+	| A.Unop(uop,e) -> ignore(uop);ignore(e);A.Primitive(A.Int)
+	| A.Assign(s,e) -> ignore(s);ignore(e);A.Primitive(A.Int)
+	| A.Noexpr -> A.Primitive(A.Void)
+	| A.Id(s) -> type_of_identifier s env 
+	| A.Struct_create(s) -> ignore(s);A.Primitive(A.Int)
+	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);A.Primitive(A.Int)
+	| A.Array_create(i,p) -> ignore(i);ignore(p);A.Primitive(A.Int)
+	| A.Array_access(e, i) -> ignore(e); ignore(i); A.Primitive(A.Int)
+	| A.Call(s,el) -> ignore(s);ignore(el);A.Primitive(A.Int)
+
+
+
+let check_is_bool expr env = 
+	ignore(check_expr expr env);
+	match expr with
+	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) -> ()
+
+	| _ ->  raise (Exceptions.InvalidBooleanExpression)
+
+let check_return_expr expr env = 
+	match env.return_type with
+	  Some(rt) -> if rt = check_expr expr env then () else raise Exceptions.InvalidReturnType
+	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
+
 
 let rec check_stmt stmt env = 
 	match stmt with
 	  A.Block(l) -> ignore(List.map (fun n -> (check_stmt n env)) l);()
-	| A.Expr(e) -> check_expr e env; ()
-	| A.If(e1,s,e2) ->ignore(e1);ignore(s);ignore(e2); ()
-	| A.While(e,s) -> ignore(e);ignore(s);()
+	| A.Expr(e) -> ignore(check_expr e env); ()
+	| A.If(e1,s1,s2) ->ignore(check_is_bool e1 env);check_stmt s1 env;check_stmt s2 env; ()
+	| A.While(e,s) -> ignore(check_is_bool e env);check_stmt s env;()
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s);()
-	| A.Return(e) -> ignore(e);()
+	| A.Return(e) -> ignore(check_return_expr e env);()
 	
-
 (* Function names (aka can't have two functions with same name) semantic checker *)
 let check_function_names names = 
 	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) names)); ()
@@ -188,7 +201,7 @@ let check_function_body funct env =
 		| _ -> ()
 	) formals_and_locals;
 	(* Create new enviornment -> symbol table parent is set to previous scope's symbol table *)
-	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}} in
+	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ)} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
 	ignore(List.map (fun n -> check_stmt n new_env) funct.A.body);	
@@ -202,7 +215,7 @@ let check_functions functions env =
 
 (* Entry point for semantic checking AST. Output should be a SAST *)
 let check (globals, functions, structs) =  
-	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }} in
+	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None} in
 	let _ = check_structs structs in
 	let _ = check_globals globals prog_env in
 	let _ = check_functions functions prog_env in

@@ -13,7 +13,7 @@ let executable_filename filename =
 let _ =
 	let arguments = Sys.argv in
 	let source_file = open_in arguments.((Array.length Sys.argv - 1)) in
-	let exec_name = executable_filename Sys.argv.(1) in
+	let exec_name = executable_filename arguments.((Array.length Sys.argv -1)) in
 	let lexbuf = Lexing.from_channel source_file in
 	(print_string "Scanned\n");
 	let ast:(A.program) = Parser.program Scanner.token lexbuf in
