@@ -167,13 +167,21 @@ let check_is_bool expr env =
 
 let check_return_expr expr env = 
 	match env.return_type with
-	  Some(rt) -> if rt = check_expr expr env then () else raise Exceptions.InvalidReturnType
+	  Some(rt) -> if rt = check_expr expr env then () else raise (Exceptions.InvalidReturnType "return type doesnt match with function definition")
 	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
 
 
 let rec check_stmt stmt env = 
 	match stmt with
-	  A.Block(l) -> ignore(List.map (fun n -> (check_stmt n env)) l);()
+	  A.Block(l) -> (let rec check_block b env2=
+			match b with
+			  [A.Return _ as s] -> check_stmt s env2
+			| A.Return _ :: _ -> raise (Exceptions.InvalidReturnType "Can't have any code after return statement")
+			| A.Block l :: ss -> check_block (l @ ss) env2
+			| l :: ss -> check_stmt l env2; check_block ss env
+			| [] -> ()
+			in
+			check_block l env)
 	| A.Expr(e) -> ignore(check_expr e env); ()
 	| A.If(e1,s1,s2) ->ignore(check_is_bool e1 env);check_stmt s1 env;check_stmt s2 env; ()
 	| A.While(e,s) -> ignore(check_is_bool e env);check_stmt s env;()
@@ -204,7 +212,7 @@ let check_function_body funct env =
 	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ)} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
-	ignore(List.map (fun n -> check_stmt n new_env) funct.A.body);	
+	ignore(check_stmt (A.Block funct.A.body) new_env);	
  ()
 
 (* Entry point to check functions *)
