@@ -27,6 +27,8 @@ let rec find_var (scope : symbol_table) var =
 	  Some(parent) -> find_var parent var
 	| _ -> raise Not_found	
 
+let type_of_identifier var env = find_var env.scope var
+
 (* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
     let rec helper = function
@@ -48,6 +50,18 @@ let check_assign lvaluet rvaluet err =
 let check_valid_struct s =
 	try Hashtbl.find struct_types s
 	with | Not_found -> raise (Exceptions.InvalidStruct s)
+
+let is_bool expr = 
+	match expr with
+	  A.Lit(_) -> true
+	| A.Binop(_,_,_) ->  true
+	| A.Unop(u,_) -> 
+		( match u with 
+		  A.Neg -> true
+		| A.Not -> true
+		| _ -> false
+		)
+	| _ -> false
 
 (* convert expr to sast expr *)
 let rec expr_sast expr =
@@ -125,8 +139,8 @@ let check_globals globals env =
 
 let rec check_expr expr env =
 	match expr with
-	  A.Lit(s) -> ignore(s);()	
-	| A.String_Lit(s) -> ignore(s); ()
+	  A.Lit(_) -> A.Primitive(A.Int)
+	| A.String_Lit(_) -> A.Primitive(A.String)
 	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
 		(match op with
 		  A.Add -> ()
@@ -144,21 +158,21 @@ let rec check_expr expr env =
 		| A.Mod -> ()
 		| A.Exp -> ()
 ); ignore(e1'); ignore(e2');
-	()
-	| A.Unop(uop,e) -> ignore(uop);ignore(e);()
-	| A.Assign(s,e) -> ignore(s);ignore(e);()
-	| A.Noexpr -> ()
-	| A.Id(s) -> ignore(try (find_var env.scope s) with | Not_found -> raise (Exceptions.UndeclaredVariable s));()
-	| A.Struct_create(s) -> ignore(s);()
-	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);()
-	| A.Array_create(i,p) -> ignore(i);ignore(p);()
-	| A.Array_access(e, i) -> ignore(e); ignore(i); ()
-	| A.Call(s,el) -> ignore(s);ignore(el);()
+	A.Primitive(A.Int)
+	| A.Unop(uop,e) -> ignore(uop);ignore(e);A.Primitive(A.Int)
+	| A.Assign(s,e) -> ignore(s);ignore(e);A.Primitive(A.Int)
+	| A.Noexpr -> A.Primitive(A.Void)
+	| A.Id(s) -> type_of_identifier s env
+	| A.Struct_create(s) -> ignore(s);A.Primitive(A.Int)
+	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);A.Primitive(A.Int)
+	| A.Array_create(i,p) -> ignore(i);ignore(p);A.Primitive(A.Int)
+	| A.Array_access(e, i) -> ignore(e); ignore(i); A.Primitive(A.Int)
+	| A.Call(s,el) -> ignore(s);ignore(el);A.Primitive(A.Int)
 
 let rec check_stmt stmt env = 
 	match stmt with
 	  A.Block(l) -> ignore(List.map (fun n -> (check_stmt n env)) l);()
-	| A.Expr(e) -> check_expr e env; ()
+	| A.Expr(e) -> ignore(check_expr e env); ()
 	| A.If(e1,s,e2) ->ignore(e1);ignore(s);ignore(e2); ()
 	| A.While(e,s) -> ignore(e);ignore(s);()
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s);()
