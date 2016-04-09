@@ -19,13 +19,20 @@ type environment = {
 	scope : symbol_table;
 }
 
+let string_of_typ t =
+	match t with
+	  A.Primitive(A.Int) -> "Int"
+	| A.Primitive(A.String) -> "String"
+	| A.Primitive(A.Char) -> "Char"
+	| _ -> "not sure"
+
 (* Search symbol tables to see if the given var exists somewhere *)
 let rec find_var (scope : symbol_table) var =
 	try Hashtbl.find scope.variables var
 	with Not_found ->
 	match scope.parent with
 	  Some(parent) -> find_var parent var
-	| _ -> raise Not_found	
+	| _ -> raise (Exceptions.UndeclaredVariable var)	
 
 let type_of_identifier var env = find_var env.scope var
 
@@ -51,18 +58,7 @@ let check_valid_struct s =
 	try Hashtbl.find struct_types s
 	with | Not_found -> raise (Exceptions.InvalidStruct s)
 
-let is_bool expr = 
-	match expr with
-	  A.Lit(_) -> true
-	| A.Binop(_,_,_) ->  true
-	| A.Unop(u,_) -> 
-		( match u with 
-		  A.Neg -> true
-		| A.Not -> true
-		| _ -> false
-		)
-	| _ -> false
-
+			
 (* convert expr to sast expr *)
 let rec expr_sast expr =
 	match expr with
@@ -143,42 +139,40 @@ let rec check_expr expr env =
 	| A.String_Lit(_) -> A.Primitive(A.String)
 	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
 		(match op with
-		  A.Add -> ()
-		| A.Sub -> ()
-		| A.Mult -> ()
-		| A.Div -> ()
-		| A.Equal -> ()
-		| A.Neq -> ()
-		| A.Less -> ()
-		| A.Leq -> ()
-		| A.Greater -> ()
-		| A.Geq -> ()
-		| A.And -> ()
-		| A.Or -> ()
-		| A.Mod -> ()
-		| A.Exp -> ()
-); ignore(e1'); ignore(e2');
-	A.Primitive(A.Int)
+		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.Equal | A.Neq when e1' = e2' -> ignore("got equal");A.Primitive(A.Int)
+		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
+) 
 	| A.Unop(uop,e) -> ignore(uop);ignore(e);A.Primitive(A.Int)
 	| A.Assign(s,e) -> ignore(s);ignore(e);A.Primitive(A.Int)
 	| A.Noexpr -> A.Primitive(A.Void)
-	| A.Id(s) -> type_of_identifier s env
+	| A.Id(s) -> type_of_identifier s env 
 	| A.Struct_create(s) -> ignore(s);A.Primitive(A.Int)
 	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);A.Primitive(A.Int)
 	| A.Array_create(i,p) -> ignore(i);ignore(p);A.Primitive(A.Int)
 	| A.Array_access(e, i) -> ignore(e); ignore(i); A.Primitive(A.Int)
 	| A.Call(s,el) -> ignore(s);ignore(el);A.Primitive(A.Int)
 
+
+
+let check_is_bool expr env = 
+	ignore(check_expr expr env);
+	match expr with
+	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) -> ()
+
+	| _ ->  raise (Exceptions.InvalidBooleanExpression)
+
 let rec check_stmt stmt env = 
 	match stmt with
 	  A.Block(l) -> ignore(List.map (fun n -> (check_stmt n env)) l);()
 	| A.Expr(e) -> ignore(check_expr e env); ()
-	| A.If(e1,s,e2) ->ignore(e1);ignore(s);ignore(e2); ()
+	| A.If(e1,s1,s2) ->ignore(check_is_bool e1 env);check_stmt s1 env;check_stmt s2 env; ()
 	| A.While(e,s) -> ignore(e);ignore(s);()
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s);()
 	| A.Return(e) -> ignore(e);()
 	
-
 (* Function names (aka can't have two functions with same name) semantic checker *)
 let check_function_names names = 
 	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) names)); ()
