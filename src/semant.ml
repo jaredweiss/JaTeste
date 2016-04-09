@@ -2,7 +2,6 @@ module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
 
-exception InvalidStruct of string
 
 type variable_decls = A.bind;;
 
@@ -48,7 +47,7 @@ let check_assign lvaluet rvaluet err =
 (* Search hash table to see if the struct is valid *)
 let check_valid_struct s =
 	try Hashtbl.find struct_types s
-	with | Not_found -> raise (InvalidStruct s)
+	with | Not_found -> raise (Exceptions.InvalidStruct s)
 
 (* convert expr to sast expr *)
 let rec expr_sast expr =
@@ -114,7 +113,6 @@ let check_globals globals env =
 	ignore(env);
 	ignore (report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals)); 
 	List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
-	ignore(List.iter (fun (_,s) -> print_string ("checking global " ^ s ^ "\n")) globals);
 	(* Check that any global structs are actually valid structs that have been defined *)
 	List.iter (fun (t,_) -> match t with 
 		  A.Struct_typ(nm) -> ignore(check_valid_struct nm); ()
@@ -150,7 +148,7 @@ let rec check_expr expr env =
 	| A.Unop(uop,e) -> ignore(uop);ignore(e);()
 	| A.Assign(s,e) -> ignore(s);ignore(e);()
 	| A.Noexpr -> ()
-	| A.Id(s) -> ignore(find_var env.scope s);()
+	| A.Id(s) -> ignore(try (find_var env.scope s) with | Not_found -> raise (Exceptions.UndeclaredVariable s));()
 	| A.Struct_create(s) -> ignore(s);()
 	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);()
 	| A.Array_create(i,p) -> ignore(i);ignore(p);()
