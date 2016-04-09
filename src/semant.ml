@@ -2,26 +2,31 @@ module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
 
+exception InvalidStruct of string
+
 type variable_decls = A.bind;;
+
+(* Hashtable of valid structs. This is filled out when we iterate through the user defined structs *)
+let struct_types:(string, string) Hashtbl.t = Hashtbl.create 10
 
 (* Symbol table used for checking scope *)
 type symbol_table = {
 	parent : symbol_table option;
-	variables : variable_decls list;
+	variables : (string, A.typ) Hashtbl.t;
 }
 
-type env = {
+(* Environment*)
+type environment = {
 	scope : symbol_table;
 }
 
-let rec find_var (st : symbol_table) var = 
-	try 
-	 List.find (fun (_,s) -> s = var) st.variables 
+(* Search symbol tables to see if the given var exists somewhere *)
+let rec find_var (scope : symbol_table) var =
+	try Hashtbl.find scope.variables var
 	with Not_found ->
-	 match (st.parent) with
+	match scope.parent with
 	  Some(parent) -> find_var parent var
-	| _ -> raise Not_found
-	
+	| _ -> raise Not_found	
 
 (* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
@@ -40,6 +45,12 @@ let check_not_void exceptf = function
 let check_assign lvaluet rvaluet err =
      if lvaluet == rvaluet then lvaluet else raise err
 
+(* Search hash table to see if the struct is valid *)
+let check_valid_struct s =
+	try Hashtbl.find struct_types s
+	with | Not_found -> raise (InvalidStruct s)
+
+(* convert expr to sast expr *)
 let rec expr_sast expr =
 	match expr with
 	  A.Lit a -> S.SLit a
@@ -95,6 +106,7 @@ let check_structs structs =
 	ignore (List.map (fun n -> (report_duplicate(fun n -> "duplicate struct field " ^ n) (List.map (fun n -> snd n) n.A.attributes))) structs);
 
 	ignore (List.map (fun n -> (List.iter (check_not_void (fun n -> "Illegal void field" ^ n)) n.A.attributes)) structs);
+	ignore(List.iter (fun n -> Hashtbl.add struct_types n.A.sname n.A.sname) structs);
 ()
 
 (* Globa variables semantic checker *)
@@ -102,8 +114,58 @@ let check_globals globals env =
 	ignore(env);
 	ignore (report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals)); 
 	List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
+	ignore(List.iter (fun (_,s) -> print_string ("checking global " ^ s ^ "\n")) globals);
+	(* Check that any global structs are actually valid structs that have been defined *)
+	List.iter (fun (t,_) -> match t with 
+		  A.Struct_typ(nm) -> ignore(check_valid_struct nm); ()
+		| _ -> ()
+	) globals;
+	(* Add global variables to top level symbol table. Side effects *)
+	List.iter (fun (t,s) -> (Hashtbl.add env.scope.variables s t)) globals;
 
 ()
+
+let rec check_expr expr env =
+	match expr with
+	  A.Lit(s) -> ignore(s);()	
+	| A.String_Lit(s) -> ignore(s); ()
+	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
+		(match op with
+		  A.Add -> ()
+		| A.Sub -> ()
+		| A.Mult -> ()
+		| A.Div -> ()
+		| A.Equal -> ()
+		| A.Neq -> ()
+		| A.Less -> ()
+		| A.Leq -> ()
+		| A.Greater -> ()
+		| A.Geq -> ()
+		| A.And -> ()
+		| A.Or -> ()
+		| A.Mod -> ()
+		| A.Exp -> ()
+); ignore(e1'); ignore(e2');
+	()
+	| A.Unop(uop,e) -> ignore(uop);ignore(e);()
+	| A.Assign(s,e) -> ignore(s);ignore(e);()
+	| A.Noexpr -> ()
+	| A.Id(s) -> ignore(find_var env.scope s);()
+	| A.Struct_create(s) -> ignore(s);()
+	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);()
+	| A.Array_create(i,p) -> ignore(i);ignore(p);()
+	| A.Array_access(e, i) -> ignore(e); ignore(i); ()
+	| A.Call(s,el) -> ignore(s);ignore(el);()
+
+let rec check_stmt stmt env = 
+	match stmt with
+	  A.Block(l) -> ignore(List.map (fun n -> (check_stmt n env)) l);()
+	| A.Expr(e) -> check_expr e env; ()
+	| A.If(e1,s,e2) ->ignore(e1);ignore(s);ignore(e2); ()
+	| A.While(e,s) -> ignore(e);ignore(s);()
+	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s);()
+	| A.Return(e) -> ignore(e);()
+	
 
 (* Function names (aka can't have two functions with same name) semantic checker *)
 let check_function_names names = 
@@ -114,21 +176,35 @@ let check_function_not_print names =
 	ignore(if List.mem "print" (List.map (fun n -> n.A.fname) names ) then raise (Failure ("function print may not be defined")) else ()); ()
 
 (* Check the body of the function here *)
-let check_function_body funct =
+let check_function_body funct env =
+	report_duplicate (fun n -> "duplicate formal arg " ^ n) (List.map snd funct.A.formals);
 	report_duplicate (fun n -> "duplicate local " ^ n) (List.map snd funct.A.vdecls);
+	(* Check no duplicates *)
+	let formals_and_locals = List.append funct.A.formals funct.A.vdecls in
+	report_duplicate (fun n -> "same name for formal and local var " ^ n) (List.map snd formals_and_locals);
+	(* Check structs are valid *)
+	List.iter (fun (t,_) -> match t with 
+			A.Struct_typ(nm) -> ignore(check_valid_struct nm); ()
+		| _ -> ()
+	) formals_and_locals;
+	(* Create new enviornment -> symbol table parent is set to previous scope's symbol table *)
+	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}} in
+	(* Add formals + locals to this scope symbol table *)
+	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
+	ignore(List.map (fun n -> check_stmt n new_env) funct.A.body);	
  ()
 
 (* Entry point to check functions *)
-let check_functions functions = 
+let check_functions functions env = 
 	(check_function_names functions); 
 	(check_function_not_print functions); 
-	(List.iter check_function_body functions); ()
+	(List.iter (fun n -> check_function_body n env) functions); ()
 
 (* Entry point for semantic checking AST. Output should be a SAST *)
 let check (globals, functions, structs) =  
-	let prog_env:env = {scope = {parent = None ; variables = []}} in
+	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }} in
 	let _ = check_structs structs in
 	let _ = check_globals globals prog_env in
-	let _ = check_functions functions in
+	let _ = check_functions functions prog_env in
 	let sprogram:(S.sprogram) = program_sast (globals, functions, structs) in
 	sprogram
