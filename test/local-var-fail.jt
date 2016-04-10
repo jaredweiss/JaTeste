@@ -1,0 +1,14 @@
+
+
+func int main()
+{
+	int main_var;
+	main_var = 10;
+	return 0;
+}
+
+func void do_something_sick()
+{
+	int my_var;
+	main_var;
+}

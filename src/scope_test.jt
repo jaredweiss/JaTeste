@@ -1,0 +1,39 @@
+int global_var;
+struct person d;
+
+func int main(int argc, char **argv)
+{
+	int main_var;
+	global_var = 0;
+	add(1,1);
+	return 0;
+}
+
+func int add(int x, int y)
+{
+	string sam;
+	int i;
+	char c;
+	sam;
+	x;
+	i = x + 1;	
+	if ( i == 3) {
+		print("passed");
+	} else {
+		print("did not pass");
+	}
+
+	while (i < 10) {
+		print("looping");
+	}
+	return x;
+}
+
+struct person {
+	int age;
+};
+
+struct dog {
+	int weight;
+	char sex;
+};

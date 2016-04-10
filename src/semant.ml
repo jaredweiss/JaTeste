@@ -7,6 +7,9 @@ type variable_decls = A.bind;;
 
 (* Hashtable of valid structs. This is filled out when we iterate through the user defined structs *)
 let struct_types:(string, string) Hashtbl.t = Hashtbl.create 10
+let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
+
+let built_in_print:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = []; A.vdecls = []; A.body = []; A.tests = {A.exprs = []; A.using = {A.uvdecls = []; A.stmts = []}} }
 
 (* Symbol table used for checking scope *)
 type symbol_table = {
@@ -52,14 +55,17 @@ let check_not_void exceptf = function
 
 (* Helper function to check two types match up *)
 let check_assign lvaluet rvaluet err =
-     if lvaluet == rvaluet then lvaluet else raise err
+     if lvaluet = rvaluet then lvaluet else raise err
 
 (* Search hash table to see if the struct is valid *)
 let check_valid_struct s =
 	try Hashtbl.find struct_types s
 	with | Not_found -> raise (Exceptions.InvalidStruct s)
 
-			
+let check_valid_func_call s = 
+	try Hashtbl.find func_names s
+	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
+
 (* convert expr to sast expr *)
 let rec expr_sast expr =
 	match expr with
@@ -147,14 +153,16 @@ let rec check_expr expr env =
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
 	| A.Unop(uop,e) -> ignore(uop);ignore(e);A.Primitive(A.Int)
-	| A.Assign(s,e) -> ignore(s);ignore(e);A.Primitive(A.Int)
+	| A.Assign(var,e) -> (let left_side = type_of_identifier var env 
+				and right_side = check_expr e env in 
+				check_assign left_side right_side Exceptions.IllegalAssignment)
 	| A.Noexpr -> A.Primitive(A.Void)
 	| A.Id(s) -> type_of_identifier s env 
 	| A.Struct_create(s) -> ignore(s);A.Primitive(A.Int)
 	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);A.Primitive(A.Int)
 	| A.Array_create(i,p) -> ignore(i);ignore(p);A.Primitive(A.Int)
 	| A.Array_access(e, i) -> ignore(e); ignore(i); A.Primitive(A.Int)
-	| A.Call(s,el) -> ignore(s);ignore(el);A.Primitive(A.Int)
+	| A.Call(s,el) -> ignore(check_valid_func_call s); ignore(el);A.Primitive(A.Int)
 
 
 
@@ -167,13 +175,21 @@ let check_is_bool expr env =
 
 let check_return_expr expr env = 
 	match env.return_type with
-	  Some(rt) -> if rt = check_expr expr env then () else raise Exceptions.InvalidReturnType
+	  Some(rt) -> if rt = check_expr expr env then () else raise (Exceptions.InvalidReturnType "return type doesnt match with function definition")
 	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
 
 
 let rec check_stmt stmt env = 
 	match stmt with
-	  A.Block(l) -> ignore(List.map (fun n -> (check_stmt n env)) l);()
+	  A.Block(l) -> (let rec check_block b env2=
+			match b with
+			  [A.Return _ as s] -> check_stmt s env2
+			| A.Return _ :: _ -> raise (Exceptions.InvalidReturnType "Can't have any code after return statement")
+			| A.Block l :: ss -> check_block (l @ ss) env2
+			| l :: ss -> check_stmt l env2; check_block ss env
+			| [] -> ()
+			in
+			check_block l env)
 	| A.Expr(e) -> ignore(check_expr e env); ()
 	| A.If(e1,s1,s2) ->ignore(check_is_bool e1 env);check_stmt s1 env;check_stmt s2 env; ()
 	| A.While(e,s) -> ignore(check_is_bool e env);check_stmt s env;()
@@ -181,8 +197,12 @@ let rec check_stmt stmt env =
 	| A.Return(e) -> ignore(check_return_expr e env);()
 	
 (* Function names (aka can't have two functions with same name) semantic checker *)
-let check_function_names names = 
-	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) names)); ()
+let check_function_names functions = 
+	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) functions));	
+	(* Add the built in function(s) here. There shouldnt be too many of these *)
+	ignore(Hashtbl.add func_names built_in_print.A.fname built_in_print);
+	(* Go through the functions and add their names to a global hashtable that stores the whole function as its value -> (key, value) = (func_decl.fname, func_decl) *)
+	ignore(List.iter (fun n -> Hashtbl.add func_names n.A.fname n) functions); ()
 
 (* Checks programmer hasn't defined function print as it's reserved *)
 let check_function_not_print names = 
@@ -204,7 +224,7 @@ let check_function_body funct env =
 	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ)} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
-	ignore(List.map (fun n -> check_stmt n new_env) funct.A.body);	
+	ignore(check_stmt (A.Block funct.A.body) new_env);	
  ()
 
 (* Entry point to check functions *)

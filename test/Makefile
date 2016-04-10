@@ -11,7 +11,7 @@ define run-test =
 @echo " \033[0;32m ---->  \033[0mTest passed!"
 endef
 
-all-tests: test-hello-world
+all-tests: test-hello-world test-global-scope
 	@echo "\033[0;32m========= All Tests Passed! ==========\033[0m"
 
 
@@ -21,3 +21,6 @@ clean:
 
 test-hello-world:
 	$(call run-test,hello-world)
+
+test-global-scope:
+	$(call run-test,global-scope)
