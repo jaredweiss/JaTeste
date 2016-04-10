@@ -7,6 +7,8 @@ exception UndeclaredVariable of string
 (*Expression exceptions *)
 exception InvalidExpr of string
 exception InvalidBooleanExpression 
+exception IllegalAssignment
+exception InvalidFunctionCall of string
 
 (* Statement exceptions*)
 exception InvalidReturnType of string
