@@ -18,13 +18,10 @@ func int add(int x, int y)
 	x;
 	i = x + 1;	
 	if ( i == 3) {
-		print("passed");
 	} else {
-		print("did not pass");
 	}
 
 	while (i < 10) {
-		print("looping");
 	}
 	return x;
 }

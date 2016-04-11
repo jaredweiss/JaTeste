@@ -9,7 +9,10 @@ type variable_decls = A.bind;;
 let struct_types:(string, string) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
 
-let built_in_print:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = []; A.vdecls = []; A.body = []; A.tests = {A.exprs = []; A.using = {A.uvdecls = []; A.stmts = []}} }
+let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [(A.Primitive(A.String), "arg1")]; A.vdecls = []; A.body = []; A.tests = {A.exprs = []; A.using = {A.uvdecls = []; A.stmts = []}} }
+
+let built_in_print_int:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print_int"; A.formals = [(A.Primitive(A.Int), "arg1")]; A.vdecls = []; A.body = []; A.tests = {A.exprs = []; A.using = {A.uvdecls = []; A.stmts = []}} }
+
 
 (* Symbol table used for checking scope *)
 type symbol_table = {
@@ -66,6 +69,7 @@ let check_valid_func_call s =
 	try Hashtbl.find func_names s
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
 
+			
 (* convert expr to sast expr *)
 let rec expr_sast expr =
 	match expr with
@@ -162,9 +166,13 @@ let rec check_expr expr env =
 	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);A.Primitive(A.Int)
 	| A.Array_create(i,p) -> ignore(i);ignore(p);A.Primitive(A.Int)
 	| A.Array_access(e, i) -> ignore(e); ignore(i); A.Primitive(A.Int)
-	| A.Call(s,el) -> ignore(check_valid_func_call s); ignore(el);A.Primitive(A.Int)
-
-
+	| A.Call(s,el) -> ignore(check_valid_func_call s); let func_info = Hashtbl.find func_names s in
+	let func_info_formals = func_info.A.formals in
+		if List.length func_info_formals != List.length el then
+		raise (Exceptions.InvalidArgumentsToFunction (s ^ " is supplied with wrong args"))
+	else
+		List.iter2 (fun (ft,n) e -> ignore(print_string n);ignore(print_string (string_of_typ ft));let e = check_expr e env in ignore(check_assign ft e (Exceptions.InvalidArgumentsToFunction ("Args to functions " ^ s ^ " don't match up with it's definition")))) func_info_formals el;
+	func_info.A.typ
 
 let check_is_bool expr env = 
 	ignore(check_expr expr env);
@@ -200,7 +208,8 @@ let rec check_stmt stmt env =
 let check_function_names functions = 
 	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) functions));	
 	(* Add the built in function(s) here. There shouldnt be too many of these *)
-	ignore(Hashtbl.add func_names built_in_print.A.fname built_in_print);
+	ignore(Hashtbl.add func_names built_in_print_string.A.fname built_in_print_string);
+	ignore(Hashtbl.add func_names built_in_print_int.A.fname built_in_print_int);
 	(* Go through the functions and add their names to a global hashtable that stores the whole function as its value -> (key, value) = (func_decl.fname, func_decl) *)
 	ignore(List.iter (fun n -> Hashtbl.add func_names n.A.fname n) functions); ()
 

@@ -9,6 +9,7 @@ exception InvalidExpr of string
 exception InvalidBooleanExpression 
 exception IllegalAssignment
 exception InvalidFunctionCall of string
+exception InvalidArgumentsToFunction of string
 
 (* Statement exceptions*)
 exception InvalidReturnType of string
