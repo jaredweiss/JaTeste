@@ -26,11 +26,17 @@ type environment = {
 	return_type : A.typ option;
 }
 
-let string_of_typ t =
+(* For debugging *)
+let rec string_of_typ t =
 	match t with
 	  A.Primitive(A.Int) -> "Int"
+	| A.Primitive(A.Double) -> "Double"
 	| A.Primitive(A.String) -> "String"
 	| A.Primitive(A.Char) -> "Char"
+	| A.Primitive(A.Void) -> "Void"
+	| A.Struct_typ(s) -> "struct " ^ s
+	| A.Pointer_typ(t) -> "pointer " ^ (string_of_typ t)
+	| A.Array_typ(p,_) -> "Array type " ^ (string_of_typ (A.Primitive(p)))
 	| _ -> "not sure"
 
 (* Search symbol tables to see if the given var exists somewhere *)
