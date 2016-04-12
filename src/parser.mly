@@ -210,7 +210,7 @@ Rule for building expressions
 */
 expr:
 	  INT_LITERAL 		{ Lit($1)}
-	| STRING_LITERAL	{ String_Lit($1) }  
+	| STRING_LITERAL	{ String_lit($1) }  
 	| ID 			{ Id($1) }
 	| expr PLUS expr 	{ Binop($1, Add, $3) }
 	| expr MINUS expr 	{ Binop($1, Sub, $3) }
@@ -229,7 +229,7 @@ expr:
 	| NOT expr		{ Unop(Not, $2) }
 	| AMPERSAND expr	{ Unop(Addr, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
-	| expr DOT expr 	{ Struct_Access($1, $3)}
+	| expr DOT expr 	{ Struct_access($1, $3)}
 	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
 	| NEW STRUCT ID 			     { Struct_create($3)}

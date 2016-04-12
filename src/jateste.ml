@@ -25,6 +25,6 @@ let _ =
 	let m = Codegen.gen_llvm sast in 
 	Llvm_analysis.assert_valid_module m;
 	fprintf oc "%s\n" (Llvm.string_of_llmodule m);
-	print_string (Llvm.string_of_llmodule m);
+	(*print_string (Llvm.string_of_llmodule m); *)
 	close_out oc;
 	close_in source_file
