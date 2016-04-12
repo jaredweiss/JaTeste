@@ -2,14 +2,14 @@ open Ast
 
 type sexpr =
     SLit     of int
-  | SString_Lit of string
+  | SString_lit of string
   | SBinop   of sexpr * op * sexpr
   | SUnop    of uop * sexpr
   | SAssign  of sexpr * sexpr
   | SNoexpr
   | SId of string
   | SStruct_create of string
-  | SStruct_Access of sexpr * sexpr
+  | SStruct_access of sexpr * sexpr
   | SArray_create of int * prim
   | SArray_access of sexpr * int
   | SCall of string * sexpr list

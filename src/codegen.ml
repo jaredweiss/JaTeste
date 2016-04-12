@@ -135,7 +135,7 @@ let define_global_with_value (t, n) =
       let identifier_of_expr i = 
 		match i with
 		  S.SId(s) -> find_var s
-		| S.SString_Lit (s) -> find_var s
+		| S.SString_lit (s) -> find_var s
 		| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("string"))
 		| _ -> raise (Exceptions.UndeclaredVariable(" hdhd"))
 	in 
@@ -152,7 +152,7 @@ let define_global_with_value (t, n) =
 	 | S.SCall("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
 	 | S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
-	 | S.SString_Lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
+	 | S.SString_lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
 	 | S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (identifier_of_expr l) builder); e_temp
 	 | S.SBinop (e1, op, e2) -> 
 		let e1' = expr builder e1 

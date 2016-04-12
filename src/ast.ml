@@ -6,14 +6,14 @@ type bind = typ * string
 
 type expr =
     Lit     of int
-  | String_Lit of string
+  | String_lit of string
   | Binop   of expr * op * expr
   | Unop    of uop * expr
   | Assign  of expr * expr
   | Noexpr
   | Id of string
   | Struct_create of string
-  | Struct_Access of expr * expr
+  | Struct_access of expr * expr
   | Array_create of int * prim
   | Array_access of expr * int
   | Call of string * expr list

@@ -56,6 +56,7 @@ let type_of_array arr _ =
 	| _ -> raise (Exceptions.InvalidArrayVariable)
 
 
+
 (* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
     let rec helper = function
@@ -102,14 +103,14 @@ let struct_contains_expr stru expr env =
 let rec type_of_expression expr env = 
 	match expr with
 	  A.Lit(_) -> A.Primitive(A.Int)
-	| A.String_Lit(_) -> A.Primitive(A.String)
+	| A.String_lit(_) -> A.Primitive(A.String)
 	| A.Binop(e1,_,_) -> type_of_expression e1 env
 	| A.Unop(_,e) -> type_of_expression e env
 	| A.Assign(e1, _) -> type_of_expression e1 env
 	| A.Noexpr -> A.Primitive(A.Void)
 	| A.Id(s) -> type_of_identifier s env
 	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Struct_typ(tmp_struct.A.sname)) with | Not_found -> raise (Exceptions.InvalidStruct s))
-	| A.Struct_Access(s,f) -> struct_contains_expr s f
+	| A.Struct_access(s,f) -> struct_contains_expr s f
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e,_) -> type_of_array (type_of_expression e env) env
 	| A.Call(s,_) -> (try let call = check_valid_func_call s in call.A.typ with | Not_found -> raise (Exceptions.InvalidFunctionCall s))
@@ -119,14 +120,14 @@ let rec type_of_expression expr env =
 let rec expr_sast expr =
 	match expr with
 	  A.Lit a -> S.SLit a
-	| A.String_Lit s -> S.SString_Lit s	
+	| A.String_lit s -> S.SString_lit s	
 	| A.Binop (e1, op, e2) -> S.SBinop (expr_sast e1, op, expr_sast e2)
 	| A.Unop (u, e) -> S.SUnop(u, expr_sast e)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s, expr_sast e)
 	| A.Noexpr -> S.SNoexpr
 	| A.Id s -> S.SId s
 	| A.Struct_create s -> S.SStruct_create s
-	| A.Struct_Access (e1, e2) -> S.SStruct_Access (expr_sast e1, expr_sast e2)
+	| A.Struct_access (e1, e2) -> S.SStruct_access (expr_sast e1, expr_sast e2)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
 	| A.Array_access (e, i) -> S.SArray_access (expr_sast e, i)
 	| A.Call (s, e) -> S.SCall (s, (List.map expr_sast e))
@@ -192,7 +193,7 @@ let check_globals globals env =
 let rec check_expr expr env =
 	match expr with
 	  A.Lit(_) -> A.Primitive(A.Int)
-	| A.String_Lit(_) -> A.Primitive(A.String)
+	| A.String_lit(_) -> A.Primitive(A.String)
 	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
 		(match op with
 		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
@@ -208,7 +209,7 @@ let rec check_expr expr env =
 	| A.Noexpr -> A.Primitive(A.Void)
 	| A.Id(s) -> type_of_identifier s env 
 	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Pointer_typ(A.Struct_typ(tmp_struct.A.sname))) with | Not_found -> raise (Exceptions.InvalidStruct s))
-	| A.Struct_Access(e1,e2) -> struct_contains_expr e1 e2 env
+	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
 	| A.Call(s,el) -> let func_info = (check_valid_func_call s) in
