@@ -207,7 +207,7 @@ let rec check_expr expr env =
 				check_assign left_side_type right_side_type Exceptions.IllegalAssignment)
 	| A.Noexpr -> A.Primitive(A.Void)
 	| A.Id(s) -> type_of_identifier s env 
-	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Struct_typ(tmp_struct.A.sname)) with | Not_found -> raise (Exceptions.InvalidStruct s))
+	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Pointer_typ(A.Struct_typ(tmp_struct.A.sname))) with | Not_found -> raise (Exceptions.InvalidStruct s))
 	| A.Struct_Access(e1,e2) -> struct_contains_expr e1 e2 env
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env

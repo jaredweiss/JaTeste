@@ -15,12 +15,13 @@ func int main(int argc, char **argv)
 	int **double_pt;
 	struct person *pat;
 	struct person dom;
-	struct house ah;
+	struct house *ah;
 	struct house ah2;
 	struct house *ahpt;
 	int[10] arr;
 	sam;
 	a = 10;
+	ah = new struct house;
 	dom.age = 10;
 	{
 		a  = 10;
