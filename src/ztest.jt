@@ -14,7 +14,9 @@ func int main(int argc, char **argv)
 	int **double_pt;
 	struct person *pat;
 	struct house ah;
+	int[10] arr;
 	sam;
+	arr[9] = 1;
 	a = 10;
 	{
 		a  = 10;

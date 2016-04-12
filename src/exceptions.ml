@@ -10,6 +10,8 @@ exception InvalidBooleanExpression
 exception IllegalAssignment
 exception InvalidFunctionCall of string
 exception InvalidArgumentsToFunction of string
+exception InvalidArrayVariable
+exception InvalidStructField
 
 (* Statement exceptions*)
 exception InvalidReturnType of string

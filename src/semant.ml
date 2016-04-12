@@ -6,7 +6,7 @@ module StringMap = Map.Make(String)
 type variable_decls = A.bind;;
 
 (* Hashtable of valid structs. This is filled out when we iterate through the user defined structs *)
-let struct_types:(string, string) Hashtbl.t = Hashtbl.create 10
+let struct_types:(string, A.struct_decl) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
 
 let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [(A.Primitive(A.String), "arg1")]; A.vdecls = []; A.body = []; A.tests = {A.exprs = []; A.using = {A.uvdecls = []; A.stmts = []}} }
@@ -50,15 +50,11 @@ let rec find_var (scope : symbol_table) var =
 let type_of_identifier var env = 
 	find_var env.scope var
 
-let rec type_of_expression expr env = 
-	match expr with
-	  A.Lit(_) -> A.Primitive(A.Int)
-	| A.Id(s) -> type_of_identifier s env
-	| A.String_Lit(_) -> A.Primitive(A.String)
-	| A.Binop(e1,_,_) -> type_of_expression e1 env
-	| A.Unop(_,e) -> type_of_expression e env
-	| A.Assign(e1, _) -> type_of_expression e1 env
-	| _ -> A.Primitive(A.String)
+let type_of_array arr _ =
+	match arr with
+	  A.Array_typ(p,_) -> A.Primitive(p)
+	| _ -> raise (Exceptions.InvalidArrayVariable)
+
 
 (* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
@@ -86,7 +82,32 @@ let check_valid_func_call s =
 	try Hashtbl.find func_names s
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
 
-			
+let struct_contains_field s field = 
+		let stru:(A.struct_decl) = check_valid_struct s in 
+		try let (my_typ,_) = (List.find (fun (_,s) -> if s == field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField)
+	
+let struct_contains_expr stru expr = 
+	match stru with
+	  A.Id(s) -> (match expr with A.Id(s1) -> struct_contains_field s s1 | _ -> raise (Exceptions.InvalidStructField)) 
+	| _ -> raise (Exceptions.InvalidStructField)
+
+		
+
+let rec type_of_expression expr env = 
+	match expr with
+	  A.Lit(_) -> A.Primitive(A.Int)
+	| A.String_Lit(_) -> A.Primitive(A.String)
+	| A.Binop(e1,_,_) -> type_of_expression e1 env
+	| A.Unop(_,e) -> type_of_expression e env
+	| A.Assign(e1, _) -> type_of_expression e1 env
+	| A.Noexpr -> A.Primitive(A.Void)
+	| A.Id(s) -> type_of_identifier s env
+	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Struct_typ(tmp_struct.A.sname)) with | Not_found -> raise (Exceptions.InvalidStruct s))
+	| A.Struct_Access(s,f) -> struct_contains_expr s f
+	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
+	| A.Array_access(e,_) -> type_of_array (type_of_expression e env) env
+	| A.Call(s,_) -> (try let call = check_valid_func_call s in call.A.typ with | Not_found -> raise (Exceptions.InvalidFunctionCall s))
+		
 (* convert expr to sast expr *)
 let rec expr_sast expr =
 	match expr with
@@ -143,7 +164,7 @@ let check_structs structs =
 	ignore (List.map (fun n -> (report_duplicate(fun n -> "duplicate struct field " ^ n) (List.map (fun n -> snd n) n.A.attributes))) structs);
 
 	ignore (List.map (fun n -> (List.iter (check_not_void (fun n -> "Illegal void field" ^ n)) n.A.attributes)) structs);
-	ignore(List.iter (fun n -> Hashtbl.add struct_types n.A.sname n.A.sname) structs);
+	ignore(List.iter (fun n -> Hashtbl.add struct_types n.A.sname n) structs);
 ()
 
 (* Globa variables semantic checker *)
@@ -188,7 +209,7 @@ let rec check_expr expr env =
 		if List.length func_info_formals != List.length el then
 		raise (Exceptions.InvalidArgumentsToFunction (s ^ " is supplied with wrong args"))
 	else
-		List.iter2 (fun (ft,n) e -> ignore(print_string n);ignore(print_string (string_of_typ ft));let e = check_expr e env in ignore(check_assign ft e (Exceptions.InvalidArgumentsToFunction ("Args to functions " ^ s ^ " don't match up with it's definition")))) func_info_formals el;
+		List.iter2 (fun (ft,_) e -> let e = check_expr e env in ignore(check_assign ft e (Exceptions.InvalidArgumentsToFunction ("Args to functions " ^ s ^ " don't match up with it's definition")))) func_info_formals el;
 	func_info.A.typ
 
 let check_is_bool expr env = 
