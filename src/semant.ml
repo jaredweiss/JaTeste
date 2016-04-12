@@ -82,17 +82,23 @@ let check_valid_func_call s =
 	try Hashtbl.find func_names s
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
 
-let struct_contains_field s field = 
-		let stru:(A.struct_decl) = check_valid_struct s in 
-		try let (my_typ,_) = (List.find (fun (_,s) -> if s == field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField)
+let struct_contains_field s field env = 
+		let struct_var = find_var env.scope s in 
+		match struct_var with 
+		  A.Struct_typ(struc_name) ->
+		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
+		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
+		| _ -> raise (Exceptions.InvalidStruct s)
 	
-let struct_contains_expr stru expr = 
+let struct_contains_expr stru expr env = 
 	match stru with
-	  A.Id(s) -> (match expr with A.Id(s1) -> struct_contains_field s s1 | _ -> raise (Exceptions.InvalidStructField)) 
+	  A.Id(s) -> (match expr with A.Id(s1) -> struct_contains_field s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
 
 		
 
+(* Dont think we need this - but could be wrong so going to keep it around for now *)
+(*
 let rec type_of_expression expr env = 
 	match expr with
 	  A.Lit(_) -> A.Primitive(A.Int)
@@ -107,6 +113,7 @@ let rec type_of_expression expr env =
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e,_) -> type_of_array (type_of_expression e env) env
 	| A.Call(s,_) -> (try let call = check_valid_func_call s in call.A.typ with | Not_found -> raise (Exceptions.InvalidFunctionCall s))
+*)
 		
 (* convert expr to sast expr *)
 let rec expr_sast expr =
@@ -196,15 +203,15 @@ let rec check_expr expr env =
 ) 
 	| A.Unop(uop,e) -> ignore(uop);ignore(e);A.Primitive(A.Int)
 	| A.Assign(var,e) -> (let right_side_type = check_expr e env in 
-			let left_side_type  = type_of_expression var env in
+			let left_side_type  = check_expr var env in
 				check_assign left_side_type right_side_type Exceptions.IllegalAssignment)
 	| A.Noexpr -> A.Primitive(A.Void)
 	| A.Id(s) -> type_of_identifier s env 
-	| A.Struct_create(s) -> ignore(s);A.Primitive(A.Int)
-	| A.Struct_Access(e1,e2) -> ignore(e1);ignore(e2);A.Primitive(A.Int)
-	| A.Array_create(i,p) -> ignore(i);ignore(p);A.Primitive(A.Int)
-	| A.Array_access(e, i) -> ignore(e); ignore(i); A.Primitive(A.Int)
-	| A.Call(s,el) -> ignore(check_valid_func_call s); let func_info = Hashtbl.find func_names s in
+	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Struct_typ(tmp_struct.A.sname)) with | Not_found -> raise (Exceptions.InvalidStruct s))
+	| A.Struct_Access(e1,e2) -> struct_contains_expr e1 e2 env
+	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
+	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
+	| A.Call(s,el) -> let func_info = (check_valid_func_call s) in
 	let func_info_formals = func_info.A.formals in
 		if List.length func_info_formals != List.length el then
 		raise (Exceptions.InvalidArgumentsToFunction (s ^ " is supplied with wrong args"))
