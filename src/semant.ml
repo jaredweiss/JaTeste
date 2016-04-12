@@ -52,12 +52,12 @@ let type_of_identifier var env =
 
 let rec type_of_expression expr env = 
 	match expr with
-	  A.Lit(i) -> A.Primitive(A.Int)
+	  A.Lit(_) -> A.Primitive(A.Int)
 	| A.Id(s) -> type_of_identifier s env
-	| A.String_Lit(s) -> A.Primitive(A.String)
+	| A.String_Lit(_) -> A.Primitive(A.String)
 	| A.Binop(e1,_,_) -> type_of_expression e1 env
-	| A.Unop(u,e) -> type_of_expression e env
-	| A.Assign(e1, e2) -> type_of_expression e1 env
+	| A.Unop(_,e) -> type_of_expression e env
+	| A.Assign(e1, _) -> type_of_expression e1 env
 	| _ -> A.Primitive(A.String)
 
 (* Helper function to check for dups in a list *)
@@ -174,8 +174,7 @@ let rec check_expr expr env =
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
 	| A.Unop(uop,e) -> ignore(uop);ignore(e);A.Primitive(A.Int)
-	| A.Assign(var,e) -> (let left_side = check_expr var env 
-				and right_side_type = check_expr e env in 
+	| A.Assign(var,e) -> (let right_side_type = check_expr e env in 
 			let left_side_type  = type_of_expression var env in
 				check_assign left_side_type right_side_type Exceptions.IllegalAssignment)
 	| A.Noexpr -> A.Primitive(A.Void)
