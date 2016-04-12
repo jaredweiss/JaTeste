@@ -42,6 +42,7 @@ exception InvalidStruct of string
 		| A.Array_typ(t,n) -> L.array_type (prim_ltype_of_typ t) n
     		| _ -> void_t 
 
+	
 	(* Function that builds LLVM struct *)
 	let define_struct_body s =
 	 let struct_t = Hashtbl.find struct_types s.S.ssname in
@@ -130,7 +131,15 @@ let define_global_with_value (t, n) =
                  with Not_found -> try Hashtbl.find global_variables n
                  with Not_found -> raise (Failure ("undeclared variable " ^ n))
     in
-      
+
+      let identifier_of_expr i = 
+		match i with
+		  S.SId(s) -> find_var s
+		| S.SString_Lit (s) -> find_var s
+		| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("string"))
+		| _ -> raise (Exceptions.UndeclaredVariable(" hdhd"))
+	in 
+
 	let add_terminal builder f =
           match L.block_terminator (L.insertion_block builder) with
         	  Some _ -> ()
@@ -144,7 +153,7 @@ let define_global_with_value (t, n) =
 	 | S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	 | S.SString_Lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
-	 | S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (find_var l) builder); e_temp
+	 | S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (identifier_of_expr l) builder); e_temp
 	 | S.SBinop (e1, op, e2) -> 
 		let e1' = expr builder e1 
 		and e2' = expr builder e2 in

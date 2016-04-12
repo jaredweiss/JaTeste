@@ -1,0 +1,18 @@
+func int main()
+{
+	int sum;
+	sum = add(10,10);
+	if (sum == 20) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+	return 0;
+}
+
+func int add(int x, int y)
+{
+	return x + y;
+}
+
+

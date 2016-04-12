@@ -1,0 +1,18 @@
+int global_var;
+
+func int main()
+{
+	global_var = 0;
+	add_to_global();
+	if (global_var == 1) {	
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+}
+
+func void add_to_global()
+{
+	global_var = global_var + 1;
+}
