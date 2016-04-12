@@ -5,7 +5,7 @@ type sexpr =
   | SString_Lit of string
   | SBinop   of sexpr * op * sexpr
   | SUnop    of uop * sexpr
-  | SAssign  of string * sexpr
+  | SAssign  of sexpr * sexpr
   | SNoexpr
   | SId of string
   | SStruct_create of string

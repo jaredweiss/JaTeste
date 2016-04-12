@@ -228,7 +228,7 @@ expr:
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
 	| AMPERSAND expr	{ Unop(Addr, $2) }
-	| ID ASSIGN expr 	{ Assign($1, $3) }
+	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_Access($1, $3)}
 	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }

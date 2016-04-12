@@ -9,7 +9,7 @@ type expr =
   | String_Lit of string
   | Binop   of expr * op * expr
   | Unop    of uop * expr
-  | Assign  of string * expr
+  | Assign  of expr * expr
   | Noexpr
   | Id of string
   | Struct_create of string
