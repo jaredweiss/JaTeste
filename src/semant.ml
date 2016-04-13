@@ -100,6 +100,7 @@ let check_valid_func_call s =
 	try Hashtbl.find func_names s
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
 
+
 (* Checks the relevant struct actually a given field *)
 let struct_contains_field s field env = 
 		let struct_var = find_var env.scope s in 
@@ -242,7 +243,12 @@ let rec check_expr expr env =
 		| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
-	| A.Unop(uop,e) -> ignore(uop);ignore(e);A.Primitive(A.Int)
+	| A.Unop(uop,e) -> let expr_type = check_expr e env in
+			(match uop with
+				  A.Not -> expr_type 
+				| A.Neg -> expr_type
+				| A.Addr -> A.Pointer_typ(expr_type)
+			)
 	| A.Assign(var,e) -> (let right_side_type = check_expr e env in 
 			let left_side_type  = check_expr var env in
 				check_assign left_side_type right_side_type Exceptions.IllegalAssignment)
@@ -274,7 +280,6 @@ let check_return_expr expr env =
 	match env.return_type with
 	  Some(rt) -> if rt = check_expr expr env then () else raise (Exceptions.InvalidReturnType "return type doesnt match with function definition")
 	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
-
 
 (* Main entry point for checking semantics of statements *)
 let rec check_stmt stmt env = 

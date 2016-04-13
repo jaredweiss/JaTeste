@@ -21,6 +21,7 @@ func int main(int argc, char **argv)
 	int[10] arr;
 	sam;
 	a = 10;
+	my_pt = &i;
 	ah = new struct house;
 	arr = new int[10];
 	dom.sex = 1;
