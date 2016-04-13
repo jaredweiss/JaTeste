@@ -24,7 +24,7 @@ func int main(int argc, char **argv)
 	ah = new struct house;
 	arr = new int[10];
 	dom.sex = 1;
-	ah.price = 10;
+	ah->price = 10;
 	{
 		a  = 10;
 	}

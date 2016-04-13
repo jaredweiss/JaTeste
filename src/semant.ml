@@ -100,17 +100,29 @@ let check_valid_func_call s =
 let struct_contains_field s field env = 
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
-		  A.Struct_typ(struc_name) | A.Pointer_typ(A.Struct_typ(struc_name)) ->
+		  A.Struct_typ(struc_name) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
 		| _ -> raise (Exceptions.InvalidStruct s)
-	
+let struct_pt_contains_field s field env = 
+		let struct_var = find_var env.scope s in 
+		match struct_var with 
+		  A.Pointer_typ(A.Struct_typ(struc_name)) ->
+		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
+		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
+		| _ -> raise (Exceptions.InvalidStruct s)
+
 let struct_contains_expr stru expr env = 
 	match stru with
 	  A.Id(s) -> (match expr with A.Id(s1) -> struct_contains_field s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
 
-		
+let struct_pt_contains_expr stru expr env = 
+	match stru with
+	  A.Id(s) -> (match expr with A.Id(s1) -> struct_pt_contains_field s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
+	| _ -> raise (Exceptions.InvalidStructField)
+
+	
 
 (* Dont think we need this - but could be wrong so going to keep it around for now *)
 (*
@@ -226,7 +238,7 @@ let rec check_expr expr env =
 	| A.Id(s) -> type_of_identifier s env 
 	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Pointer_typ(A.Struct_typ(tmp_struct.A.sname))) with | Not_found -> raise (Exceptions.InvalidStruct s))
 	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
-	| A.Struct_pt_access(e1,e2) -> struct_contains_expr e1 e2 env
+	| A.Struct_pt_access(e1,e2) -> struct_pt_contains_expr e1 e2 env
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
 	| A.Call(s,el) -> let func_info = (check_valid_func_call s) in
