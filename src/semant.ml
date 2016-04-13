@@ -47,9 +47,11 @@ let rec find_var (scope : symbol_table) var =
 	  Some(parent) -> find_var parent var
 	| _ -> raise (Exceptions.UndeclaredVariable var)	
 
+(* Helper function to reeturn an identifers type *)
 let type_of_identifier var env = 
 	find_var env.scope var
 
+(* Returns the type of the arrays elements. E.g. int[10] arr... type_of_array arr would return A.Int *)
 let type_of_array arr _ =
 	match arr with
 	  A.Array_typ(p,_) -> A.Primitive(p)
@@ -93,10 +95,12 @@ let check_valid_struct s =
 	try Hashtbl.find struct_types s
 	with | Not_found -> raise (Exceptions.InvalidStruct s)
 
+(* Checks the hash table to see if the function exists *)
 let check_valid_func_call s = 
 	try Hashtbl.find func_names s
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
 
+(* Checks the relevant struct actually a given field *)
 let struct_contains_field s field env = 
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
@@ -104,6 +108,8 @@ let struct_contains_field s field env =
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
 		| _ -> raise (Exceptions.InvalidStruct s)
+
+(* Checks the relevant struct actually a given field *)
 let struct_pt_contains_field s field env = 
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
@@ -143,6 +149,8 @@ let rec type_of_expression expr env =
 	| A.Call(s,_) -> (try let call = check_valid_func_call s in call.A.typ with | Not_found -> raise (Exceptions.InvalidFunctionCall s))
 *)
 		
+(**********Start of code to convert SAST to AST**********)
+
 (* convert expr to sast expr *)
 let rec expr_sast expr =
 	match expr with
@@ -160,6 +168,7 @@ let rec expr_sast expr =
 	| A.Array_access (e, i) -> S.SArray_access (string_identifier_of_expr e, i)
 	| A.Call (s, e) -> S.SCall (s, (List.map expr_sast e))
 
+(* convert stmt to sast stmt *)
 let rec stmt_sast stmt =
 	match stmt with
 	  A.Block l -> S.SBlock (List.map stmt_sast l)
@@ -191,6 +200,8 @@ let program_sast (globals, functions, structs) =
 	let tmp:(S.sprogram) = (globals, (List.map func_decl_sast functions), (List.map struct_sast structs)) in
 	tmp
 
+(**********End of code to convert SAST to AST**********)
+
 (* Functions to check the semantics of JaTeste Program *)
 
 (* Struct semantic checker *)
@@ -218,6 +229,7 @@ let check_globals globals env =
 
 ()
 
+(* Main entry pointer for checking the semantics of an expression *)
 let rec check_expr expr env =
 	match expr with
 	  A.Lit(_) -> A.Primitive(A.Int)
@@ -249,6 +261,7 @@ let rec check_expr expr env =
 		List.iter2 (fun (ft,_) e -> let e = check_expr e env in ignore(check_assign ft e (Exceptions.InvalidArgumentsToFunction ("Args to functions " ^ s ^ " don't match up with it's definition")))) func_info_formals el;
 	func_info.A.typ
 
+(* Checks if expr is a boolean expr. Used for checking the predicate of things like if, while statements *)
 let check_is_bool expr env = 
 	ignore(check_expr expr env);
 	match expr with
@@ -256,12 +269,14 @@ let check_is_bool expr env =
 
 	| _ ->  raise (Exceptions.InvalidBooleanExpression)
 
+(* Checks that return value is the same type as the return type in the function definition*)
 let check_return_expr expr env = 
 	match env.return_type with
 	  Some(rt) -> if rt = check_expr expr env then () else raise (Exceptions.InvalidReturnType "return type doesnt match with function definition")
 	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
 
 
+(* Main entry point for checking semantics of statements *)
 let rec check_stmt stmt env = 
 	match stmt with
 	  A.Block(l) -> (let rec check_block b env2=

@@ -25,6 +25,8 @@ func int main(int argc, char **argv)
 	arr = new int[10];
 	dom.sex = 1;
 	ah->price = 10;
+	ahpt = new struct house;
+	ahpt->location = "ny";
 	{
 		a  = 10;
 	}
