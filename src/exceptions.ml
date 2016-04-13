@@ -16,6 +16,7 @@ exception InvalidStructField
 (* Statement exceptions*)
 exception InvalidReturnType of string
 
+(* Bug catcher *)
 exception BugCatch of string
 
 

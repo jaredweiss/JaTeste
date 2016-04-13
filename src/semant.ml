@@ -55,8 +55,21 @@ let type_of_array arr _ =
 	  A.Array_typ(p,_) -> A.Primitive(p)
 	| _ -> raise (Exceptions.InvalidArrayVariable)
 
+(* Function is done for creating sast after semantic checking. Should only be called on struct or array access *)
+let rec string_identifier_of_expr expr = 
+	match expr with
+	  A.Id(s) -> s
+	| A.Struct_access(e1, _) -> string_identifier_of_expr e1 
+	| A.Array_access(e1, _) -> string_identifier_of_expr e1
+	| A.Call(s,_) -> s
+	| _ -> raise (Exceptions.BugCatch "string_identifier_of_expr")
 
-
+(* Function is done for creating sast after semantic checking. Should only be called on struct fields *)
+let string_of_struct_expr expr = 
+	match expr with
+	  A.Id(s) -> s
+	| _ -> raise (Exceptions.BugCatch "string_of_struct_expr")
+	
 (* Helper function to check for dups in a list *)
 let report_duplicate exceptf list =
     let rec helper = function
@@ -127,9 +140,9 @@ let rec expr_sast expr =
 	| A.Noexpr -> S.SNoexpr
 	| A.Id s -> S.SId s
 	| A.Struct_create s -> S.SStruct_create s
-	| A.Struct_access (e1, e2) -> S.SStruct_access (expr_sast e1, expr_sast e2)
+	| A.Struct_access (e1, e2) -> S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
-	| A.Array_access (e, i) -> S.SArray_access (expr_sast e, i)
+	| A.Array_access (e, i) -> S.SArray_access (string_identifier_of_expr e, i)
 	| A.Call (s, e) -> S.SCall (s, (List.map expr_sast e))
 
 let rec stmt_sast stmt =
