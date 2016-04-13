@@ -14,6 +14,7 @@ type expr =
   | Id of string
   | Struct_create of string
   | Struct_access of expr * expr
+  | Struct_pt_access of expr * expr
   | Array_create of int * prim
   | Array_access of expr * int
   | Call of string * expr list

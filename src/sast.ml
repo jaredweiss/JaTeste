@@ -10,6 +10,7 @@ type sexpr =
   | SId of string
   | SStruct_create of string
   | SStruct_access of string * string
+  | SStruct_pt_access of string * string
   | SArray_create of int * prim
   | SArray_access of string * int
   | SCall of string * sexpr list
