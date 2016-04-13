@@ -39,6 +39,7 @@ rule token = parse
 	| "["			{ LBRACKET }
 	| "]"			{ RBRACKET }
 	| "."			{ DOT }
+	| "->"			{ POINTER_ACCESS }
 
 	(* Control flow *)
 	| "if"			{ IF }

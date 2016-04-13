@@ -6,7 +6,7 @@
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
 %token PLUS MINUS STAR DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
 %token FUNC
-%token WTEST USING STRUCT DOT
+%token WTEST USING STRUCT DOT POINTER_ACCESS
 %token EQ NEQ LT LEQ GT GEQ AND OR 
 %token INT DOUBLE VOID CHAR STRING 
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
@@ -40,7 +40,7 @@
 %right NOT NEG AMPERSAND
 %right RBRACKET
 %left LBRACKET
-%right DOT
+%right DOT POINTER_ACCESS
 
 /* 
    Start symbol 
@@ -230,6 +230,7 @@ expr:
 	| AMPERSAND expr	{ Unop(Addr, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_access($1, $3)}
+	| expr POINTER_ACCESS expr 	{ Struct_access($1, $3)}
 	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
 	| NEW STRUCT ID 			     { Struct_create($3)}

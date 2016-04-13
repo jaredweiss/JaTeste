@@ -23,7 +23,8 @@ func int main(int argc, char **argv)
 	a = 10;
 	ah = new struct house;
 	arr = new int[10];
-	dom.age = 10;
+	dom.sex = 1;
+	ah->price = 10;
 	{
 		a  = 10;
 	}
@@ -81,5 +82,6 @@ struct house  {
 struct person  {
 	int age;
 	int height;
+	int sex;
 };
 

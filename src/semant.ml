@@ -99,7 +99,7 @@ let check_valid_func_call s =
 let struct_contains_field s field env = 
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
-		  A.Struct_typ(struc_name) ->
+		  A.Struct_typ(struc_name) | A.Pointer_typ(A.Struct_typ(struc_name)) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
 		| _ -> raise (Exceptions.InvalidStruct s)
