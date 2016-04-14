@@ -1,3 +1,5 @@
+(* Semantic checker code. Takes Ast as input and returns a Sast *)
+
 module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
@@ -336,6 +338,7 @@ let check_functions functions env =
 	(check_function_names functions); 
 	(check_function_not_print functions); 
 	(List.iter (fun n -> check_function_body n env) functions); ()
+	(* Need to check function test + using code here *)
 
 (* Entry point for semantic checking AST. Output should be a SAST *)
 let check (globals, functions, structs) =  
