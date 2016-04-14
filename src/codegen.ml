@@ -5,10 +5,8 @@ module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
 
-exception InvalidStruct of string
-
-
 let context = L.global_context () 
+(* module is what is returned from this file aka the LLVM code *)
 let the_module = L.create_module context "Jateste" 
 
 (* Defined so we don't have to type out L.i32_type ... every time *)
@@ -28,7 +26,7 @@ let global_variables:(string, L.llvalue) Hashtbl.t = Hashtbl.create 50
 (* Helper function that returns L.lltype for a struct. This should never fail as semantic checker should catch invalid structs *)
 let find_struct_name name = 
 	try Hashtbl.find struct_types name
-	with | Not_found -> raise(InvalidStruct name)
+	with | Not_found -> raise(Exceptions.InvalidStruct name)
 
 (* Code to declare struct *)
 let declare_struct s =
@@ -58,20 +56,33 @@ let define_struct_body s =
 	let attributes_array = Array.of_list attributes in 
 	L.struct_set_body struct_t attributes_array false
 
-let define_global_with_value (t, n) = 
+let array_of_zeros i l= 
+	Array.make i l
+
+let default_value_for_type t = 
 	match t with 
+		  A.Primitive(A.Int) -> L.const_int (ltype_of_typ t) 0
+		| A.Primitive(A.Double) ->L.const_int (ltype_of_typ t) 0
+		| A.Primitive(A.String) ->L.const_string context "" 
+		| A.Primitive(A.Char) ->L.const_int (ltype_of_typ t) 0
+		| A.Primitive(A.Void) ->L.const_int (ltype_of_typ t) 0
+		| _ -> raise (Exceptions.BugCatch "default_value_for_type")
+
+let define_global_with_value (t, n) = 
+		match t with 
 		  A.Primitive(p) -> 
 			(match p with
 			  A.Int -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
-			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
 			| A.Double -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
+			| A.String -> let init = L.const_string context "" in (L.define_global n init the_module)		
 			| A.Void -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
-			| A.String -> let init = L.const_string context "" in (L.define_global n init the_module))		
+			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
+		)
 		| A.Struct_typ(s) -> let init = L.const_named_struct (find_struct_name s) [||] in (L.define_global n init the_module)		
 
 		| A.Pointer_typ(_) ->let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init the_module)		
 
-		| A.Array_typ(p,_) ->let init = L.const_array (prim_ltype_of_typ p) [||] in (L.define_global n init the_module)		
+		| A.Array_typ(p,i) ->let init = L.const_array (prim_ltype_of_typ p) (array_of_zeros i (default_value_for_type (A.Primitive(p)))) in (L.define_global n init the_module)		
 
 		| A.Func_typ(_) ->let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)		
 
@@ -80,7 +91,7 @@ let define_global_with_value (t, n) =
 
 
 (* Where we add global variabes to global data section *)
-let global_var (t, n) =
+let define_global_var (t, n) =
 		match t with
 		  A.Primitive(_) -> Hashtbl.add global_variables n (define_global_with_value (t,n))
 		| A.Struct_typ(_) -> Hashtbl.add  global_variables n (define_global_with_value (t,n))
@@ -108,37 +119,37 @@ let function_decls =
 	
 (* Method to build body of function *)
 let build_function_body fdecl =
-let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
-(* builder is the LLVM instruction builder *)
-let builder = L.builder_at_end context (L.entry_block the_function) in
+	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
+	(* builder is the LLVM instruction builder *)
+	let builder = L.builder_at_end context (L.entry_block the_function) in
 
-(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
-let str_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
+	(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
+	let str_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
 
-(* This is where we push local variables onto the stack and add them to a local HashMap*)
-let local_vars = 
-	let add_formal m(t, n) p = L.set_value_name n p;
-	let local = L.build_alloca (ltype_of_typ t) n builder in
-	ignore (L.build_store p local builder);
-	StringMap.add n local m in
+	(* This is where we push local variables onto the stack and add them to a local HashMap*)
+	let local_vars = 
+		let add_formal m(t, n) p = L.set_value_name n p;
+		let local = L.build_alloca (ltype_of_typ t) n builder in
+		ignore (L.build_store p local builder);
+		StringMap.add n local m in
 
-	let add_local m (t, n) =
-        let local_var = L.build_alloca (ltype_of_typ t) n builder
-        in StringMap.add n local_var m in
+		let add_local m (t, n) =
+        	let local_var = L.build_alloca (ltype_of_typ t) n builder
+        	in StringMap.add n local_var m in
 
-(* This is where we push formal arguments onto the stack *)
-let formals = List.fold_left2 add_formal StringMap.empty fdecl.S.sformals
+	(* This is where we push formal arguments onto the stack *)
+	let formals = List.fold_left2 add_formal StringMap.empty fdecl.S.sformals
           (Array.to_list (L.params the_function)) in
           List.fold_left add_local formals fdecl.S.svdecls in
 
 
-(* Two places to look for a variable 1) local HashMap 2) global HashMap *)
-let find_var n = try StringMap.find n local_vars
-	with Not_found -> try Hashtbl.find global_variables n
-        with Not_found -> raise (Failure ("undeclared variable " ^ n))
+	(* Two places to look for a variable 1) local HashMap 2) global HashMap *)
+	let find_var n = try StringMap.find n local_vars
+		with Not_found -> try Hashtbl.find global_variables n
+        	with Not_found -> raise (Failure ("undeclared variable " ^ n))
         in
 
-let identifier_of_expr i = 
+	let identifier_of_expr i = 
 	match i with
  	  S.SId(s) -> find_var s
 	| S.SString_lit (s) -> find_var s
@@ -146,13 +157,13 @@ let identifier_of_expr i =
 	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented identifier_of_expr"))
 	in 
 
-let add_terminal builder f =
+	let add_terminal builder f =
           match L.block_terminator (L.insertion_block builder) with
         	  Some _ -> ()
       		| None -> ignore (f builder) in	
 
-(* This is where we build LLVM expressions *)
-let rec expr builder = function 
+	(* This is where we build LLVM expressions *)
+	let rec expr builder = function 
 	  S.SLit l -> L.const_int i32_t l
 	| S.SString_lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
 	| S.SBinop (e1, op, e2) -> 
@@ -210,8 +221,8 @@ let rec expr builder = function
 						| _ -> L.build_ret (expr builder r) builder); builder 
 	in
 	
-(* Build the body for this function *)
-let builder = stmt builder (S.SBlock fdecl.S.sbody) in
+	(* Build the body for this function *)
+	let builder = stmt builder (S.SBlock fdecl.S.sbody) in
 		
 	add_terminal builder (match fdecl.S.styp with
           A.Primitive(A.Void) -> L.build_ret_void
@@ -226,6 +237,6 @@ List.iter build_function_body functions;
 let gen_llvm (input_globals, input_functions, input_structs) = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in
-	let _ = List.iter global_var input_globals in
+	let _ = List.iter define_global_var input_globals in
 	let _ = translate_function input_functions in
 	the_module
