@@ -9,9 +9,11 @@ type sexpr =
   | SNoexpr
   | SId of string
   | SStruct_create of string
-  | SStruct_access of sexpr * sexpr
+  | SStruct_access of string * string
+  | SStruct_pt_access of string * string
   | SArray_create of int * prim
-  | SArray_access of sexpr * int
+  | SArray_access of string * int
+  | SFree of string
   | SCall of string * sexpr list
 
 type sstmt =

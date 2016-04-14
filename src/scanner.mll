@@ -39,6 +39,7 @@ rule token = parse
 	| "["			{ LBRACKET }
 	| "]"			{ RBRACKET }
 	| "."			{ DOT }
+	| "->"			{ POINTER_ACCESS }
 
 	(* Control flow *)
 	| "if"			{ IF }
@@ -56,6 +57,7 @@ rule token = parse
 	| "string"		{ STRING }
 	| "func" 		{ FUNC }
 	| "new"			{ NEW }
+	| "free"		{ FREE }
 	| "[]"			{ ARRAY }
 
 	(* Testing keywords *)
