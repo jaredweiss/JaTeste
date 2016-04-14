@@ -13,6 +13,7 @@ type sexpr =
   | SStruct_pt_access of string * string
   | SArray_create of int * prim
   | SArray_access of string * int
+  | SFree of string
   | SCall of string * sexpr list
 
 type sstmt =

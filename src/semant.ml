@@ -165,6 +165,7 @@ let rec expr_sast expr =
 	| A.Noexpr -> S.SNoexpr
 	| A.Id s -> S.SId s
 	| A.Struct_create s -> S.SStruct_create s
+	| A.Free e -> S.SFree (string_identifier_of_expr e)
 	| A.Struct_access (e1, e2) -> S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2)
 	| A.Struct_pt_access (e1, e2) -> S.SStruct_pt_access (string_identifier_of_expr e1, string_of_struct_expr e2)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
@@ -261,6 +262,7 @@ let rec check_expr expr env =
 	| A.Struct_pt_access(e1,e2) -> struct_pt_contains_expr e1 e2 env
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
+	| A.Free(_) -> A.Primitive(A.Int)
 	| A.Call(s,el) -> let func_info = (check_valid_func_call s) in
 	let func_info_formals = func_info.A.formals in
 		if List.length func_info_formals != List.length el then

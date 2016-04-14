@@ -57,6 +57,7 @@ rule token = parse
 	| "string"		{ STRING }
 	| "func" 		{ FUNC }
 	| "new"			{ NEW }
+	| "free"		{ FREE }
 	| "[]"			{ ARRAY }
 
 	(* Testing keywords *)

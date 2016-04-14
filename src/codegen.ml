@@ -56,25 +56,26 @@ let define_struct_body s =
 	let attributes_array = Array.of_list attributes in 
 	L.struct_set_body struct_t attributes_array false
 
-let array_of_zeros i l= 
+(* Helper function to create an array of size i fille with l values *)
+let array_of_zeros i l = 
 	Array.make i l
 
-let default_value_for_type t = 
+let default_value_for_prim_type t = 
 	match t with 
-		  A.Primitive(A.Int) -> L.const_int (ltype_of_typ t) 0
-		| A.Primitive(A.Double) ->L.const_int (ltype_of_typ t) 0
-		| A.Primitive(A.String) ->L.const_string context "" 
-		| A.Primitive(A.Char) ->L.const_int (ltype_of_typ t) 0
-		| A.Primitive(A.Void) ->L.const_int (ltype_of_typ t) 0
-		| _ -> raise (Exceptions.BugCatch "default_value_for_type")
+		  A.Int -> L.const_int (prim_ltype_of_typ t) 0
+		| A.Double ->L.const_int (prim_ltype_of_typ t) 0
+		| A.String ->L.const_string context "" 
+		| A.Char ->L.const_int (prim_ltype_of_typ t) 0
+		| A.Void ->L.const_int (prim_ltype_of_typ t) 0
 
+(* Here we define and initailize global vars *)
 let define_global_with_value (t, n) = 
 		match t with 
 		  A.Primitive(p) -> 
 			(match p with
 			  A.Int -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
 			| A.Double -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
-			| A.String -> let init = L.const_string context "" in (L.define_global n init the_module)		
+			| A.String -> let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init the_module)		
 			| A.Void -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
 			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
 		)
@@ -82,12 +83,9 @@ let define_global_with_value (t, n) =
 
 		| A.Pointer_typ(_) ->let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init the_module)		
 
-		| A.Array_typ(p,i) ->let init = L.const_array (prim_ltype_of_typ p) (array_of_zeros i (default_value_for_type (A.Primitive(p)))) in (L.define_global n init the_module)		
+		| A.Array_typ(p,i) ->let init = L.const_array (prim_ltype_of_typ p) (array_of_zeros i (default_value_for_prim_type ((p)))) in (L.define_global n init the_module)		
 
 		| A.Func_typ(_) ->let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)		
-
-
-
 
 
 (* Where we add global variabes to global data section *)
@@ -188,11 +186,12 @@ let build_function_body fdecl =
 	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (identifier_of_expr l) builder); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId s -> L.build_load (find_var s) s builder
-	| S.SStruct_create(s) -> ignore(s); L.const_int i32_t 0
+	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) s builder
 	| S.SStruct_access(_,_) -> L.const_int i32_t 0
 	| S.SStruct_pt_access(_,_) -> L.const_int i32_t 0
 	| S.SArray_create(_,_) -> L.const_int i32_t 0
 	| S.SArray_access(_,_) -> L.const_int i32_t 0
+	| S.SFree(_) -> L.const_int i32_t 0
 	| S.SCall("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder

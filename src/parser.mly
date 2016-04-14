@@ -11,7 +11,7 @@
 %token INT DOUBLE VOID CHAR STRING 
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
 %token ARRAY
-%token NEW
+%token NEW FREE
 %token RETURN IF ELSE WHILE FOR
 
 /* 
@@ -234,6 +234,7 @@ expr:
 	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
 	| NEW STRUCT ID 			     { Struct_create($3)}
+	| FREE LPAREN expr RPAREN		     { Free($3) }
 	| ID LPAREN actual_opts_list RPAREN          { Call($1, $3)}
 
 expr_opt:
