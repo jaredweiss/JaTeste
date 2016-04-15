@@ -230,7 +230,8 @@ expr:
 	| AMPERSAND expr	{ Unop(Addr, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_access($1, $3)}
-	| expr POINTER_ACCESS expr 	{ Struct_pt_access($1, $3)}
+	| expr POINTER_ACCESS expr 	{ Pt_access($1, $3)}
+	| STAR expr 			{ Dereference($2) }
 	| expr LBRACKET INT_LITERAL RBRACKET 	     { Array_access($1, $3)}
 	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET { Array_create($4, $2) }
 	| NEW STRUCT ID 			     { Struct_create($3)}
