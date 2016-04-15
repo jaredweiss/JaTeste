@@ -12,6 +12,8 @@ exception InvalidFunctionCall of string
 exception InvalidArgumentsToFunction of string
 exception InvalidArrayVariable
 exception InvalidStructField
+exception InvalidFree of string
+exception InvalidPointerDereference
 
 (* Statement exceptions*)
 exception InvalidReturnType of string

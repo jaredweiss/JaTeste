@@ -47,7 +47,13 @@ let rec ltype_of_typ = function
 	| A.Array_typ(t,n) -> L.array_type (prim_ltype_of_typ t) n
     	| _ -> void_t 
 
-	
+let type_of_llvalue v = L.type_of v
+
+let string_of_expr e =
+	match e with
+	  S.SId(s) -> s
+	| _  -> raise (Exceptions.BugCatch "string_of_expr")
+
 (* Function that builds LLVM struct *)
 let define_struct_body s =
 	let struct_t = Hashtbl.find struct_types s.S.ssname in
@@ -101,6 +107,8 @@ let define_global_var (t, n) =
 (* Translations functions to LLVM code in text section  *)
 let translate_function (functions) = 
 
+
+
 (* Here we define the built in print function *)
 let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
 let printf_func = L.declare_function "printf" printf_t the_module in
@@ -147,12 +155,18 @@ let build_function_body fdecl =
         	with Not_found -> raise (Failure ("undeclared variable " ^ n))
         in
 
-	let identifier_of_expr i = 
+(*
+	let type_of_string s = let tmp = find_var s in let tmp_type = type_of_llvalue tmp in tmp_type
+	in *)
+
+	let rec value_of_expr i = 
 	match i with
  	  S.SId(s) -> find_var s
 	| S.SString_lit (s) -> find_var s
-	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented identifier_of_expr"))
-	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented identifier_of_expr"))
+	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
+ 	|  S.SUnop(_,e) -> value_of_expr e
+	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
+
 	in 
 
 	let add_terminal builder f =
@@ -182,15 +196,21 @@ let build_function_body fdecl =
 		| _ -> L.build_add
 		) e1' e2' "tmp" builder	
 
-	| S.SUnop(_,_) -> L.const_int i32_t 0
-	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (identifier_of_expr l) builder); e_temp
+	| S.SUnop(u,e) -> 
+			(match u with
+				  A.Neg -> L.const_int i32_t 0
+				| A.Not -> L.const_int i32_t 0
+				| A.Addr -> let var_value = value_of_expr e in let re = L.build_gep var_value [|var_value|] "tmp" builder in re 
+				)
+	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (value_of_expr l) builder); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
-	| S.SId s -> L.build_load (find_var s) s builder
+	| S.SId (s) -> L.build_load (find_var s) s builder
 	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) s builder
 	| S.SStruct_access(_,_) -> L.const_int i32_t 0
-	| S.SStruct_pt_access(_,_) -> L.const_int i32_t 0
+	| S.SPt_access(_,_) -> L.const_int i32_t 0
 	| S.SArray_create(_,_) -> L.const_int i32_t 0
 	| S.SArray_access(_,_) -> L.const_int i32_t 0
+	| S.SDereference(_) -> L.const_int i32_t 0
 	| S.SFree(_) -> L.const_int i32_t 0
 	| S.SCall("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in

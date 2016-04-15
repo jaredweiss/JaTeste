@@ -64,7 +64,7 @@ let rec string_identifier_of_expr expr =
 	match expr with
 	  A.Id(s) -> s
 	| A.Struct_access(e1, _) -> string_identifier_of_expr e1 
-	| A.Struct_pt_access(e1, _) -> string_identifier_of_expr e1 
+	| A.Pt_access(e1, _) -> string_identifier_of_expr e1 
 	| A.Array_access(e1, _) -> string_identifier_of_expr e1
 	| A.Call(s,_) -> s
 	| _ -> raise (Exceptions.BugCatch "string_identifier_of_expr")
@@ -163,13 +163,14 @@ let rec expr_sast expr =
 	| A.Unop (u, e) -> S.SUnop(u, expr_sast e)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s, expr_sast e)
 	| A.Noexpr -> S.SNoexpr
-	| A.Id s -> S.SId s
+	| A.Id s -> S.SId (s)
 	| A.Struct_create s -> S.SStruct_create s
 	| A.Free e -> S.SFree (string_identifier_of_expr e)
 	| A.Struct_access (e1, e2) -> S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2)
-	| A.Struct_pt_access (e1, e2) -> S.SStruct_pt_access (string_identifier_of_expr e1, string_of_struct_expr e2)
+	| A.Pt_access (e1, e2) -> S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
 	| A.Array_access (e, i) -> S.SArray_access (string_identifier_of_expr e, i)
+	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
 	| A.Call (s, e) -> S.SCall (s, (List.map expr_sast e))
 
 (* convert stmt to sast stmt *)
@@ -259,10 +260,21 @@ let rec check_expr expr env =
 	| A.Id(s) -> type_of_identifier s env 
 	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Pointer_typ(A.Struct_typ(tmp_struct.A.sname))) with | Not_found -> raise (Exceptions.InvalidStruct s))
 	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
-	| A.Struct_pt_access(e1,e2) -> struct_pt_contains_expr e1 e2 env
+	| A.Pt_access(e1,e2) -> let e1' = check_expr e1 env in
+			(match e1' with
+			  A.Pointer_typ(A.Struct_typ(_)) -> struct_pt_contains_expr e1 e2 env
+			| A.Pointer_typ(A.Primitive(p)) -> (let e2' = check_expr e2 env in (check_assign (A.Primitive(p)) e2') (Exceptions.InvalidPointerDereference))
+			| _ -> raise (Exceptions.BugCatch "hey")
+			)
+	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in (
+			 match pointer_type with 
+			   A.Pointer_typ(pt) -> pt
+			 | _ -> raise (Exceptions.BugCatch "Deference") 
+						)
+				
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
-	| A.Free(_) -> A.Primitive(A.Int)
+	| A.Free(p) -> let pt = string_identifier_of_expr p in let pt_typ = find_var env.scope pt in (match pt_typ with A.Pointer_typ(_) -> pt_typ | _ -> raise (Exceptions.InvalidFree "not a pointer"))
 	| A.Call(s,el) -> let func_info = (check_valid_func_call s) in
 	let func_info_formals = func_info.A.formals in
 		if List.length func_info_formals != List.length el then
