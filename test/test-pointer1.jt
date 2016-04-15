@@ -1,0 +1,21 @@
+
+func int main()
+{
+	int a;
+	int b;
+	int *c;
+
+
+	a = 10;
+	b = 500;
+
+	c = &b;
+
+	if (*c == 500) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+	return 0;
+}

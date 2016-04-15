@@ -107,8 +107,6 @@ let define_global_var (t, n) =
 (* Translations functions to LLVM code in text section  *)
 let translate_function (functions) = 
 
-
-
 (* Here we define the built in print function *)
 let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
 let printf_func = L.declare_function "printf" printf_t the_module in
@@ -164,7 +162,9 @@ let build_function_body fdecl =
  	  S.SId(s) -> find_var s
 	| S.SString_lit (s) -> find_var s
 	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
- 	|  S.SUnop(_,e) -> value_of_expr e
+ 	| S.SUnop(_,e) -> value_of_expr e
+	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
+
 	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
 
 	in 
@@ -200,7 +200,7 @@ let build_function_body fdecl =
 			(match u with
 				  A.Neg -> L.const_int i32_t 0
 				| A.Not -> L.const_int i32_t 0
-				| A.Addr -> let var_value = value_of_expr e in let re = L.build_gep var_value [|var_value|] "tmp" builder in re 
+				| A.Addr -> let iden = string_of_expr e in let lvalue = find_var iden in lvalue
 				)
 	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (value_of_expr l) builder); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
@@ -210,7 +210,8 @@ let build_function_body fdecl =
 	| S.SPt_access(_,_) -> L.const_int i32_t 0
 	| S.SArray_create(_,_) -> L.const_int i32_t 0
 	| S.SArray_access(_,_) -> L.const_int i32_t 0
-	| S.SDereference(_) -> L.const_int i32_t 0
+	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in let tmp_value = L.build_load deref "dd" builder  in let an_t = L.build_load tmp_value "dd" builder in an_t
+
 	| S.SFree(_) -> L.const_int i32_t 0
 	| S.SCall("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
@@ -225,6 +226,7 @@ let build_function_body fdecl =
 	
 	
 	| S.SIf(pred, then_stmt, else_stmt) -> 
+		(*let curr_block = L.insertion_block builder in *)
 		let bool_val = expr builder pred in
 		let merge_bb = L.append_block context "merge" the_function in
 		let then_bb = L.append_block context "then" the_function in
