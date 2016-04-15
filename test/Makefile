@@ -11,7 +11,7 @@ define run-test =
 @echo " \033[0;32m ---->  \033[0mTest passed!"
 endef
 
-all-tests: test-hello-world test-global-scope test-func1 test-func2
+all-tests: test-hello-world test-global-scope test-func1 test-func2 test-pointer1
 	@echo "\033[0;32m========= All Tests Passed! ==========\033[0m"
 
 
@@ -30,4 +30,7 @@ test-func1:
 
 test-func2:
 	$(call run-test,test-func2)
+
+test-pointer1:
+	$(call run-test,test-pointer1)
 

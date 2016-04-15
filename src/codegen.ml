@@ -196,11 +196,11 @@ let build_function_body fdecl =
 		| _ -> L.build_add
 		) e1' e2' "tmp" builder	
 
-	| S.SUnop(u,_) -> 
+	| S.SUnop(u,e) -> 
 			(match u with
 				  A.Neg -> L.const_int i32_t 0
 				| A.Not -> L.const_int i32_t 0
-				| A.Addr -> L.const_int i32_t 0
+				| A.Addr -> let iden = string_of_expr e in let lvalue = find_var iden in lvalue
 				)
 	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (value_of_expr l) builder); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
@@ -226,7 +226,7 @@ let build_function_body fdecl =
 	
 	
 	| S.SIf(pred, then_stmt, else_stmt) -> 
-		let curr_block = L.insertion_block builder in
+		(*let curr_block = L.insertion_block builder in *)
 		let bool_val = expr builder pred in
 		let merge_bb = L.append_block context "merge" the_function in
 		let then_bb = L.append_block context "then" the_function in
