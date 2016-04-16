@@ -157,12 +157,12 @@ let build_function_body fdecl =
 	let type_of_string s = let tmp = find_var s in let tmp_type = type_of_llvalue tmp in tmp_type
 	in *)
 
-	let rec value_of_expr i = 
+	let rec value_of_expr i builder= 
 	match i with
  	  S.SId(s) -> find_var s
 	| S.SString_lit (s) -> find_var s
 	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
- 	| S.SUnop(_,e) -> value_of_expr e
+ 	| S.SUnop(_,e) -> value_of_expr e builder
 	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
 	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
@@ -202,7 +202,7 @@ let build_function_body fdecl =
 				| A.Not -> L.const_int i32_t 0
 				| A.Addr -> let iden = string_of_expr e in let lvalue = find_var iden in lvalue
 				)
-	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(L.build_store e_temp (value_of_expr l) builder); e_temp
+	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(let l_val = (value_of_expr l builder) in  (L.build_store e_temp (l_val) builder)); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId (s) -> L.build_load (find_var s) s builder
 	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) s builder
@@ -227,10 +227,14 @@ let build_function_body fdecl =
 	
 	| S.SIf(pred, then_stmt, else_stmt) -> 
 		(*let curr_block = L.insertion_block builder in *)
+		(* the function (of type llvalue that we are currently in *)
 		let bool_val = expr builder pred in
 		let merge_bb = L.append_block context "merge" the_function in
+		(* then block *)
 		let then_bb = L.append_block context "then" the_function in
+
 		add_terminal (stmt (L.builder_at_end context then_bb) then_stmt) (L.build_br merge_bb);
+		(* else block*)
 		let else_bb = L.append_block context "else" the_function in 
 		add_terminal (stmt (L.builder_at_end context else_bb) else_stmt) (L.build_br merge_bb);	
 		ignore (L.build_cond_br bool_val then_bb else_bb builder);
