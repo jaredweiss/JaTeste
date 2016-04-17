@@ -159,10 +159,12 @@ let build_function_body fdecl =
 
 	let rec value_of_expr i builder= 
 	match i with
- 	  S.SId(s) -> find_var s
+	  S.SLit(i) -> L.const_int i32_t i 	
+ 	| S.SId(s) -> find_var s
 	| S.SString_lit (s) -> find_var s
 	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
  	| S.SUnop(_,e) -> value_of_expr e builder
+	| S.SPt_access(s,_) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp 0 "tmp" builder in deref
 	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
 	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
@@ -202,17 +204,17 @@ let build_function_body fdecl =
 				| A.Not -> L.const_int i32_t 0
 				| A.Addr -> let iden = string_of_expr e in let lvalue = find_var iden in lvalue
 				)
-	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(let l_val = (value_of_expr l builder) in  (L.build_store e_temp (l_val) builder)); e_temp
+	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(let l_val = (value_of_expr l builder) in  (L.build_store e_temp l_val builder)); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId (s) -> L.build_load (find_var s) s builder
-	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) s builder
+	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) "tmp" builder
 	| S.SStruct_access(_,_) -> L.const_int i32_t 0
-	| S.SPt_access(_,_) -> L.const_int i32_t 0
+	| S.SPt_access(s,_) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp 0 "tmp" builder in let tmp_value = L.build_load deref "dd" builder in tmp_value
 	| S.SArray_create(_,_) -> L.const_int i32_t 0
 	| S.SArray_access(_,_) -> L.const_int i32_t 0
-	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in let tmp_value = L.build_load deref "dd" builder  in let an_t = L.build_load tmp_value "dd" builder in an_t
+	| S.SDereference(s) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
 
-	| S.SFree(_) -> L.const_int i32_t 0
+	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
 	| S.SCall("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder

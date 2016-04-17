@@ -165,7 +165,7 @@ let rec expr_sast expr =
 	| A.Noexpr -> S.SNoexpr
 	| A.Id s -> S.SId (s)
 	| A.Struct_create s -> S.SStruct_create s
-	| A.Free e -> S.SFree (string_identifier_of_expr e)
+	| A.Free e -> let st = (string_identifier_of_expr e) in S.SFree(st)
 	| A.Struct_access (e1, e2) -> S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2)
 	| A.Pt_access (e1, e2) -> S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
