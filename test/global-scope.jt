@@ -1,0 +1,28 @@
+int global_var;
+
+func int main()
+{
+	int temp;
+	global_var = 10;
+	temp = 20;
+	my_print();
+	return 0;
+}
+
+func void my_print()
+{
+	int temp;
+	if (global_var == 10) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+	if (temp == 20) {
+		print("failed");
+	} else {
+		print("passed");
+	}
+
+}
+
