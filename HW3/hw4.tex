@@ -1,0 +1,84 @@
+\documentclass{article}[10pt]
+\usepackage{url, graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{textcomp}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{titling}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{listings}
+
+
+\title{HW3 CS 4115}
+\author{Andrew Grant, amg2215@columbia.edu}
+\date{}
+\begin{document}
+\maketitle
+
+
+\section{}
+\begin{enumerate}
+\item[(a)] Let any integer $i = a_3 a_2 a_1 a_0$ where $a_i$ is some byte \\
+  \begin{tabular}{| c | c  | c | c | |   c | }
+    \hline
+    $a_3$ & $a_2$ & $a_1$ & $a_0$ & a[0][0]  \\  \hline
+    $a_3$ & $a_2$ & $a_1$ & $a_0$ & a[0][1]  \\  \hline
+     $a_3$ & $a_2$ & $a_1$ & $a_0$ & a[0][2]  \\  \hline
+     $a_3$ & $a_2$ & $a_1$ & $a_0$ & a[1][0]  \\  \hline
+     $a_3$ & $a_2$ & $a_1$ & $a_0$ & a[1][1]  \\  \hline
+     $a_3$ & $a_2$ & $a_1$ & $a_0$ & a[1][2]  \\  \hline
+\end{tabular}
+  
+\item[(b)]
+address = $(i \times 12) + (j \times 4)$
+
+\item[(c)]
+Assembly code: \\
+\begin{lstlisting}
+       .file   "main.c"
+        .text
+        .globl  main
+        .type   main, @function
+main:
+.LFB0:
+        .cfi_startproc
+        movl    $0, a(%rip)
+        movl    $4, a+4(%rip)
+        movl    $8, a+8(%rip)
+        movl    $12, a+12(%rip)
+        movl    $16, a+16(%rip)
+        movl    $20, a+20(%rip)
+        movl    $0, %eax
+        ret
+        .cfi_endproc
+.LFE0:
+        .size   main, .-main
+        .comm   a,24,16
+        .ident  "GCC: (Ubuntu 4.8.4-2ubuntu1~14.04.1) 4.8.4"
+        .section        .note.GNU-stack,"",@progbits
+\end{lstlisting}
+Corresponding C code: \\
+\begin{lstlisting}
+int a[2][3];
+int main()
+{       
+        int i;  
+        int j;
+        for (i = 0; i < 2; i++) {
+                for (j = 0; j < 3; j++) {
+                        a[i][j] = (12 * i) + (4 * j);
+                }
+        }
+        
+        return 0;
+}
+\end{lstlisting}
+Basically, I put the value $(12 \times i) + (4 \times j)$ into $a[i][j]$ in a for-loop. As can be seen, at each step in the for-loop, the value of $(12 \times i) + (4 \times j)$ is precisely the offset from the base address of the label a (the base address of the 2D array) that $(12 \times i) + (4 \times j)$ is stored into; thus $(12 \times i) + (4 \times j)$ does indeed correspond to the address of $a[i][j]$ 
+  
+\end{enumerate}
+
+\end{document} 
