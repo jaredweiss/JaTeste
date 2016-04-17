@@ -239,7 +239,17 @@ let build_function_body fdecl =
 		add_terminal (stmt (L.builder_at_end context else_bb) else_stmt) (L.build_br merge_bb);	
 		ignore (L.build_cond_br bool_val then_bb else_bb builder);
 		L.builder_at_end context merge_bb
-	| S.SWhile(_,_) -> builder
+	| S.SWhile(pred,body_stmt) ->  
+		let pred_bb = L.append_block context "while" the_function in
+		ignore (L.build_br pred_bb builder);
+		let body_bb = L.append_block context "while_body" the_function in
+		add_terminal (stmt (L.builder_at_end context body_bb) body_stmt) (L.build_br pred_bb);
+		let pred_builder = L.builder_at_end context pred_bb in
+		let bool_val = expr pred_builder pred in
+		let merge_bb = L.append_block context "merge" the_function in
+		ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);	
+		L.builder_at_end context merge_bb
+
 	| S.SFor(_,_,_,_) -> builder
 	| S.SReturn r -> ignore (match fdecl.S.styp with
 						  A.Primitive(A.Void) -> L.build_ret_void builder
