@@ -1,0 +1,12 @@
+func int main()
+{
+	int i;
+	int sum;
+	i = 0;
+	while (i < 10) {
+		print("looping");	
+		i = i + 1;
+	}
+
+	return 0;
+}
