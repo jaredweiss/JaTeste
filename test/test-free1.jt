@@ -1,0 +1,23 @@
+func int main()
+{
+	struct person *sam;
+
+	sam = new struct person;
+		
+	sam->age = 100;
+	sam->height = 100;
+	sam->gender = 100;
+	
+	free(sam);
+
+	print("freed");
+	
+	
+	return 0;
+}
+
+struct person {
+	int age;
+	int height;
+	int gender;
+};
