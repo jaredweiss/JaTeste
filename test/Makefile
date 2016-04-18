@@ -11,7 +11,7 @@ define run-test =
 @echo " \033[0;32m ---->  \033[0mTest passed!"
 endef
 
-all-tests: test-hello-world test-global-scope test-func1 test-func2 test-pointer1 test-while1 test-malloc1
+all-tests: test-hello-world test-global-scope test-func1 test-func2 test-pointer1 test-while1 test-malloc1 test-free1
 	@echo "\033[0;32m========= All Tests Passed! ==========\033[0m"
 define test-compile-fail=
 @echo "Testing '$1.jt', should fail to compile..."
@@ -53,6 +53,10 @@ test-while1:
 
 test-malloc1:
 	$(call run-test,test-malloc1)
+
+test-free1:
+	$(call run-test,test-free1)
+
 
 
 
