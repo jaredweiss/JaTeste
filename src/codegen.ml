@@ -129,6 +129,7 @@ let function_decls =
 	
 (* Method to build body of function *)
 let build_function_body fdecl =
+	ignore(print_string fdecl.S.sfname);
 	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
 	(* builder is the LLVM instruction builder *)
 	let builder = L.builder_at_end context (L.entry_block the_function) in
@@ -274,6 +275,7 @@ let build_function_body fdecl =
 	
 (* Here we go through each function and build the body of the function *)
 List.iter build_function_body functions;
+List.iter (fun n -> (match n.S.stests with Some(t) -> build_function_body t | None -> ())) functions; 
 	the_module
 
 	(* Overall function that translates Ast.program to LLVM module *)

@@ -122,13 +122,13 @@ Rules for function syntax
 fdecl:
 	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = {exprs = [];  using = { uvdecls = []; stmts = [] }} }}
+		$9; tests = None }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = {exprs = $11;  using = { uvdecls = []; stmts = [] }}  }}
+		$9; tests = Some({exprs = $11;  using = { uvdecls = []; stmts = [] }})  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = {exprs = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}} }}
+		$9; tests = Some({exprs = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
 
 /* 
 "with test" rule 

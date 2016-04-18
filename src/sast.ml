@@ -44,7 +44,7 @@ type sfunc_decl = {
   sformals : bind list;
   svdecls  : bind list;
   sbody  :   sstmt list;
-  stests   :   swith_test_decl;
+  stests   :   sfunc_decl option;
 }
 
 (* Node that describes a given struct *)
