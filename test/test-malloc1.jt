@@ -1,0 +1,41 @@
+func int main()
+{
+
+	struct person *andy;
+	int *a;
+	int b;
+	int zipcode;
+
+	andy = new struct person;
+
+	b = 25;
+	
+	a = &b;
+	
+	andy->age = *a;
+	andy->height = 100;
+	andy->zipcode = 10027;
+
+	
+	zipcode = andy->zipcode;
+
+	if (zipcode == 10027) {
+		print("passed");
+	}
+
+	*a = andy->age;
+
+	if (*a == 25) {
+		print("word up");
+	}
+
+	return 0;
+
+}
+
+
+struct person {
+	int age;
+	int zipcode;
+	int height;
+};
