@@ -28,6 +28,12 @@ let find_struct_name name =
 	try Hashtbl.find struct_types name
 	with | Not_found -> raise(Exceptions.InvalidStruct name)
 
+let rec index_of_list x l = 
+         match l with
+           	  [] -> raise (Exceptions.InvalidStructField)
+ 		| hd::tl -> let (_,y) = hd in if x = y then 0 else 1 + index_of_list x tl
+
+
 (* Code to declare struct *)
 let declare_struct s =
 	let struct_t = L.named_struct_type context s.S.ssname in
@@ -105,7 +111,7 @@ let define_global_var (t, n) =
 
 	
 (* Translations functions to LLVM code in text section  *)
-let translate_function (functions) = 
+let translate_function functions = 
 
 (* Here we define the built in print function *)
 let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -164,7 +170,7 @@ let build_function_body fdecl =
 	| S.SString_lit (s) -> find_var s
 	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
  	| S.SUnop(_,e) -> value_of_expr e builder
-	| S.SPt_access(s,_) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp 0 "tmp" builder in deref
+	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
 	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
 	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
@@ -209,7 +215,7 @@ let build_function_body fdecl =
 	| S.SId (s) -> L.build_load (find_var s) s builder
 	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) "tmp" builder
 	| S.SStruct_access(_,_) -> L.const_int i32_t 0
-	| S.SPt_access(s,_) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp 0 "tmp" builder in let tmp_value = L.build_load deref "dd" builder in tmp_value
+	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in let tmp_value = L.build_load deref "dd" builder in tmp_value
 	| S.SArray_create(_,_) -> L.const_int i32_t 0
 	| S.SArray_access(_,_) -> L.const_int i32_t 0
 	| S.SDereference(s) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
