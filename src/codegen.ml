@@ -28,6 +28,12 @@ let find_struct_name name =
 	try Hashtbl.find struct_types name
 	with | Not_found -> raise(Exceptions.InvalidStruct name)
 
+let rec index_of_list x l = 
+         match l with
+           	  [] -> raise (Exceptions.InvalidStructField)
+ 		| hd::tl -> let (_,y) = hd in if x = y then 0 else 1 + index_of_list x tl
+
+
 (* Code to declare struct *)
 let declare_struct s =
 	let struct_t = L.named_struct_type context s.S.ssname in
@@ -105,7 +111,7 @@ let define_global_var (t, n) =
 
 	
 (* Translations functions to LLVM code in text section  *)
-let translate_function (functions) = 
+let translate_function functions = 
 
 (* Here we define the built in print function *)
 let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -159,10 +165,12 @@ let build_function_body fdecl =
 
 	let rec value_of_expr i builder= 
 	match i with
- 	  S.SId(s) -> find_var s
+	  S.SLit(i) -> L.const_int i32_t i 	
+ 	| S.SId(s) -> find_var s
 	| S.SString_lit (s) -> find_var s
 	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
  	| S.SUnop(_,e) -> value_of_expr e builder
+	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
 	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
 	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
@@ -202,17 +210,17 @@ let build_function_body fdecl =
 				| A.Not -> L.const_int i32_t 0
 				| A.Addr -> let iden = string_of_expr e in let lvalue = find_var iden in lvalue
 				)
-	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(let l_val = (value_of_expr l builder) in  (L.build_store e_temp (l_val) builder)); e_temp
+	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(let l_val = (value_of_expr l builder) in  (L.build_store e_temp l_val builder)); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId (s) -> L.build_load (find_var s) s builder
-	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) s builder
+	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) "tmp" builder
 	| S.SStruct_access(_,_) -> L.const_int i32_t 0
-	| S.SPt_access(_,_) -> L.const_int i32_t 0
+	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in let tmp_value = L.build_load deref "dd" builder in tmp_value
 	| S.SArray_create(_,_) -> L.const_int i32_t 0
 	| S.SArray_access(_,_) -> L.const_int i32_t 0
-	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in let tmp_value = L.build_load deref "dd" builder  in let an_t = L.build_load tmp_value "dd" builder in an_t
+	| S.SDereference(s) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
 
-	| S.SFree(_) -> L.const_int i32_t 0
+	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
 	| S.SCall("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
@@ -239,7 +247,17 @@ let build_function_body fdecl =
 		add_terminal (stmt (L.builder_at_end context else_bb) else_stmt) (L.build_br merge_bb);	
 		ignore (L.build_cond_br bool_val then_bb else_bb builder);
 		L.builder_at_end context merge_bb
-	| S.SWhile(_,_) -> builder
+	| S.SWhile(pred,body_stmt) ->  
+		let pred_bb = L.append_block context "while" the_function in
+		ignore (L.build_br pred_bb builder);
+		let body_bb = L.append_block context "while_body" the_function in
+		add_terminal (stmt (L.builder_at_end context body_bb) body_stmt) (L.build_br pred_bb);
+		let pred_builder = L.builder_at_end context pred_bb in
+		let bool_val = expr pred_builder pred in
+		let merge_bb = L.append_block context "merge" the_function in
+		ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);	
+		L.builder_at_end context merge_bb
+
 	| S.SFor(_,_,_,_) -> builder
 	| S.SReturn r -> ignore (match fdecl.S.styp with
 						  A.Primitive(A.Void) -> L.build_ret_void builder

@@ -11,8 +11,8 @@ type sexpr =
   | SNoexpr
   | SId of string
   | SStruct_create of string
-  | SStruct_access of string * string
-  | SPt_access of string * string
+  | SStruct_access of string * string 
+  | SPt_access of string * string * int
   | SArray_create of int * prim
   | SArray_access of string * int
   | SDereference of string
