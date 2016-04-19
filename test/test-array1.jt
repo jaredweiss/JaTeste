@@ -1,0 +1,19 @@
+
+func int main()
+{
+	int[10] arr;
+	int a;
+	int b;
+
+	a = 10;
+	
+	arr[2] = 10;
+	
+	b = arr[2];
+
+	if (b == 10) {
+		print("passed");
+	}
+
+	return 0;
+}
