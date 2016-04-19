@@ -18,6 +18,7 @@ type sexpr =
   | SDereference of string
   | SFree of string
   | SCall of string * sexpr list
+  | SBoolLit of int
 
 type sstmt =
     SBlock of sstmt list   

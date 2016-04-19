@@ -7,8 +7,8 @@
 %token PLUS MINUS STAR DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
 %token FUNC
 %token WTEST USING STRUCT DOT POINTER_ACCESS
-%token EQ NEQ LT LEQ GT GEQ AND OR 
-%token INT DOUBLE VOID CHAR STRING 
+%token EQ NEQ LT LEQ GT GEQ AND OR TRUE FALSE
+%token INT DOUBLE VOID CHAR STRING BOOL
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
 %token ARRAY
 %token NEW FREE
@@ -79,7 +79,8 @@ prim_typ:
 	| STRING 	{ String }
 	| DOUBLE 	{ Double }
 	| INT 		{ Int }
-	| CHAR 		{ Char}
+	| CHAR 		{ Char }
+	| BOOL		{ Bool }
 
 void_typ:
 	| VOID 		{ Void }
@@ -211,6 +212,8 @@ Rule for building expressions
 expr:
 	  INT_LITERAL 		{ Lit($1)}
 	| STRING_LITERAL	{ String_lit($1) }  
+	| TRUE			{ BoolLit(true) }
+	| FALSE			{ BoolLit(false) }
 	| ID 			{ Id($1) }
 	| expr PLUS expr 	{ Binop($1, Add, $3) }
 	| expr MINUS expr 	{ Binop($1, Sub, $3) }
