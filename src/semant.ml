@@ -315,6 +315,13 @@ let check_function_names functions =
 	(* Go through the functions and add their names to a global hashtable that stores the whole function as its value -> (key, value) = (func_decl.fname, func_decl) *)
 	ignore(List.iter (fun n -> Hashtbl.add func_names n.A.fname n) functions); ()
 
+let check_prog_contains_main funcs =
+	let contains_main = List.exists (fun n -> if n.A.fname = "main" then true else false) funcs in
+	(match contains_main with
+	  true -> ()
+	| false -> raise Exceptions.MissingMainFunction
+	)
+
 (* Checks programmer hasn't defined function print as it's reserved *)
 let check_function_not_print names = 
 	ignore(if List.mem "print" (List.map (fun n -> n.A.fname) names ) then raise (Failure ("function print may not be defined")) else ()); ()
@@ -352,6 +359,7 @@ let rec check_function_body funct env =
 let check_functions functions env globals_add structs_add = 
 	(check_function_names functions); 
 	(check_function_not_print functions); 
+	(check_prog_contains_main functions); 
 	let sast_funcs = (List.map (fun n -> check_function_body n env) functions) in
 	(*let sprogram:(S.sprogram) = program_sast (globals_add, functions, structs_add) in *)
 	let sast = (globals_add, sast_funcs, (List.map struct_sast structs_add )) in
