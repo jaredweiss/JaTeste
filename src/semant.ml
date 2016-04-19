@@ -84,6 +84,7 @@ let report_duplicate exceptf list =
       | [] -> ()
     in helper (List.sort compare list)
 
+
 (* Helper function to check a typ is not void *)
 let check_not_void exceptf = function
       (A.Primitive(A.Void), n) -> raise (Failure (exceptf n))
@@ -344,6 +345,7 @@ let rec check_function_body funct env =
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
 	let body_with_env = List.map (fun n -> check_stmt n new_env) funct.A.body in
+	(* Compile code for test case iff a function has defined a with test clause *)
 	let sast_func_with_test = 
 		(match funct.A.tests with
 		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") } in

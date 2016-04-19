@@ -20,6 +20,7 @@ exception InvalidPointerDereference
 
 (* Statement exceptions*)
 exception InvalidReturnType of string
+exception InvalidLhsOfExpr
 
 (* Bug catcher *)
 exception BugCatch of string
