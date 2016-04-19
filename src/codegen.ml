@@ -117,19 +117,26 @@ let translate_function functions =
 let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
 let printf_func = L.declare_function "printf" printf_t the_module in
 
+let test_functions = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> t :: l | None -> l)) [] functions in
+let functions_with_test_functions = 
+	(match (List.length test_functions) with
+		  0 ->  functions
+		| _ -> List.append functions test_functions
+	)
+in
+
 (* Here we iterate through Ast.functions and add all the function names to a HashMap *)
 let function_decls =
-	let function_decl m fdecl =
+		let function_decl m fdecl =
 	let name = fdecl.S.sfname
         and formal_types =
             Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.S.sformals)
             in let ftype = L.function_type (ltype_of_typ fdecl.S.styp) formal_types in
              StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    	List.fold_left function_decl StringMap.empty functions in
+    	List.fold_left function_decl StringMap.empty functions_with_test_functions in
 	
 (* Method to build body of function *)
 let build_function_body fdecl =
-	ignore(print_string fdecl.S.sfname);
 	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
 	(* builder is the LLVM instruction builder *)
 	let builder = L.builder_at_end context (L.entry_block the_function) in
