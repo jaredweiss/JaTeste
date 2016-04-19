@@ -1,0 +1,25 @@
+func int main()
+{	
+	int a;
+	struct person *sam;
+	sam = new struct person;
+	update_age(sam);
+
+	a = sam->age;
+
+	if (a == 10) {
+		print("passed");
+	}
+
+	return 0;
+}
+
+func void update_age(struct person *p)
+{
+	p->age = 10;
+}
+
+struct person {
+	int age;
+	int height;
+};

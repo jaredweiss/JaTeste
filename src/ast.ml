@@ -36,7 +36,7 @@ type with_using_decl = {
 
 type with_test_decl = {
   exprs : expr list;
-  using : with_using_decl;
+  using : with_using_decl; 
 }
 
 (* Node that describes a function *)
@@ -46,7 +46,7 @@ type func_decl = {
   formals : bind list;
   vdecls  : bind list;
   body  :   stmt list;
-  tests   :   with_test_decl;
+  tests   :   with_test_decl option; 
 }
 
 (* Node that describes a given struct *)
