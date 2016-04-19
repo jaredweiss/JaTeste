@@ -1,3 +1,6 @@
+(* Program structure exceptions *)
+exception MissingMainFunction
+
 (* Struct exceptions*)
 exception InvalidStruct of string
 

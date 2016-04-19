@@ -104,6 +104,7 @@ let check_valid_func_call s =
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
 
 
+(* Helper function that finds index of first matching element in list *)
 let rec index_of_list x l = 
 	match l with
 	  [] -> raise (Exceptions.InvalidStructField)
@@ -121,6 +122,7 @@ let index_helper s field env =
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
 
 
+(* Function that returns index of the field in a struct. E.g. given: stuct person {int age; int height;};.... index_of_struct_field *str "height" env will return 1 *)
 let index_of_struct_field stru expr env = 	
 		match stru with
 	  		A.Id(s) -> (match expr with A.Id(s1) -> index_helper s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
@@ -176,46 +178,10 @@ let rec expr_sast expr env =
 	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 
-(* convert stmt to sast stmt *)
-(*let rec stmt_sast stmt =
-	match stmt with
-	  A.Block l -> S.SBlock (List.map stmt_sast l)
-	| A.Expr e -> S.SExpr (expr_sast e)
-	| A.If (e, s1, s2) -> S.SIf (expr_sast e, stmt_sast s1, stmt_sast s2)
-	| A.While (e, s) -> S.SWhile (expr_sast e, stmt_sast s)
-	| A.For (e1, e2, e3, s) -> S.SFor(expr_sast e1, expr_sast e2, expr_sast e3, stmt_sast s)
-	| A.Return e -> S.SReturn (expr_sast e)
-
-
-
-let with_using_sast r env = 
-	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
-	 tmp
-
-let with_test_sast r env =
-	let tmp:(S.swith_test_decl) = {S.sexprs = (List.map (fun n -> expr_sast n env) r.A.exprs) ; S.susing = (with_using_sast r.A.using)} in
-	tmp 
-
-let func_decl_sast r = 
-	let tmp:(S.sfunc_decl) = {S.styp = r.A.typ; S.sfname = r.A.fname; S.sformals = r.A.formals; S.svdecls = r.A.vdecls ; S.sbody = (List.map stmt_sast r.A.body); S.stests = (with_test_sast r.A.tests) } in
-	tmp	
-
-*)
-
 
 let struct_sast r = 
 	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes } in
 	tmp
-
-(* Entry to transform AST to SAST *)
-(*
-let program_sast (globals, functions, structs) = 
-	let tmp:(S.sprogram) = (globals, (List.map func_decl_sast functions), (List.map struct_sast structs)) in
-	tmp
-*)
-(**********End of code to convert SAST to AST**********)
-
-(* Functions to check the semantics of JaTeste Program *)
 
 (* Struct semantic checker *)
 let check_structs structs = 
@@ -304,19 +270,6 @@ let check_return_expr expr env =
 	  Some(rt) -> if rt = check_expr expr env then () else raise (Exceptions.InvalidReturnType "return type doesnt match with function definition")
 	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
 
-(*
-(* convert stmt to sast stmt *)
-let rec stmt_sast stmt =
-	match stmt with
-	  A.Block l -> S.SBlock (List.map stmt_sast l)
-	| A.Expr e -> S.SExpr (expr_sast e)
-	| A.If (e, s1, s2) -> S.SIf (expr_sast e, stmt_sast s1, stmt_sast s2)
-	| A.While (e, s) -> S.SWhile (expr_sast e, stmt_sast s)
-	| A.For (e1, e2, e3, s) -> S.SFor(expr_sast e1, expr_sast e2, expr_sast e3, stmt_sast s)
-	| A.Return e -> S.SReturn (expr_sast e)
-
-*)
-
 (* Main entry point for checking semantics of statements *)
 let rec check_stmt stmt env = 
 	match stmt with
@@ -362,6 +315,13 @@ let check_function_names functions =
 	(* Go through the functions and add their names to a global hashtable that stores the whole function as its value -> (key, value) = (func_decl.fname, func_decl) *)
 	ignore(List.iter (fun n -> Hashtbl.add func_names n.A.fname n) functions); ()
 
+let check_prog_contains_main funcs =
+	let contains_main = List.exists (fun n -> if n.A.fname = "main" then true else false) funcs in
+	(match contains_main with
+	  true -> ()
+	| false -> raise Exceptions.MissingMainFunction
+	)
+
 (* Checks programmer hasn't defined function print as it's reserved *)
 let check_function_not_print names = 
 	ignore(if List.mem "print" (List.map (fun n -> n.A.fname) names ) then raise (Failure ("function print may not be defined")) else ()); ()
@@ -399,6 +359,7 @@ let rec check_function_body funct env =
 let check_functions functions env globals_add structs_add = 
 	(check_function_names functions); 
 	(check_function_not_print functions); 
+	(check_prog_contains_main functions); 
 	let sast_funcs = (List.map (fun n -> check_function_body n env) functions) in
 	(*let sprogram:(S.sprogram) = program_sast (globals_add, functions, structs_add) in *)
 	let sast = (globals_add, sast_funcs, (List.map struct_sast structs_add )) in

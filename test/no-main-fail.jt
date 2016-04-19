@@ -1,0 +1,4 @@
+func int my_main()
+{
+	return 0;
+}

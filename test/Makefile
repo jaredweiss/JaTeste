@@ -26,7 +26,7 @@ all-tests: runtime-tests compile-tests
 runtime-tests: test-hello-world test-global-scope test-func1 test-func2 
 	@echo "\033[0;32m========= Runtime Tests Passed! ==========\033[0m"
 
-compile-tests: test-local-var-fail
+compile-tests: test-local-var-fail test-no-main-fail 
 	@echo "\033[0;32m======= Compilation Tests Passed! ========\033[0m"
 
 .PHONY: clean
@@ -72,3 +72,6 @@ test-testcase2:
 
 test-local-var-fail:
 	$(call test-compile-fail,local-var-fail)
+
+test-no-main-fail:
+	$(call test-compile-fail,no-main-fail)
