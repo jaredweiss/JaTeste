@@ -1,0 +1,23 @@
+
+func int main()
+{
+	int i;
+	i = add(2,3);
+	if (i == 5) {
+		print("passed");
+	}
+	return 0;
+}
+
+
+func int add(int x, int y)
+{
+	return x + y;
+} with test {
+	a = b * 2;
+} using {
+	int a;
+	int b;
+	a = 10;
+	b = 5;
+}
