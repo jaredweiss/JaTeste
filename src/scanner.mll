@@ -55,6 +55,9 @@ rule token = parse
 	| "int"			{ INT }
 	| "char"		{ CHAR }
 	| "string"		{ STRING }
+	| "bool"		{ BOOL }
+	| "true"		{ TRUE }
+	| "false"		{ FALSE }
 	| "func" 		{ FUNC }
 	| "new"			{ NEW }
 	| "free"		{ FREE }

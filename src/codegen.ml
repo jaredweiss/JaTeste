@@ -45,6 +45,7 @@ let prim_ltype_of_typ = function
 	| A.Char -> i8_t
 	| A.Void -> void_t
 	| A.String -> str_t
+	| A.Bool -> i1_t
 
 let rec ltype_of_typ = function
 	| A.Primitive(s) -> prim_ltype_of_typ s
@@ -79,6 +80,7 @@ let default_value_for_prim_type t =
 		| A.String ->L.const_string context "" 
 		| A.Char ->L.const_int (prim_ltype_of_typ t) 0
 		| A.Void ->L.const_int (prim_ltype_of_typ t) 0
+		| A.Bool ->L.const_int (prim_ltype_of_typ t) 0
 
 (* Here we define and initailize global vars *)
 let define_global_with_value (t, n) = 
@@ -90,6 +92,7 @@ let define_global_with_value (t, n) =
 			| A.String -> let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init the_module)		
 			| A.Void -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
 			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
+			| A.Bool -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
 		)
 		| A.Struct_typ(s) -> let init = L.const_named_struct (find_struct_name s) [||] in (L.define_global n init the_module)		
 
@@ -229,6 +232,7 @@ let build_function_body fdecl =
 	| S.SCall("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
+	| S.SBoolLit(b) -> L.const_int i1_t b
 	in
 
 
