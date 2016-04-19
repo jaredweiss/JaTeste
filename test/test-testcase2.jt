@@ -1,0 +1,29 @@
+func int main()
+{
+	int a;
+	int b;
+	int c;
+
+	a = 10;
+	b = 5;
+	c = 0;
+
+	a = b - c;
+	if (a == 5) {
+		print("passed");
+	}
+	return 0;
+}
+
+
+func int sub(int x, int y)
+{
+	return x - y;
+} with test {
+	a == b - 5;
+} using {
+	int a;
+	int b;
+	a = 5;
+	b = 10;
+}
