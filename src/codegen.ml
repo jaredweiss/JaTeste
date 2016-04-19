@@ -167,10 +167,6 @@ let build_function_body fdecl =
         	with Not_found -> raise (Failure ("undeclared variable " ^ n))
         in
 
-(*
-	let type_of_string s = let tmp = find_var s in let tmp_type = type_of_llvalue tmp in tmp_type
-	in *)
-
 	let rec value_of_expr i builder= 
 	match i with
 	  S.SLit(i) -> L.const_int i32_t i 	

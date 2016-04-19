@@ -104,6 +104,7 @@ let check_valid_func_call s =
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
 
 
+(* Helper function that finds index of first matching element in list *)
 let rec index_of_list x l = 
 	match l with
 	  [] -> raise (Exceptions.InvalidStructField)
@@ -121,6 +122,7 @@ let index_helper s field env =
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
 
 
+(* Function that returns index of the field in a struct. E.g. given: stuct person {int age; int height;};.... index_of_struct_field *str "height" env will return 1 *)
 let index_of_struct_field stru expr env = 	
 		match stru with
 	  		A.Id(s) -> (match expr with A.Id(s1) -> index_helper s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
@@ -176,46 +178,10 @@ let rec expr_sast expr env =
 	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 
-(* convert stmt to sast stmt *)
-(*let rec stmt_sast stmt =
-	match stmt with
-	  A.Block l -> S.SBlock (List.map stmt_sast l)
-	| A.Expr e -> S.SExpr (expr_sast e)
-	| A.If (e, s1, s2) -> S.SIf (expr_sast e, stmt_sast s1, stmt_sast s2)
-	| A.While (e, s) -> S.SWhile (expr_sast e, stmt_sast s)
-	| A.For (e1, e2, e3, s) -> S.SFor(expr_sast e1, expr_sast e2, expr_sast e3, stmt_sast s)
-	| A.Return e -> S.SReturn (expr_sast e)
-
-
-
-let with_using_sast r env = 
-	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
-	 tmp
-
-let with_test_sast r env =
-	let tmp:(S.swith_test_decl) = {S.sexprs = (List.map (fun n -> expr_sast n env) r.A.exprs) ; S.susing = (with_using_sast r.A.using)} in
-	tmp 
-
-let func_decl_sast r = 
-	let tmp:(S.sfunc_decl) = {S.styp = r.A.typ; S.sfname = r.A.fname; S.sformals = r.A.formals; S.svdecls = r.A.vdecls ; S.sbody = (List.map stmt_sast r.A.body); S.stests = (with_test_sast r.A.tests) } in
-	tmp	
-
-*)
-
 
 let struct_sast r = 
 	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes } in
 	tmp
-
-(* Entry to transform AST to SAST *)
-(*
-let program_sast (globals, functions, structs) = 
-	let tmp:(S.sprogram) = (globals, (List.map func_decl_sast functions), (List.map struct_sast structs)) in
-	tmp
-*)
-(**********End of code to convert SAST to AST**********)
-
-(* Functions to check the semantics of JaTeste Program *)
 
 (* Struct semantic checker *)
 let check_structs structs = 
@@ -303,19 +269,6 @@ let check_return_expr expr env =
 	match env.return_type with
 	  Some(rt) -> if rt = check_expr expr env then () else raise (Exceptions.InvalidReturnType "return type doesnt match with function definition")
 	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
-
-(*
-(* convert stmt to sast stmt *)
-let rec stmt_sast stmt =
-	match stmt with
-	  A.Block l -> S.SBlock (List.map stmt_sast l)
-	| A.Expr e -> S.SExpr (expr_sast e)
-	| A.If (e, s1, s2) -> S.SIf (expr_sast e, stmt_sast s1, stmt_sast s2)
-	| A.While (e, s) -> S.SWhile (expr_sast e, stmt_sast s)
-	| A.For (e1, e2, e3, s) -> S.SFor(expr_sast e1, expr_sast e2, expr_sast e3, stmt_sast s)
-	| A.Return e -> S.SReturn (expr_sast e)
-
-*)
 
 (* Main entry point for checking semantics of statements *)
 let rec check_stmt stmt env = 
