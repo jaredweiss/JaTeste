@@ -167,17 +167,18 @@ let build_function_body fdecl =
         	with Not_found -> raise (Failure ("undeclared variable " ^ n))
         in
 
-	let rec value_of_expr i builder= 
+	let rec addr_of_expr i builder= 
 	match i with
-	  S.SLit(i) -> L.const_int i32_t i 	
+	  S.SLit(_) -> raise Exceptions.InvalidLhsOfExpr
  	| S.SId(s) -> find_var s
-	| S.SString_lit (s) -> find_var s
-	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
- 	| S.SUnop(_,e) -> value_of_expr e builder
+	| S.SString_lit (_) -> raise Exceptions.InvalidLhsOfExpr
+	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
+ 	| S.SUnop(_,e) -> addr_of_expr e builder
 	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
 	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
-	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented value_of_expr"))
+	| S.SArray_access(ar,index) -> let tmp_value = find_var ar in let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref
+	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
 
 	in 
 
@@ -214,14 +215,14 @@ let build_function_body fdecl =
 				| A.Not -> L.const_int i32_t 0
 				| A.Addr -> let iden = string_of_expr e in let lvalue = find_var iden in lvalue
 				)
-	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(let l_val = (value_of_expr l builder) in  (L.build_store e_temp l_val builder)); e_temp
+	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(let l_val = (addr_of_expr l builder) in  (L.build_store e_temp l_val builder)); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId (s) -> L.build_load (find_var s) s builder
 	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) "tmp" builder
 	| S.SStruct_access(_,_) -> L.const_int i32_t 0
 	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in let tmp_value = L.build_load deref "dd" builder in tmp_value
 	| S.SArray_create(_,_) -> L.const_int i32_t 0
-	| S.SArray_access(_,_) -> L.const_int i32_t 0
+	| S.SArray_access(ar,index) -> let tmp_value = find_var ar in let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in let final_value = L.build_load deref "arrayvalue" builder in final_value
 	| S.SDereference(s) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
 
 	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
