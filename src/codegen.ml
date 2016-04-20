@@ -278,10 +278,16 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 List.iter build_function_body functions;
 the_module
 
+let test_main functions = 
+	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
+	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
+	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
+	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = sast_calls; S.stests= None;  } in tmp_main
+
 
 let func_builder f b = 
 	(match b with 
-	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> l)) [] f in  tests
+	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> l)) [] f in (tests @ [(test_main f)]) 
 	| false -> f
 	)
 
