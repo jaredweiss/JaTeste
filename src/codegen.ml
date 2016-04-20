@@ -114,7 +114,7 @@ let define_global_var (t, n) =
 
 	
 (* Translations functions to LLVM code in text section  *)
-let translate_function functions = 
+let translate_function functions gen_tests = 
 
 (* Here we define the built in print function *)
 let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -124,7 +124,7 @@ let test_functions = List.fold_left (fun l n -> (match n.S.stests with Some(t) -
 let functions_with_test_functions = 
 	(match (List.length test_functions) with
 		  0 ->  functions
-		| _ -> List.append functions test_functions
+		| _ -> (match gen_tests with true -> (List.append functions test_functions) | false -> functions)
 	)
 in
 
@@ -283,13 +283,13 @@ let build_function_body fdecl =
 	
 (* Here we go through each function and build the body of the function *)
 List.iter build_function_body functions;
-List.iter (fun n -> (match n.S.stests with Some(t) -> build_function_body t | None -> ())) functions; 
+if gen_tests = true then (List.iter (fun n -> (match n.S.stests with Some(t) -> build_function_body t | None -> ())) functions) else ();
 	the_module
 
 	(* Overall function that translates Ast.program to LLVM module *)
-let gen_llvm (input_globals, input_functions, input_structs) = 
+let gen_llvm (input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in
 	let _ = List.iter define_global_var input_globals in
-	let _ = translate_function input_functions in
+	let _ = translate_function input_functions gen_tests_bool in
 	the_module
