@@ -54,10 +54,11 @@ let _ =
 	let test_oc = open_out test_file in
 	let m = Codegen.gen_llvm sast false in 
 	Llvm_analysis.assert_valid_module m;
-	let _ = (match action with 
-	  Compile ->  fprintf oc "%s\n" (Llvm.string_of_llmodule m);
-	| Compile_with_test -> fprintf oc "%s\n" (Llvm.string_of_llmodule m); let test_m = (Codegen.gen_llvm sast true) in ignore(Llvm_analysis.assert_valid_module test_m); fprintf test_oc "%s\n" (Llvm.string_of_llmodule test_m); close_out test_oc;
-	) in
+	fprintf oc "%s\n" (Llvm.string_of_llmodule m); 
 	close_out oc;
+	let _ = (match action with 
+	  Compile ->  ()
+	| Compile_with_test -> let test_m = (Codegen.gen_llvm sast true) in ignore(Llvm_analysis.assert_valid_module test_m); fprintf test_oc "%s\n" (Llvm.string_of_llmodule test_m); close_out test_oc;
+	) in
 	close_out test_oc;
 	close_in source_file

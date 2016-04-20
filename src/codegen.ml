@@ -7,7 +7,8 @@ module StringMap = Map.Make(String)
 
 let context = L.global_context () 
 (* module is what is returned from this file aka the LLVM code *)
-let the_module = L.create_module context "Jateste" 
+let main_module = L.create_module context "Jateste" 
+let test_module = L.create_module context "Jateste-test" 
 
 (* Defined so we don't have to type out L.i32_type ... every time *)
 let i32_t = L.i32_type context
@@ -87,20 +88,20 @@ let define_global_with_value (t, n) =
 		match t with 
 		  A.Primitive(p) -> 
 			(match p with
-			  A.Int -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
-			| A.Double -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
-			| A.String -> let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init the_module)		
-			| A.Void -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
-			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
-			| A.Bool -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)
+			  A.Int -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
+			| A.Double -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
+			| A.String -> let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init main_module)		
+			| A.Void -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
+			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
+			| A.Bool -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
 		)
-		| A.Struct_typ(s) -> let init = L.const_named_struct (find_struct_name s) [||] in (L.define_global n init the_module)		
+		| A.Struct_typ(s) -> let init = L.const_named_struct (find_struct_name s) [||] in (L.define_global n init main_module)		
 
-		| A.Pointer_typ(_) ->let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init the_module)		
+		| A.Pointer_typ(_) ->let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init main_module)		
 
-		| A.Array_typ(p,i) ->let init = L.const_array (prim_ltype_of_typ p) (array_of_zeros i (default_value_for_prim_type ((p)))) in (L.define_global n init the_module)		
+		| A.Array_typ(p,i) ->let init = L.const_array (prim_ltype_of_typ p) (array_of_zeros i (default_value_for_prim_type ((p)))) in (L.define_global n init main_module)		
 
-		| A.Func_typ(_) ->let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init the_module)		
+		| A.Func_typ(_) ->let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)		
 
 
 (* Where we add global variabes to global data section *)
@@ -110,36 +111,29 @@ let define_global_var (t, n) =
 		| A.Struct_typ(_) -> Hashtbl.add  global_variables n (define_global_with_value (t,n))
 		| A.Pointer_typ(_) -> Hashtbl.add  global_variables n (define_global_with_value (t,n))
 		| A.Array_typ(_,_) -> Hashtbl.add global_variables n (define_global_with_value (t,n))
-		| A.Func_typ(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n the_module)
+		| A.Func_typ(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n main_module)
 
 	
 (* Translations functions to LLVM code in text section  *)
-let translate_function functions gen_tests = 
+let translate_function functions the_module = 
 
 (* Here we define the built in print function *)
 let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
 let printf_func = L.declare_function "printf" printf_t the_module in
 
-let test_functions = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> t :: l | None -> l)) [] functions in
-let functions_with_test_functions = 
-	(match (List.length test_functions) with
-		  0 ->  functions
-		| _ -> (match gen_tests with true -> (List.append functions test_functions) | false -> functions)
-	)
-in
 
 (* Here we iterate through Ast.functions and add all the function names to a HashMap *)
-let function_decls =
+	let function_decls =
 		let function_decl m fdecl =
-	let name = fdecl.S.sfname
-        and formal_types =
-            Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.S.sformals)
-            in let ftype = L.function_type (ltype_of_typ fdecl.S.styp) formal_types in
-             StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    	List.fold_left function_decl StringMap.empty functions_with_test_functions in
+		let name = fdecl.S.sfname
+        	and formal_types =
+            	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.S.sformals)
+            	in let ftype = L.function_type (ltype_of_typ fdecl.S.styp) formal_types in
+             	StringMap.add name (L.define_function name ftype the_module, fdecl) m in
+    		List.fold_left function_decl StringMap.empty functions in
 	
 (* Method to build body of function *)
-let build_function_body fdecl =
+	let build_function_body fdecl =
 	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
 	(* builder is the LLVM instruction builder *)
 	let builder = L.builder_at_end context (L.entry_block the_function) in
@@ -184,7 +178,6 @@ let build_function_body fdecl =
 	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
 
 	in 
-
 	let add_terminal builder f =
           match L.block_terminator (L.insertion_block builder) with
         	  Some _ -> ()
@@ -283,13 +276,20 @@ let build_function_body fdecl =
 	
 (* Here we go through each function and build the body of the function *)
 List.iter build_function_body functions;
-if gen_tests = true then (List.iter (fun n -> (match n.S.stests with Some(t) -> build_function_body t | None -> ())) functions) else ();
-	the_module
+the_module
+
+
+let func_builder f b = 
+	(match b with 
+	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> l)) [] f in  tests
+	| false -> f
+	)
 
 	(* Overall function that translates Ast.program to LLVM module *)
 let gen_llvm (input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in
 	let _ = List.iter define_global_var input_globals in
-	let _ = translate_function input_functions gen_tests_bool in
+	let the_module = (match gen_tests_bool with true -> test_module | false -> main_module) in
+	let _ = translate_function (func_builder input_functions gen_tests_bool) the_module in
 	the_module
