@@ -24,3 +24,7 @@ exception InvalidLhsOfExpr
 
 (* Bug catcher *)
 exception BugCatch of string
+
+(* Input *)
+exception IllegalInputFormat
+exception IllegalArgument of string
