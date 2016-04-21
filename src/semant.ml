@@ -4,14 +4,13 @@ module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
 
-
 type variable_decls = A.bind;;
 
 (* Hashtable of valid structs. This is filled out when we iterate through the user defined structs *)
 let struct_types:(string, A.struct_decl) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
 
-let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [(A.Primitive(A.String), "arg1")]; A.vdecls = []; A.body = []; A.tests = None }
+let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None }
 
 let built_in_print_int:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print_int"; A.formals = [(A.Primitive(A.Int), "arg1")]; A.vdecls = []; A.body = []; A.tests = None }
 
@@ -258,6 +257,9 @@ let rec check_expr expr env =
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
 	| A.Free(p) -> let pt = string_identifier_of_expr p in let pt_typ = find_var env.scope pt in (match pt_typ with A.Pointer_typ(_) -> pt_typ | _ -> raise (Exceptions.InvalidFree "not a pointer"))
+	| A.Call("print", el) ->  if List.length el != 1 then raise Exceptions.InvalidPrintCall 
+				else
+				List.iter (fun n -> ignore(check_expr n env); ()) el; A.Primitive(A.Int)
 	| A.Call(s,el) -> let func_info = (check_valid_func_call s) in
 	let func_info_formals = func_info.A.formals in
 		if List.length func_info_formals != List.length el then

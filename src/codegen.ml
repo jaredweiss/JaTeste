@@ -40,6 +40,7 @@ let declare_struct s =
 	let struct_t = L.named_struct_type context s.S.ssname in
 	Hashtbl.add struct_types s.S.ssname struct_t
 
+
 let prim_ltype_of_typ = function
 	  A.Int -> i32_t
 	| A.Double -> d_t
@@ -102,6 +103,7 @@ let define_global_with_value (t, n) =
 		| A.Array_typ(p,i) ->let init = L.const_array (prim_ltype_of_typ p) (array_of_zeros i (default_value_for_prim_type ((p)))) in (L.define_global n init main_module)		
 
 		| A.Func_typ(_) ->let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)		
+		| A.Any -> raise (Exceptions.BugCatch "define_global_with_value")
 
 
 (* Where we add global variabes to global data section *)
@@ -112,13 +114,14 @@ let define_global_var (t, n) =
 		| A.Pointer_typ(_) -> Hashtbl.add  global_variables n (define_global_with_value (t,n))
 		| A.Array_typ(_,_) -> Hashtbl.add global_variables n (define_global_with_value (t,n))
 		| A.Func_typ(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n main_module)
+		| A.Any -> raise (Exceptions.BugCatch "define_global_with_value")
 
 	
 (* Translations functions to LLVM code in text section  *)
 let translate_function functions the_module = 
 
 (* Here we define the built in print function *)
-let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+let printf_t = L.var_arg_function_type i32_t [||] in
 let printf_func = L.declare_function "printf" printf_t the_module in
 
 
@@ -140,6 +143,9 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 
 	(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
 	let str_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
+	let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+
+	
 
 	(* This is where we push local variables onto the stack and add them to a local HashMap*)
 	let local_vars = 
@@ -164,6 +170,17 @@ let printf_func = L.declare_function "printf" printf_t the_module in
         	with Not_found -> raise (Failure ("undeclared variable " ^ n))
         in
 
+	(* Format to print given arguments in print(...) *)
+	let print_format e =
+		(match e with 
+		  (S.SString_lit(_)) -> str_format_str
+		| (S.SLit(_)) -> int_format_str
+		| (S.SId(i)) -> let i_value = find_var i in let i_type = L.type_of i_value in let string_i_type = L.string_of_lltype i_type in (match string_i_type with "i32*" -> int_format_str | _ -> raise (Exceptions.InvalidPrintFormat))		
+		| _ -> raise (Exceptions.InvalidPrintFormat) 
+		)
+		in
+
+	(* Returns address of i. Used for lhs of assignments *)
 	let rec addr_of_expr i builder= 
 	match i with
 	  S.SLit(_) -> raise Exceptions.InvalidLhsOfExpr
@@ -175,7 +192,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
 	| S.SArray_access(ar,index) -> let tmp_value = find_var ar in let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref
-	| _ -> raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
+	| _ -> raise (Exceptions.UndeclaredVariable("Invalid LHS of assignment"))
 
 	in 
 	let add_terminal builder f =
@@ -222,7 +239,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SDereference(s) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
 
 	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
-	| S.SCall("print", [e]) -> L.build_call printf_func [|str_format_str; (expr builder e) |] "printf" builder
+	| S.SCall("print", [e]) | S.SCall("print_int", [e])-> L.build_call printf_func [|(print_format e); (expr builder e) |] "printresult" builder
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	| S.SBoolLit(b) -> L.const_int i1_t b
