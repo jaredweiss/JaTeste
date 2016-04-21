@@ -1,7 +1,9 @@
 open Printf 
 module A = Ast
 module S = Sast
+module P = Preprocessor
 
+let library_path = "/home/plt/JaTeste/lib/"
 
 type action = Scan | Parse |  Ast | Sast | Compile | Compile_with_test
 
@@ -34,18 +36,6 @@ let test_executable_filename filename =
 	let exec = String.concat "" [str ; "-test.ll"] in
 	exec 
 
-let create_header_files file = 
-		let ic = open_in file in
-  	try 
-    	let line = input_line ic in 
-    	print_endline line;        
-    	flush stdout;             
-    	close_in ic                
-  
-  	with e ->                     
-    	close_in_noerr ic;           
-    	raise e  
-
 let scan input_raw = 
 	let lexbuf = Lexing.from_channel input_raw in (print_string "Scanned\n"); lexbuf
 
@@ -53,8 +43,22 @@ let parse input_raw =
 	let input_tokens = scan input_raw in
 	let ast:(A.program) = Parser.program Scanner.token input_tokens in (print_string "Parsed\n"); ast
 
+let process_headers ast:(A.program) =
+	let (includes,_,_,_) = ast in
+	let gen_header_code (incl,globals, current_func_list, structs) str = 
+		let file = library_path ^ str in
+		let ic = open_in file in
+		let (_,_,funcs,_) = parse ic in
+		let new_ast:(A.program) = (incl, globals, current_func_list @ funcs, structs) in
+		new_ast 	
+	in
+	let modified_ast:(A.program) = List.fold_left gen_header_code ast includes in 
+	modified_ast
+
+
 let semant input_raw = 
-	let input_ast = parse input_raw in
+	let tmp_ast = parse input_raw in
+	let input_ast = process_headers tmp_ast in
 	let sast:(S.sprogram) = Semant.check input_ast in (print_string "Semantic check passed\n"); sast
 
 let code_gen input_raw exec_name bool_tests =
@@ -71,6 +75,8 @@ let get_ast input_raw =
 	let ast = parse input_raw in
 	ast
 
+		
+		 
 (******************************)
 (* Entry pointer for Compiler *)
 (******************************)
