@@ -31,6 +31,7 @@ type stmt =
   | While of expr * stmt
   | For of expr * expr * expr * stmt
   | Return of expr
+  | Assert of expr
 
 type with_using_decl = {
   uvdecls : bind list;

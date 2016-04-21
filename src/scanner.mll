@@ -51,6 +51,7 @@ rule token = parse
 	| "return" 		{ RETURN }
 	| "while" 		{ WHILE }
 	| "for"			{ FOR }
+	| "assert" 		{ ASSERT }
 	
 	(* Datatypes *)
 	| "void"		{ VOID }

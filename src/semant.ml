@@ -12,9 +12,6 @@ let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
 
 let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None }
 
-let built_in_print_int:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print_int"; A.formals = [(A.Primitive(A.Int), "arg1")]; A.vdecls = []; A.body = []; A.tests = None }
-
-
 (* Symbol table used for checking scope *)
 type symbol_table = {
 	parent : symbol_table option;
@@ -302,6 +299,7 @@ let rec check_stmt stmt env =
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s); S.SFor(expr_sast e1 env, expr_sast e2 env, expr_sast e3 env, check_stmt s env) 
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
+	| A.Assert(e) -> ignore(check_is_bool e env); S.SAssert (expr_sast e env)
 
 let with_using_sast r env = 
 	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
@@ -324,7 +322,6 @@ let check_function_names functions =
 	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) functions));	
 	(* Add the built in function(s) here. There shouldnt be too many of these *)
 	ignore(Hashtbl.add func_names built_in_print_string.A.fname built_in_print_string);
-	ignore(Hashtbl.add func_names built_in_print_int.A.fname built_in_print_int);
 	(* Go through the functions and add their names to a global hashtable that stores the whole function as its value -> (key, value) = (func_decl.fname, func_decl) *)
 	ignore(List.iter (fun n -> Hashtbl.add func_names n.A.fname n) functions); ()
 

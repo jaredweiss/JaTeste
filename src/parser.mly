@@ -12,7 +12,7 @@
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
 %token ARRAY
 %token NEW FREE
-%token RETURN IF ELSE WHILE FOR
+%token RETURN IF ELSE WHILE FOR ASSERT
 
 /* 
    Tokens with associated values 
@@ -208,6 +208,7 @@ stmt:
 	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	       	    { If($3, $5, Block([])) }
 	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
   	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
+	  | ASSERT LPAREN expr RPAREN 				    { Assert($3) }
 
 expr_list:
 	 /* nothing */ { [] }
