@@ -1,6 +1,8 @@
 (* Program structure exceptions *)
 exception MissingMainFunction
 
+exception InvalidHeaderFile of string
+
 (* Struct exceptions*)
 exception InvalidStruct of string
 

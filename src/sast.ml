@@ -55,4 +55,4 @@ type sstruct_decl = {
 }
 
 (* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
-type sprogram = bind list * sfunc_decl list * sstruct_decl list
+type sprogram = header list * bind list * sfunc_decl list * sstruct_decl list

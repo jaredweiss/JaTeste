@@ -292,7 +292,7 @@ let func_builder f b =
 	)
 
 	(* Overall function that translates Ast.program to LLVM module *)
-let gen_llvm (input_globals, input_functions, input_structs) gen_tests_bool = 
+let gen_llvm (includes, input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in
 	let _ = List.iter define_global_var input_globals in

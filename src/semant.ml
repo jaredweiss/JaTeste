@@ -84,6 +84,14 @@ let report_duplicate exceptf list =
       | [] -> ()
     in helper (List.sort compare list)
 
+let check_ends_in_jt str = 
+	let len = String.length str in
+	if len < 4 then raise (Exceptions.InvalidHeaderFile str);
+	let subs = String.sub str (len - 3) 3 in
+	(match subs with
+	  ".jt" -> ()
+	| _ -> raise (Exceptions.InvalidHeaderFile str)
+	)
 
 (* Helper function to check a typ is not void *)
 let check_not_void exceptf = function
@@ -360,20 +368,27 @@ let rec check_function_body funct env =
 	tmp
 
 (* Entry point to check functions *)
-let check_functions functions env globals_add structs_add = 
+let check_functions functions env includes globals_add structs_add = 
 	(check_function_names functions); 
 	(check_function_not_print functions); 
 	(check_prog_contains_main functions); 
 	let sast_funcs = (List.map (fun n -> check_function_body n env) functions) in
 	(*let sprogram:(S.sprogram) = program_sast (globals_add, functions, structs_add) in *)
-	let sast = (globals_add, sast_funcs, (List.map struct_sast structs_add )) in
+	let sast = (includes, globals_add, sast_funcs, (List.map struct_sast structs_add )) in
 	sast
 	(* Need to check function test + using code here *)
 
+let check_includes headers = 
+	report_duplicate (fun n -> "duplicate header file " ^ n) headers;
+	List.iter check_ends_in_jt headers;
+	()
+	
+
 (* Entry point for semantic checking AST. Output should be a SAST *)
-let check (globals, functions, structs) =  
+let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None} in
+	let _ = check_includes includes in
 	let structs_added = check_structs structs in
 	let globals_added = check_globals globals prog_env in
-	let sast = check_functions functions prog_env globals_added structs_added in
+	let sast = check_functions functions prog_env includes globals_added structs_added in
 	sast
