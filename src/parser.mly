@@ -3,7 +3,7 @@
 /*
    Tokens/terminal symbols 
 */
-%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI
+%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI POUND INCLUDE
 %token PLUS MINUS STAR DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
 %token FUNC
 %token WTEST USING STRUCT DOT POINTER_ACCESS
@@ -61,7 +61,14 @@
    for efficiency reasons 
  */
 
-program: var_decls func_decls struc_decls  EOF { (List.rev $1, List. rev $2, List.rev $3) } 
+program: includes var_decls func_decls struc_decls  EOF { ($1, List.rev $2, List. rev $3, List.rev $4) } 
+
+includes:
+	  /* noting */ { [] }
+	| includes include_file { $2 :: $1 }
+
+include_file:
+	POUND INCLUDE STRING_LITERAL { ($3) } 
 
 var_decls: 			  
 	/* nothing */ { [] }

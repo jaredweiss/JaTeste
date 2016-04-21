@@ -17,6 +17,10 @@ rule token = parse
 	| '}'			{ RBRACE}
 	| ','			{ COMMA }
 	| ';'			{ SEMI }
+	| '#'			{ POUND }
+	
+	(*Header files *)
+	| "include"		{ INCLUDE }
 		
 	(* Operators *)
 	| "+"			{ PLUS }

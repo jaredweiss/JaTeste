@@ -27,7 +27,7 @@ test:
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 
-OBJS = sast.cmx ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx jateste.cmx exceptions.cmx
+OBJS = sast.cmx ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx jateste.cmx exceptions.cmx preprocesor.cmx
 
 jateste : $(OBJS)
 	ocamlfind ocamlopt -linkpkg -package llvm -package llvm.analysis $(OBJS) -o jateste
