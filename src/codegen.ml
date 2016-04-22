@@ -277,7 +277,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);	
 		L.builder_at_end context merge_bb
 
-	| S.SFor(_,_,_,_) -> builder
+	| S.SFor(e1,e2,e3,s) -> ignore(expr builder e1); let tmp_stmt = S.SExpr(e3) in let tmp_block = S.SBlock([s] @ [tmp_stmt]) in  let tmp_while = S.SWhile(e2, tmp_block) in stmt builder tmp_while 
 	| S.SReturn r -> ignore (match fdecl.S.styp with
 						  A.Primitive(A.Void) -> L.build_ret_void builder
 						| _ -> L.build_ret (expr builder r) builder); builder 
