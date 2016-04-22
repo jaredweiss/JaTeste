@@ -27,7 +27,6 @@ type sstmt =
   | SWhile of sexpr * sstmt
   | SFor of sexpr * sexpr * sexpr * sstmt
   | SReturn of sexpr
-  | SAssert of sexpr
 
 type swith_using_decl = {
   suvdecls : bind list;

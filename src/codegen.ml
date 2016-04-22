@@ -281,7 +281,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SReturn r -> ignore (match fdecl.S.styp with
 						  A.Primitive(A.Void) -> L.build_ret_void builder
 						| _ -> L.build_ret (expr builder r) builder); builder 
-	| S.SAssert(_) -> builder
 	in
 	
 	(* Build the body for this function *)

@@ -23,6 +23,7 @@ type environment = {
 	scope : symbol_table;
 	return_type : A.typ option;
 	func_name : string option;
+	in_test_func : bool;
 }
 
 (* For debugging *)
@@ -299,7 +300,7 @@ let rec check_stmt stmt env =
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s); S.SFor(expr_sast e1 env, expr_sast e2 env, expr_sast e3 env, check_stmt s env) 
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
-	| A.Assert(e) -> ignore(check_is_bool e env); S.SAssert (expr_sast e env)
+	| A.Assert(e) -> ignore(check_is_bool e env); let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit("passed")])) in let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit("failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
 let with_using_sast r env = 
 	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
@@ -350,14 +351,14 @@ let rec check_function_body funct env =
 		| _ -> ()
 	) formals_and_locals;
 	(* Create new enviornment -> symbol table parent is set to previous scope's symbol table *)
-	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name)} in
+	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name); in_test_func = false} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
 	let body_with_env = List.map (fun n -> check_stmt n new_env) funct.A.body in
 	(* Compile code for test case iff a function has defined a with test clause *)
 	let sast_func_with_test = 
 		(match funct.A.tests with
-		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") } in
+		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") ; in_test_func = false} in
 	Some(check_function_body func_with_test new_env) 
 		| None -> None
 		)
@@ -385,7 +386,7 @@ let check_includes headers =
 
 (* Entry point for semantic checking AST. Output should be a SAST *)
 let check (includes, globals, functions, structs) =  
-	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None} in
+	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false} in
 	let _ = check_includes includes in
 	let structs_added = check_structs structs in
 	let globals_added = check_globals globals prog_env in
