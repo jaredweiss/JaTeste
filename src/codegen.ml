@@ -277,7 +277,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);	
 		L.builder_at_end context merge_bb
 
-	| S.SFor(_,_,_,_) -> builder
+	| S.SFor(e1,e2,e3,s) -> ignore(expr builder e1); let tmp_stmt = S.SExpr(e3) in let tmp_block = S.SBlock([s] @ [tmp_stmt]) in  let tmp_while = S.SWhile(e2, tmp_block) in stmt builder tmp_while 
 	| S.SReturn r -> ignore (match fdecl.S.styp with
 						  A.Primitive(A.Void) -> L.build_ret_void builder
 						| _ -> L.build_ret (expr builder r) builder); builder 
@@ -295,6 +295,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 List.iter build_function_body functions;
 the_module
 
+(* Create a main function in test file - main then calls the respective tests *)
 let test_main functions = 
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
 	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
@@ -308,7 +309,9 @@ let func_builder f b =
 	| false -> f
 	)
 
+	(***************************************************************)
 	(* Overall function that translates Ast.program to LLVM module *)
+	(***************************************************************)
 let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in
