@@ -316,7 +316,8 @@ let with_test_sast r env =
 (* Here we convert the user defined test cases to functions which can subseqeuntly be called by main in the test file *)
 let convert_test_to_func using_decl test_decl env = 
 	List.iter (fun n -> (match n with A.Assert(_) -> () | _ -> raise Exceptions.InvalidTestAsserts)) test_decl.A.asserts;
-	let concat_stmts = using_decl.A.stmts @ test_decl.A.asserts  in
+	let test_asserts = List.rev test_decl.A.asserts in
+	let concat_stmts = using_decl.A.stmts @ test_asserts  in
 	(match env.func_name with
 	  Some(fn) ->let new_func_name = fn ^ "test" in  let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
 
