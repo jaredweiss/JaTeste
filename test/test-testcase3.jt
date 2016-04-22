@@ -1,0 +1,33 @@
+func int main()
+{
+	int a;
+	int b;
+	int c;
+
+	a = 10;
+	b = 23;
+
+	c = max(a, b);
+
+	if (c == 23) {
+		print("passed");
+	}
+
+	return 0;
+}
+
+func int max(int x, int y)
+{
+	if (x > y) {
+		return x;
+	}
+	return y;
+} with test {
+	assert((max(a,b) == 10));
+} using {
+	int a;
+	int b;
+	a = 10;
+	b = 9;
+}
+
