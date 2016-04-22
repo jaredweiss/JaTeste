@@ -295,6 +295,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 List.iter build_function_body functions;
 the_module
 
+(* Create a main function in test file - main then calls the respective tests *)
 let test_main functions = 
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
 	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
@@ -308,7 +309,9 @@ let func_builder f b =
 	| false -> f
 	)
 
+	(***************************************************************)
 	(* Overall function that translates Ast.program to LLVM module *)
+	(***************************************************************)
 let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in

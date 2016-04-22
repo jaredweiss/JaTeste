@@ -81,6 +81,7 @@ let report_duplicate exceptf list =
       | [] -> ()
     in helper (List.sort compare list)
 
+(* Used to check include statments *)
 let check_ends_in_jt str = 
 	let len = String.length str in
 	if len < 4 then raise (Exceptions.InvalidHeaderFile str);
@@ -158,13 +159,12 @@ let struct_pt_contains_field s field env =
 		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
 		| _ -> raise (Exceptions.InvalidStruct s) *)
 
+(* Checks that struct contains expr *)
 let struct_contains_expr stru expr env = 
 	match stru with
 	  A.Id(s) -> (match expr with A.Id(s1) -> struct_contains_field s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
 	
-(**********Start of code to convert SAST to AST**********)
-
 (* convert expr to sast expr *)
 let rec expr_sast expr env =
 	match expr with
@@ -186,6 +186,7 @@ let rec expr_sast expr env =
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
 
 
+(* Convert ast struct to sast struct *)
 let struct_sast r = 
 	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes } in
 	tmp
@@ -302,14 +303,17 @@ let rec check_stmt stmt env =
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
 	| A.Assert(e) -> ignore(check_is_bool e env); let curr_name = (match env.func_name with Some(n) -> n | None -> "" ) in let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " passed")])) in let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
+(* Converts 'using' code from ast to sast *)
 let with_using_sast r env = 
 	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
 	 tmp
 
+(* Converts 'test' code from ast to sast *)
 let with_test_sast r env =
 	let tmp:(S.swith_test_decl) = {S.sasserts = (List.map (fun n -> check_stmt n env) r.A.asserts) ; S.susing = (with_using_sast r.A.using env)} in
 	tmp 
 
+(* Here we convert the user defined test cases to functions which can subseqeuntly be called by main in the test file *)
 let convert_test_to_func using_decl test_decl env = 
 	List.iter (fun n -> (match n with A.Assert(_) -> () | _ -> raise Exceptions.InvalidTestAsserts)) test_decl.A.asserts;
 	let concat_stmts = using_decl.A.stmts @ test_decl.A.asserts  in
@@ -385,7 +389,9 @@ let check_includes headers =
 	()
 	
 
+(******************************************************************)
 (* Entry point for semantic checking AST. Output should be a SAST *)
+(******************************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false} in
 	let _ = check_includes includes in
