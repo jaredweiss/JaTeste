@@ -34,7 +34,7 @@ type swith_using_decl = {
 }
 
 type swith_test_decl = {
-  sexprs : sexpr list;
+  sasserts : sstmt list;
   susing : swith_using_decl;
 }
 

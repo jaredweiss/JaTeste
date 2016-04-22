@@ -20,6 +20,10 @@ exception InvalidStructField
 exception InvalidFree of string
 exception InvalidPointerDereference
 
+(* Print exceptions *)
+exception InvalidPrintCall
+
+
 (* Statement exceptions*)
 exception InvalidReturnType of string
 exception InvalidLhsOfExpr
@@ -30,3 +34,5 @@ exception BugCatch of string
 (* Input *)
 exception IllegalInputFormat
 exception IllegalArgument of string
+
+exception InvalidPrintFormat

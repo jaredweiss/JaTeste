@@ -12,7 +12,7 @@
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
 %token ARRAY
 %token NEW FREE
-%token RETURN IF ELSE WHILE FOR
+%token RETURN IF ELSE WHILE FOR ASSERT
 
 /* 
    Tokens with associated values 
@@ -133,16 +133,16 @@ fdecl:
 		$9; tests = None }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({exprs = $11;  using = { uvdecls = []; stmts = [] }})  }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }})  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({exprs = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
 
 /* 
 "with test" rule 
 */
 testdecl:
-	WTEST LBRACE expr_list RBRACE { $3 }
+	WTEST LBRACE stmt_list RBRACE { $3 }
 
 /* 
 "using" rule 
@@ -208,10 +208,7 @@ stmt:
 	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	       	    { If($3, $5, Block([])) }
 	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
   	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
-
-expr_list:
-	 /* nothing */ { [] }
-	| expr_list expr SEMI { $2::$1 }
+	  | ASSERT LPAREN expr RPAREN SEMI 			    { Assert($3) }
 
 /* 
 Rule for building expressions 
@@ -222,6 +219,7 @@ expr:
 	| TRUE			{ BoolLit(true) }
 	| FALSE			{ BoolLit(false) }
 	| ID 			{ Id($1) }
+	| LPAREN expr RPAREN 	{ $2 }
 	| expr PLUS expr 	{ Binop($1, Add, $3) }
 	| expr MINUS expr 	{ Binop($1, Sub, $3) }
 	| expr STAR expr 	{ Binop($1, Mult, $3)}

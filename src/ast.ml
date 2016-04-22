@@ -1,7 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or | Mod | Exp
 type uop = Neg | Not | Addr
 type prim = Int | Double | String | Char | Void | Bool
-type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim * int
+type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim * int | Any
 type bind = typ * string
 
 type header = string
@@ -31,6 +31,7 @@ type stmt =
   | While of expr * stmt
   | For of expr * expr * expr * stmt
   | Return of expr
+  | Assert of expr
 
 type with_using_decl = {
   uvdecls : bind list;
@@ -38,7 +39,7 @@ type with_using_decl = {
 }
 
 type with_test_decl = {
-  exprs : expr list;
+  asserts : stmt list;
   using : with_using_decl; 
 }
 

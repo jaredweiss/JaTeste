@@ -4,17 +4,13 @@ module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
 
-
 type variable_decls = A.bind;;
 
 (* Hashtable of valid structs. This is filled out when we iterate through the user defined structs *)
 let struct_types:(string, A.struct_decl) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
 
-let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [(A.Primitive(A.String), "arg1")]; A.vdecls = []; A.body = []; A.tests = None }
-
-let built_in_print_int:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print_int"; A.formals = [(A.Primitive(A.Int), "arg1")]; A.vdecls = []; A.body = []; A.tests = None }
-
+let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None }
 
 (* Symbol table used for checking scope *)
 type symbol_table = {
@@ -27,6 +23,7 @@ type environment = {
 	scope : symbol_table;
 	return_type : A.typ option;
 	func_name : string option;
+	in_test_func : bool;
 }
 
 (* For debugging *)
@@ -258,6 +255,9 @@ let rec check_expr expr env =
 	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
 	| A.Free(p) -> let pt = string_identifier_of_expr p in let pt_typ = find_var env.scope pt in (match pt_typ with A.Pointer_typ(_) -> pt_typ | _ -> raise (Exceptions.InvalidFree "not a pointer"))
+	| A.Call("print", el) ->  if List.length el != 1 then raise Exceptions.InvalidPrintCall 
+				else
+				List.iter (fun n -> ignore(check_expr n env); ()) el; A.Primitive(A.Int)
 	| A.Call(s,el) -> let func_info = (check_valid_func_call s) in
 	let func_info_formals = func_info.A.formals in
 		if List.length func_info_formals != List.length el then
@@ -300,19 +300,20 @@ let rec check_stmt stmt env =
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s); S.SFor(expr_sast e1 env, expr_sast e2 env, expr_sast e3 env, check_stmt s env) 
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
+	| A.Assert(e) -> ignore(check_is_bool e env); let curr_name = (match env.func_name with Some(n) -> n | None -> "" ) in let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " passed")])) in let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
 let with_using_sast r env = 
 	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
 	 tmp
 
 let with_test_sast r env =
-	let tmp:(S.swith_test_decl) = {S.sexprs = (List.map (fun n -> expr_sast n env) r.A.exprs) ; S.susing = (with_using_sast r.A.using env)} in
+	let tmp:(S.swith_test_decl) = {S.sasserts = (List.map (fun n -> check_stmt n env) r.A.asserts) ; S.susing = (with_using_sast r.A.using env)} in
 	tmp 
 
 let convert_test_to_func using_decl test_decl env = 
-	let concat_stmts_exprs = List.append using_decl.A.stmts ((List.map (fun n -> A.Expr(n)) test_decl.A.exprs))  in
+	let concat_stmts = using_decl.A.stmts @ test_decl.A.asserts  in
 	(match env.func_name with
-	  Some(fn) ->let new_func_name = fn ^ "test" in  let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts_exprs ; A.tests = None} in new_func
+	  Some(fn) ->let new_func_name = fn ^ "test" in  let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
 
 	|  None -> raise (Exceptions.BugCatch "convert_test_to_func")
 )
@@ -322,7 +323,6 @@ let check_function_names functions =
 	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) functions));	
 	(* Add the built in function(s) here. There shouldnt be too many of these *)
 	ignore(Hashtbl.add func_names built_in_print_string.A.fname built_in_print_string);
-	ignore(Hashtbl.add func_names built_in_print_int.A.fname built_in_print_int);
 	(* Go through the functions and add their names to a global hashtable that stores the whole function as its value -> (key, value) = (func_decl.fname, func_decl) *)
 	ignore(List.iter (fun n -> Hashtbl.add func_names n.A.fname n) functions); ()
 
@@ -351,14 +351,14 @@ let rec check_function_body funct env =
 		| _ -> ()
 	) formals_and_locals;
 	(* Create new enviornment -> symbol table parent is set to previous scope's symbol table *)
-	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name)} in
+	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name); in_test_func = false} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
 	let body_with_env = List.map (fun n -> check_stmt n new_env) funct.A.body in
 	(* Compile code for test case iff a function has defined a with test clause *)
 	let sast_func_with_test = 
 		(match funct.A.tests with
-		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") } in
+		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") ; in_test_func = false} in
 	Some(check_function_body func_with_test new_env) 
 		| None -> None
 		)
@@ -386,7 +386,7 @@ let check_includes headers =
 
 (* Entry point for semantic checking AST. Output should be a SAST *)
 let check (includes, globals, functions, structs) =  
-	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None} in
+	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false} in
 	let _ = check_includes includes in
 	let structs_added = check_structs structs in
 	let globals_added = check_globals globals prog_env in
