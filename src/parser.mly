@@ -133,16 +133,16 @@ fdecl:
 		$9; tests = None }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({exprs = $11;  using = { uvdecls = []; stmts = [] }})  }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }})  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({exprs = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
 
 /* 
 "with test" rule 
 */
 testdecl:
-	WTEST LBRACE expr_list RBRACE { $3 }
+	WTEST LBRACE stmt_list RBRACE { $3 }
 
 /* 
 "using" rule 
@@ -209,10 +209,6 @@ stmt:
 	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
   	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
 	  | ASSERT LPAREN expr RPAREN 				    { Assert($3) }
-
-expr_list:
-	 /* nothing */ { [] }
-	| expr_list expr SEMI { $2::$1 }
 
 /* 
 Rule for building expressions 

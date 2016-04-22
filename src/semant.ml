@@ -216,7 +216,6 @@ let check_globals globals env =
 
 (* Main entry pointer for checking the semantics of an expression *)
 let rec check_expr expr env =
-	let in_test = env.in_test_func in
 	match expr with
 	  A.Lit(_) -> A.Primitive(A.Int)
 	| A.String_lit(_) -> A.Primitive(A.String)
@@ -308,13 +307,13 @@ let with_using_sast r env =
 	 tmp
 
 let with_test_sast r env =
-	let tmp:(S.swith_test_decl) = {S.sexprs = (List.map (fun n -> expr_sast n env) r.A.exprs) ; S.susing = (with_using_sast r.A.using env)} in
+	let tmp:(S.swith_test_decl) = {S.sasserts = (List.map (fun n -> check_stmt n env) r.A.asserts) ; S.susing = (with_using_sast r.A.using env)} in
 	tmp 
 
 let convert_test_to_func using_decl test_decl env = 
-	let concat_stmts_exprs = List.append using_decl.A.stmts ((List.map (fun n -> A.Expr(n)) test_decl.A.exprs))  in
+	let concat_stmts = using_decl.A.stmts @ test_decl.A.asserts  in
 	(match env.func_name with
-	  Some(fn) ->let new_func_name = fn ^ "test" in  let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts_exprs ; A.tests = None} in new_func
+	  Some(fn) ->let new_func_name = fn ^ "test" in  let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
 
 	|  None -> raise (Exceptions.BugCatch "convert_test_to_func")
 )

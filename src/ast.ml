@@ -39,7 +39,7 @@ type with_using_decl = {
 }
 
 type with_test_decl = {
-  exprs : expr list;
+  asserts : stmt list;
   using : with_using_decl; 
 }
 
