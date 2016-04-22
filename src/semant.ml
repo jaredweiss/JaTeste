@@ -216,6 +216,7 @@ let check_globals globals env =
 
 (* Main entry pointer for checking the semantics of an expression *)
 let rec check_expr expr env =
+	let in_test = env.in_test_func in
 	match expr with
 	  A.Lit(_) -> A.Primitive(A.Int)
 	| A.String_lit(_) -> A.Primitive(A.String)
