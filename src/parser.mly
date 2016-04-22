@@ -208,7 +208,7 @@ stmt:
 	  | IF LPAREN expr RPAREN stmt %prec NOELSE 	       	    { If($3, $5, Block([])) }
 	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
   	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
-	  | ASSERT LPAREN expr RPAREN 				    { Assert($3) }
+	  | ASSERT LPAREN expr RPAREN SEMI 			    { Assert($3) }
 
 /* 
 Rule for building expressions 
@@ -219,6 +219,7 @@ expr:
 	| TRUE			{ BoolLit(true) }
 	| FALSE			{ BoolLit(false) }
 	| ID 			{ Id($1) }
+	| LPAREN expr RPAREN 	{ $2 }
 	| expr PLUS expr 	{ Binop($1, Add, $3) }
 	| expr MINUS expr 	{ Binop($1, Sub, $3) }
 	| expr STAR expr 	{ Binop($1, Mult, $3)}
