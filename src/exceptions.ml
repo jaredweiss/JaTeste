@@ -22,7 +22,7 @@ exception InvalidPointerDereference
 
 (* Print exceptions *)
 exception InvalidPrintCall
-
+exception InvalidPrintFormat
 
 (* Statement exceptions*)
 exception InvalidReturnType of string
@@ -35,4 +35,5 @@ exception BugCatch of string
 exception IllegalInputFormat
 exception IllegalArgument of string
 
-exception InvalidPrintFormat
+(* Test cases *)
+exception InvalidTestAsserts

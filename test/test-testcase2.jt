@@ -20,7 +20,7 @@ func int sub(int x, int y)
 {
 	return x - y;
 } with test {
-	a == b - 5;
+	assert(a == b - 5);
 } using {
 	int a;
 	int b;
