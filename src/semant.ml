@@ -300,7 +300,7 @@ let rec check_stmt stmt env =
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s); S.SFor(expr_sast e1 env, expr_sast e2 env, expr_sast e3 env, check_stmt s env) 
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
-	| A.Assert(e) -> ignore(check_is_bool e env); let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit("passed")])) in let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit("failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
+	| A.Assert(e) -> ignore(check_is_bool e env); let curr_name = (match env.func_name with Some(n) -> n | None -> "" ) in let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " passed")])) in let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
 let with_using_sast r env = 
 	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
