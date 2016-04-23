@@ -384,7 +384,8 @@ let check_functions functions env includes globals_add structs_add =
 	sast
 	(* Need to check function test + using code here *)
 
-let check_includes headers = 
+let check_includes includes = 
+	let headers = List.map (fun n -> snd n) includes in
 	report_duplicate (fun n -> "duplicate header file " ^ n) headers;
 	List.iter check_ends_in_jt headers;
 	()

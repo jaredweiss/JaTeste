@@ -50,7 +50,7 @@ let parse input_raw =
 (* Process include statements. Input is ast, and output is a new ast *)
 let process_headers ast:(A.program) =
 	let (includes,_,_,_) = ast in
-	let gen_header_code (incl,globals, current_func_list, structs) str = 
+	let gen_header_code (incl,globals, current_func_list, structs) (_, str) = 
 		let file = library_path ^ str in
 		let ic = open_in file in
 		let (_,_,funcs,_) = parse ic in

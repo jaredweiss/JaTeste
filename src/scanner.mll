@@ -20,7 +20,7 @@ rule token = parse
 	| '#'			{ POUND }
 	
 	(*Header files *)
-	| "include"		{ INCLUDE }
+	| "include_jtlib"		{ INCLUDE }
 		
 	(* Operators *)
 	| "+"			{ PLUS }
@@ -73,6 +73,7 @@ rule token = parse
 	| "using"		{ USING }
 
 	| ['a' - 'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm)}
+	| ['a' - 'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* ".jt" as lxm { INCLUDE_FILE(lxm) }
 	| int as lxm   		{ INT_LITERAL(int_of_string lxm)}
 	| double as lxm 	{ DOUBLE_LITERAL(lxm) }
 	| char as lxm 		{ CHAR_LITERAL(String.get lxm 1) }

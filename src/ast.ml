@@ -4,7 +4,9 @@ type prim = Int | Double | String | Char | Void | Bool
 type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim * int | Any
 type bind = typ * string
 
-type header = string
+type dir_location = Curr | Standard
+
+type header = dir_location * string
 
 type expr =
     Lit     of int
@@ -60,4 +62,4 @@ type struct_decl = {
 }
 
 (* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
-type program = string list * bind list * func_decl list * struct_decl list
+type program = header list * bind list * func_decl list * struct_decl list
