@@ -1,0 +1,28 @@
+func int main()
+{
+	int a;
+	int b;
+	int c;
+
+	c = gcd(15,27);
+
+	if (c == 3) {
+		print("passed");
+	}
+
+	return 0;
+
+}
+
+func int gcd(int a, int b)
+{
+	while (a != b) {
+		if (a > b) {
+			a = a - b;
+		}
+		else { 
+			b = b - a; 
+		}
+	}
+	return a;
+}
