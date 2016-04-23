@@ -2,7 +2,8 @@ open Printf
 module A = Ast
 module S = Sast
 
-let library_path = "/home/plt/JaTeste/lib/"
+let standard_library_path = "/home/plt/JaTeste/lib/"
+let current_dir_path = "./"
 
 type action = Scan | Parse |  Ast | Sast | Compile | Compile_with_test
 
@@ -50,8 +51,9 @@ let parse input_raw =
 (* Process include statements. Input is ast, and output is a new ast *)
 let process_headers ast:(A.program) =
 	let (includes,_,_,_) = ast in
-	let gen_header_code (incl,globals, current_func_list, structs) (_, str) = 
-		let file = library_path ^ str in
+	let gen_header_code (incl,globals, current_func_list, structs) (path, str) = 
+		let tmp_path = (match path with A.Curr -> current_dir_path | A.Standard -> standard_library_path) in
+		let file = tmp_path ^ str in
 		let ic = open_in file in
 		let (_,_,funcs,_) = parse ic in
 		let new_ast:(A.program) = (incl, globals, current_func_list @ funcs, structs) in
