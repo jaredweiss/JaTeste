@@ -130,13 +130,13 @@ any_typ_not_void:
 Rules for function syntax
 */
 fdecl:
-	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE {{
+	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
 		$9; tests = None }}
-	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl {{
+	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
 		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }})  }}
-	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl {{
+	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
 		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
 
@@ -193,6 +193,9 @@ sdecl:
 	STRUCT ID LBRACE vdecl_list RBRACE SEMI {{
 		sname = $2; attributes = List.rev $4 }}
 
+
+func_body: 
+	stmt_list 	{[Block(List.rev $1)]}
 
 stmt_list:
 	  /* nothing */ { [] }
