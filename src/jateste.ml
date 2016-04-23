@@ -18,6 +18,7 @@ let determine_action args =
 		  "-t" -> Compile_with_test
 		| "-l" -> Scan
 		| "-p" -> Parse
+		| "-se" ->Sast
 		| "-ast" -> Ast
 		| _ -> raise (Exceptions.IllegalArgument arg)
 		)

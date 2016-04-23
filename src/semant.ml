@@ -285,17 +285,17 @@ let check_return_expr expr env =
 (* Main entry point for checking semantics of statements *)
 let rec check_stmt stmt env = 
 	match stmt with
-(*
 	  A.Block(l) -> (let rec check_block b env2=
-			match b with
-			  [A.Return _ as s] -> check_stmt s env2
+			(match b with
+			  [A.Return _ as s] -> let tmp_block = check_stmt s env2 in ([tmp_block]) 
 			| A.Return _ :: _ -> raise (Exceptions.InvalidReturnType "Can't have any code after return statement")
 			| A.Block l :: ss -> check_block (l @ ss) env2
-			| l :: ss -> S.SBlock((check_stmt l env2)):: (check_block ss env)
-			| l :: [] -> check_stmt l env
+			| l :: ss -> let tmp_block = (check_stmt l env2) in let tmp_block2 = (check_block ss env2) in ([tmp_block] @ tmp_block2)
+			| [] -> ([]))
 			in
-			check_block l env) *)
-	| A.Block(b) -> S.SBlock (List.map (fun n -> check_stmt n env) b)
+			let checked_block = check_block l env in S.SBlock(checked_block)
+			) 
+	(*| A.Block(b) -> S.SBlock (List.map (fun n -> check_stmt n env) b) *)
 	| A.Expr(e) -> ignore(check_expr e env); S.SExpr(expr_sast e env)
 	| A.If(e1,s1,s2) ->ignore(check_is_bool e1 env); S.SIf (expr_sast e1 env, check_stmt s1 env, check_stmt s2 env)
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
