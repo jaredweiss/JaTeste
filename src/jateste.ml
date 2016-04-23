@@ -55,7 +55,8 @@ let process_headers ast:(A.program) =
 	let gen_header_code (incl,globals, current_func_list, structs) (path, str) = 
 		let tmp_path = (match path with A.Curr -> current_dir_path | A.Standard -> standard_library_path) in
 		let file = tmp_path ^ str in
-		let ic = open_in file in
+		let ic = 
+		try open_in file with _ -> raise (Exceptions.InvalidHeaderFile file) in
 		let (_,_,funcs,_) = parse ic in
 		let new_ast:(A.program) = (incl, globals, current_func_list @ funcs, structs) in
 		new_ast 	
