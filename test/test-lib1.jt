@@ -1,4 +1,4 @@
-#include "math.jt"
+#include_jtlib <math.jt>
 
 func int main()
 {

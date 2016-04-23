@@ -22,6 +22,7 @@
 %token <char> CHAR_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
+%token <string> INCLUDE_FILE
 %token EOF
 
 /* 
@@ -68,7 +69,8 @@ includes:
 	| includes include_file { $2 :: $1 }
 
 include_file:
-	POUND INCLUDE STRING_LITERAL { ($3) } 
+	  POUND INCLUDE STRING_LITERAL { (Curr, $3) } 
+	| POUND INCLUDE LT INCLUDE_FILE GT       { (Standard,$4) }
 
 var_decls: 			  
 	/* nothing */ { [] }
