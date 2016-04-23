@@ -1,0 +1,6 @@
+func int main()
+{
+	int a;
+	char b;
+	a = b;
+}

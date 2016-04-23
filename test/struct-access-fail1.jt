@@ -1,0 +1,16 @@
+func int main()
+{
+	struct car *toyota;
+	
+	toyota = new struct car;
+
+	toyota->priice;	
+
+	return 0;
+}
+
+struct car {
+	int price;
+	int year;
+	int weight;
+};
