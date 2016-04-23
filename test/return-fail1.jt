@@ -5,16 +5,14 @@ func int main()
 	int c;
 	int d;
 
-	{
-		a = 1;
-		b = 2;
-		c = 3;
+	a = 1;
+	b = 2;
+	c = 3;
 
-		d = do_something(a,b,c);
+	d = do_something(a,b,c);
 
-		return 0;
-		d = 10;
-	}
+	return 0;
+	d = 10;
 }
 
 func int do_something(int x, int y, int z)
