@@ -177,7 +177,7 @@ let rec expr_sast expr env =
 	| A.Id s -> S.SId (s)
 	| A.Struct_create s -> S.SStruct_create s
 	| A.Free e -> let st = (string_identifier_of_expr e) in S.SFree(st)
-	| A.Struct_access (e1, e2) -> S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2)
+	| A.Struct_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
 	| A.Pt_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
 	| A.Array_access (e, i) -> S.SArray_access (string_identifier_of_expr e, i)

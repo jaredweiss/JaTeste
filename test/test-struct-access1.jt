@@ -1,0 +1,23 @@
+func int main()
+{
+	struct house my_house;
+	int a;
+	int b;
+	int c;
+	
+	a = 99;	
+	my_house.price = a;
+	c = my_house.price;
+	my_house.age = 10;
+	b = my_house.age;
+
+	print(c);
+	print(b);
+	
+	return 0;
+}
+
+struct house {
+	int price;
+	int age;
+};

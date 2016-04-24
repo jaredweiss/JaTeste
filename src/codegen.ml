@@ -188,6 +188,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SString_lit (_) -> raise Exceptions.InvalidLhsOfExpr
 	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
  	| S.SUnop(_,e) -> addr_of_expr e builder
+	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in let deref = L.build_struct_gep tmp_value index "tmp" builder in deref
 	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
 	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
@@ -232,7 +233,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId (s) -> L.build_load (find_var s) s builder
 	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) "tmp" builder
-	| S.SStruct_access(_,_) -> L.const_int i32_t 0
+	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in let deref = L.build_struct_gep tmp_value index "tmp" builder in let loaded_value = L.build_load deref "dd" builder in loaded_value
 	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in let tmp_value = L.build_load deref "dd" builder in tmp_value
 	| S.SArray_create(_,_) -> L.const_int i32_t 0
 	| S.SArray_access(ar,index) -> let tmp_value = find_var ar in let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in let final_value = L.build_load deref "arrayvalue" builder in final_value
