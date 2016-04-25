@@ -236,6 +236,7 @@ let rec check_expr expr env =
 		| A.Primitive(A.Bool) -> 		
 			(match op with
 			| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Bool)) -> e1'
+			| A.Equal | A.Neq when e1' = e2' -> A.Primitive(A.Bool)
 			| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
