@@ -2,11 +2,11 @@
 
 (* Regex shorthands *)
 let digit = ['0' - '9']
-let int = digit+
-let double = int | digit*['.']digit+ | digit+['.']digit*
-let char = '''['a' - 'z' 'A' - 'Z']'''
+let my_int = digit+
+let double = (digit+) ['.'] digit+
+let my_char = '''['a' - 'z' 'A' - 'Z']'''
 let newline = '\n'
-let string = '"' (['a' - 'z'] | [' '] | ['A' - 'Z'] | ['_'] | '!' | ',' )+ '"'
+let my_string = '"' (['a' - 'z'] | [' '] | ['A' - 'Z'] | ['_'] | '!' | ',' )+ '"'
 
 rule token = parse
 	   [' ' '\t' '\r' '\n' ] { token lexbuf } (* White space *)
@@ -74,9 +74,9 @@ rule token = parse
 
 	| ['a' - 'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm)}
 	| ['a' - 'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* ".jt" as lxm { INCLUDE_FILE(lxm) }
-	| int as lxm   		{ INT_LITERAL(int_of_string lxm)}
-	| double as lxm 	{ DOUBLE_LITERAL(lxm) }
-	| char as lxm 		{ CHAR_LITERAL(String.get lxm 1) }
+	| my_int as lxm   		{ INT_LITERAL(int_of_string lxm)}
+	| double as lxm 		{ DOUBLE_LITERAL((float_of_string lxm)) }
+	| my_char as lxm 		{ CHAR_LITERAL(String.get lxm 1) }
 	| '"' {let buffer = Buffer.create 1 in STRING_LITERAL(string_find buffer lexbuf) }
 
 	| eof { EOF }

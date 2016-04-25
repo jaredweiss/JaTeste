@@ -5,6 +5,8 @@ type var_info = (string * typ)
 type sexpr =
     SLit     of int
   | SString_lit of string
+  | SChar_lit of char
+  | SDouble_lit of float
   | SBinop   of sexpr * op * sexpr
   | SUnop    of uop * sexpr
   | SAssign  of sexpr * sexpr

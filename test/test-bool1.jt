@@ -1,0 +1,19 @@
+func int main()
+{
+	bool my_bool;
+	bool my_bool2;	
+
+	my_bool = true;
+	my_bool2 = false;
+
+	if (my_bool || my_bool2) {
+		print("or passed");
+	}
+
+	if (my_bool && my_bool2) {
+	} else {
+		print("and passed");
+	}
+
+	return 0;
+}

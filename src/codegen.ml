@@ -3,6 +3,7 @@
 module L = Llvm
 module A = Ast
 module S = Sast
+module C = Char
 module StringMap = Map.Make(String)
 
 let context = L.global_context () 
@@ -49,6 +50,7 @@ let prim_ltype_of_typ = function
 	| A.String -> str_t
 	| A.Bool -> i1_t
 
+
 let rec ltype_of_typ = function
 	| A.Primitive(s) -> prim_ltype_of_typ s
 	| A.Struct_typ(s) ->  find_struct_name s
@@ -78,7 +80,7 @@ let array_of_zeros i l =
 let default_value_for_prim_type t = 
 	match t with 
 		  A.Int -> L.const_int (prim_ltype_of_typ t) 0
-		| A.Double ->L.const_int (prim_ltype_of_typ t) 0
+		| A.Double ->L.const_float (prim_ltype_of_typ t) 0.0
 		| A.String ->L.const_string context "" 
 		| A.Char ->L.const_int (prim_ltype_of_typ t) 0
 		| A.Void ->L.const_int (prim_ltype_of_typ t) 0
@@ -90,7 +92,7 @@ let define_global_with_value (t, n) =
 		  A.Primitive(p) -> 
 			(match p with
 			  A.Int -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
-			| A.Double -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
+			| A.Double -> let init = L.const_float (ltype_of_typ t) 0.0 in (L.define_global n init main_module)
 			| A.String -> let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init main_module)		
 			| A.Void -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
 			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
@@ -170,6 +172,21 @@ let printf_func = L.declare_function "printf" printf_t the_module in
         	with Not_found -> raise (Failure ("undeclared variable " ^ n))
         in
 
+	let type_of_expr e =
+		let tmp_type = L.type_of e in
+		let tmp_string = L.string_of_lltype tmp_type in
+		match tmp_string  with 
+	  	  "i32*" -> A.Primitive(A.Int)
+	  	| "i32" -> A.Primitive(A.Int)
+	  	| "i8" -> A.Primitive(A.Char)
+	  	| "i8*" -> A.Primitive(A.Char)
+	  	| "i1" -> A.Primitive(A.Bool)
+	  	| "i1*" -> A.Primitive(A.Bool)
+		| "double"  -> A.Primitive(A.Double) 
+		| "double*"  -> A.Primitive(A.Double) 
+		| _ -> raise (Exceptions.BugCatch ("type_of_expr"))
+		in
+
 	(* Format to print given arguments in print(...) *)
 	let print_format e =
 		(match e with 
@@ -184,8 +201,9 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	let rec addr_of_expr i builder= 
 	match i with
 	  S.SLit(_) -> raise Exceptions.InvalidLhsOfExpr
- 	| S.SId(s) -> find_var s
 	| S.SString_lit (_) -> raise Exceptions.InvalidLhsOfExpr
+	| S.SChar_lit (_) -> raise Exceptions.InvalidLhsOfExpr
+ 	| S.SId(s) -> find_var s
 	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
  	| S.SUnop(_,e) -> addr_of_expr e builder
 	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in let deref = L.build_struct_gep tmp_value index "tmp" builder in deref
@@ -205,23 +223,47 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	let rec expr builder = function 
 	  S.SLit l -> L.const_int i32_t l
 	| S.SString_lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
+	| S.SChar_lit c -> L.const_int i8_t (C.code c)
+	| S.SDouble_lit d -> L.const_float d_t d
 	| S.SBinop (e1, op, e2) -> 
 		let e1' = expr builder e1 
-		and e2' = expr builder e2 in
-		(match op with 
-		  A.Add -> L.build_add
+		and e2' = expr builder e2 in let tmp_type =  type_of_expr e1' in 
+		(match tmp_type with 
+		  A.Primitive(A.Int) | A.Primitive(A.Char) -> (match op with 
+		  A.Add -> L.build_add 
 		| A.Sub -> L.build_sub
 		| A.Mult -> L.build_mul
-		| A.And -> L.build_and
-		| A.Or -> L.build_or
 		| A.Equal -> L.build_icmp L.Icmp.Eq
 		| A.Neq -> L.build_icmp L.Icmp.Ne
 		| A.Less -> L.build_icmp L.Icmp.Slt
 		| A.Leq -> L.build_icmp L.Icmp.Sle
 		| A.Greater -> L.build_icmp L.Icmp.Sgt
 		| A.Geq -> L.build_icmp L.Icmp.Sge
-		| _ -> L.build_add
-		) e1' e2' "tmp" builder	
+		| _ -> raise (Exceptions.BugCatch "Binop")		
+		)
+		| A.Primitive(A.Double) -> 
+		(match op with 
+		  A.Add -> L.build_fadd 
+		| A.Sub -> L.build_fsub
+		| A.Mult -> L.build_fmul
+		| A.Equal -> L.build_fcmp L.Fcmp.Oeq
+		| A.Neq -> L.build_fcmp L.Fcmp.One
+		| A.Less -> L.build_fcmp L.Fcmp.Olt
+		| A.Leq -> L.build_fcmp L.Fcmp.Ole
+		| A.Greater -> L.build_fcmp L.Fcmp.Ogt
+		| A.Geq -> L.build_fcmp L.Fcmp.Oge
+		| _ -> raise (Exceptions.BugCatch "Binop")
+		) 
+		| A.Primitive(A.Bool) -> 
+		(
+		match op with 
+		  A.And -> L.build_and
+		| A.Or -> L.build_or
+		| A.Equal -> L.build_icmp L.Icmp.Eq
+		| _ -> raise (Exceptions.BugCatch "Binop")
+		) 		 
+		| _ -> raise (Exceptions.BugCatch "Binop")) 		 
+		e1' e2' "add" builder	
 
 	| S.SUnop(u,e) -> 
 			(match u with

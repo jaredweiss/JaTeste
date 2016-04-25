@@ -170,6 +170,8 @@ let rec expr_sast expr env =
 	match expr with
 	  A.Lit a -> S.SLit a
 	| A.String_lit s -> S.SString_lit s	
+	| A.Char_lit c -> S.SChar_lit c
+	| A.Double_lit d -> S.SDouble_lit d
 	| A.Binop (e1, op, e2) -> S.SBinop (expr_sast e1 env, op, expr_sast e2 env)
 	| A.Unop (u, e) -> S.SUnop(u, expr_sast e env)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s env, expr_sast e env)
@@ -220,12 +222,14 @@ let rec check_expr expr env =
 	match expr with
 	  A.Lit(_) -> A.Primitive(A.Int)
 	| A.String_lit(_) -> A.Primitive(A.String)
+	| A.Char_lit(_) -> A.Primitive(A.Char)
+	| A.Double_lit(_) -> A.Primitive(A.Double)
 	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
 		(match op with
 		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
 		| A.Equal | A.Neq when e1' = e2' -> ignore("got equal");A.Primitive(A.Int)
 		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
-		| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Bool)) -> e1'
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in
@@ -272,7 +276,7 @@ let rec check_expr expr env =
 let check_is_bool expr env = 
 	ignore(check_expr expr env);
 	match expr with
-	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) -> ()
+	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) | A.Binop(_,A.And,_) | A.Binop(_,A.Or,_) -> ()
 
 	| _ ->  raise (Exceptions.InvalidBooleanExpression)
 
