@@ -229,7 +229,7 @@ let rec check_expr expr env =
 		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
 		| A.Equal | A.Neq when e1' = e2' -> ignore("got equal");A.Primitive(A.Int)
 		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
-		| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Bool)) -> e1'
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in
@@ -276,7 +276,7 @@ let rec check_expr expr env =
 let check_is_bool expr env = 
 	ignore(check_expr expr env);
 	match expr with
-	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) -> ()
+	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) | A.Binop(_,A.And,_) | A.Binop(_,A.Or,_) -> ()
 
 	| _ ->  raise (Exceptions.InvalidBooleanExpression)
 
