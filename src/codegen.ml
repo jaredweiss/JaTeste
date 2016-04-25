@@ -208,6 +208,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	  S.SLit l -> L.const_int i32_t l
 	| S.SString_lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
 	| S.SChar_lit c -> L.const_int i8_t (C.code c)
+	| S.SDouble_lit d -> L.const_float d_t d
 	| S.SBinop (e1, op, e2) -> 
 		let e1' = expr builder e1 
 		and e2' = expr builder e2 in

@@ -18,7 +18,7 @@
    Tokens with associated values 
 */
 %token <int> INT_LITERAL
-%token <string> DOUBLE_LITERAL
+%token <float> DOUBLE_LITERAL
 %token <char> CHAR_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
@@ -222,6 +222,7 @@ expr:
 	  INT_LITERAL 		{ Lit($1)}
 	| STRING_LITERAL	{ String_lit($1) }  
 	| CHAR_LITERAL 		{ Char_lit($1) }
+	| DOUBLE_LITERAL        { Double_lit($1) }
 	| TRUE			{ BoolLit(true) }
 	| FALSE			{ BoolLit(false) }
 	| ID 			{ Id($1) }

@@ -12,6 +12,7 @@ type expr =
     Lit     of int
   | String_lit of string
   | Char_lit of char
+  | Double_lit of float
   | Binop   of expr * op * expr
   | Unop    of uop * expr
   | Assign  of expr * expr
