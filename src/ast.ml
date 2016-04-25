@@ -11,6 +11,7 @@ type header = dir_location * string
 type expr =
     Lit     of int
   | String_lit of string
+  | Char_lit of char
   | Binop   of expr * op * expr
   | Unop    of uop * expr
   | Assign  of expr * expr

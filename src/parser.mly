@@ -221,6 +221,7 @@ Rule for building expressions
 expr:
 	  INT_LITERAL 		{ Lit($1)}
 	| STRING_LITERAL	{ String_lit($1) }  
+	| CHAR_LITERAL 		{ Char_lit($1) }
 	| TRUE			{ BoolLit(true) }
 	| FALSE			{ BoolLit(false) }
 	| ID 			{ Id($1) }

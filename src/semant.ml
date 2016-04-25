@@ -170,6 +170,7 @@ let rec expr_sast expr env =
 	match expr with
 	  A.Lit a -> S.SLit a
 	| A.String_lit s -> S.SString_lit s	
+	| A.Char_lit c -> S.SChar_lit c
 	| A.Binop (e1, op, e2) -> S.SBinop (expr_sast e1 env, op, expr_sast e2 env)
 	| A.Unop (u, e) -> S.SUnop(u, expr_sast e env)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s env, expr_sast e env)
@@ -220,6 +221,7 @@ let rec check_expr expr env =
 	match expr with
 	  A.Lit(_) -> A.Primitive(A.Int)
 	| A.String_lit(_) -> A.Primitive(A.String)
+	| A.Char_lit(_) -> A.Primitive(A.Char)
 	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
 		(match op with
 		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'

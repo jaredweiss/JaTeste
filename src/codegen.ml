@@ -3,6 +3,7 @@
 module L = Llvm
 module A = Ast
 module S = Sast
+module C = Char
 module StringMap = Map.Make(String)
 
 let context = L.global_context () 
@@ -184,8 +185,9 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	let rec addr_of_expr i builder= 
 	match i with
 	  S.SLit(_) -> raise Exceptions.InvalidLhsOfExpr
- 	| S.SId(s) -> find_var s
 	| S.SString_lit (_) -> raise Exceptions.InvalidLhsOfExpr
+	| S.SChar_lit (_) -> raise Exceptions.InvalidLhsOfExpr
+ 	| S.SId(s) -> find_var s
 	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
  	| S.SUnop(_,e) -> addr_of_expr e builder
 	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in let deref = L.build_struct_gep tmp_value index "tmp" builder in deref
@@ -205,6 +207,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	let rec expr builder = function 
 	  S.SLit l -> L.const_int i32_t l
 	| S.SString_lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
+	| S.SChar_lit c -> L.const_int i8_t (C.code c)
 	| S.SBinop (e1, op, e2) -> 
 		let e1' = expr builder e1 
 		and e2' = expr builder e2 in
@@ -221,7 +224,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Greater -> L.build_icmp L.Icmp.Sgt
 		| A.Geq -> L.build_icmp L.Icmp.Sge
 		| _ -> L.build_add
-		) e1' e2' "tmp" builder	
+		) e1' e2' "add" builder	
 
 	| S.SUnop(u,e) -> 
 			(match u with
