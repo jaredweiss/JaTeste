@@ -50,6 +50,7 @@ let prim_ltype_of_typ = function
 	| A.String -> str_t
 	| A.Bool -> i1_t
 
+
 let rec ltype_of_typ = function
 	| A.Primitive(s) -> prim_ltype_of_typ s
 	| A.Struct_typ(s) ->  find_struct_name s
@@ -79,7 +80,7 @@ let array_of_zeros i l =
 let default_value_for_prim_type t = 
 	match t with 
 		  A.Int -> L.const_int (prim_ltype_of_typ t) 0
-		| A.Double ->L.const_int (prim_ltype_of_typ t) 0
+		| A.Double ->L.const_float (prim_ltype_of_typ t) 0.0
 		| A.String ->L.const_string context "" 
 		| A.Char ->L.const_int (prim_ltype_of_typ t) 0
 		| A.Void ->L.const_int (prim_ltype_of_typ t) 0
@@ -91,7 +92,7 @@ let define_global_with_value (t, n) =
 		  A.Primitive(p) -> 
 			(match p with
 			  A.Int -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
-			| A.Double -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
+			| A.Double -> let init = L.const_float (ltype_of_typ t) 0.0 in (L.define_global n init main_module)
 			| A.String -> let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init main_module)		
 			| A.Void -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
 			| A.Char -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
@@ -171,6 +172,14 @@ let printf_func = L.declare_function "printf" printf_t the_module in
         	with Not_found -> raise (Failure ("undeclared variable " ^ n))
         in
 
+	let type_of_expr e =
+		match e with 
+	  	  S.SLit(_) -> A.Primitive(A.Int)
+		| S.SString_lit(_) -> A.Primitive(A.String) 
+		| S.SId(i) -> let tmp = find_var i in let tmp_type = L.type_of tmp in let ty = (match L.string_of_lltype(tmp_type) with "i32*" -> A.Primitive(A.Int) | "double*" -> A.Primitive(A.Double) | _ -> raise (Exceptions.BugCatch ("type_of_expr 2"))) in ty
+		| _ -> raise (Exceptions.BugCatch ("type_of_expr"))
+		in
+
 	(* Format to print given arguments in print(...) *)
 	let print_format e =
 		(match e with 
@@ -211,9 +220,9 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SDouble_lit d -> L.const_float d_t d
 	| S.SBinop (e1, op, e2) -> 
 		let e1' = expr builder e1 
-		and e2' = expr builder e2 in
+		and e2' = expr builder e2 in 
 		(match op with 
-		  A.Add -> L.build_add
+		  A.Add -> let tmp_type = type_of_expr e1 in (match tmp_type with A.Primitive(A.Int) -> L.build_add | A.Primitive(A.Double) -> L.build_fadd | _ -> raise (Exceptions.BugCatch "Binop"))
 		| A.Sub -> L.build_sub
 		| A.Mult -> L.build_mul
 		| A.And -> L.build_and
