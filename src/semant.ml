@@ -225,13 +225,21 @@ let rec check_expr expr env =
 	| A.Char_lit(_) -> A.Primitive(A.Char)
 	| A.Double_lit(_) -> A.Primitive(A.Double)
 	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
+		(match e1' with 
+		  A.Primitive(A.Int) | A.Primitive(A.Double) | A.Primitive(A.Char)  -> 
 		(match op with
 		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
 		| A.Equal | A.Neq when e1' = e2' -> ignore("got equal");A.Primitive(A.Int)
 		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
-		| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Bool)) -> e1'
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
+		| A.Primitive(A.Bool) -> 		
+			(match op with
+			| A.And | A.Or when e1' = e2' && (e1' = A.Primitive(A.Bool)) -> e1'
+			| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
+		) 
+		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
+		) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in
 			(match uop with
 				  A.Not -> expr_type 
@@ -301,7 +309,7 @@ let rec check_stmt stmt env =
 			) 
 	(*| A.Block(b) -> S.SBlock (List.map (fun n -> check_stmt n env) b) *)
 	| A.Expr(e) -> ignore(check_expr e env); S.SExpr(expr_sast e env)
-	| A.If(e1,s1,s2) ->ignore(check_is_bool e1 env); S.SIf (expr_sast e1 env, check_stmt s1 env, check_stmt s2 env)
+	| A.If(e1,s1,s2) ->ignore(check_expr e1 env); ignore(check_is_bool e1 env); S.SIf (expr_sast e1 env, check_stmt s1 env, check_stmt s2 env)
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s); S.SFor(expr_sast e1 env, expr_sast e2 env, expr_sast e3 env, check_stmt s env) 
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
