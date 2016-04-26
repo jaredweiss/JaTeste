@@ -150,15 +150,6 @@ let struct_contains_field s field env =
 
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
 
-(*
-(* Checks the relevant struct pointer actually a given field *)
-let struct_pt_contains_field s field env = 
-		let struct_var = find_var env.scope s in 
-		match struct_var with 
-		  A.Pointer_typ(A.Struct_typ(struc_name)) ->
-		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
-		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
-		| _ -> raise (Exceptions.InvalidStruct s) *)
 
 (* Checks that struct contains expr *)
 let struct_contains_expr stru expr env = 
@@ -315,7 +306,10 @@ let rec check_stmt stmt env =
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s); S.SFor(expr_sast e1 env, expr_sast e2 env, expr_sast e3 env, check_stmt s env) 
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
-	| A.Assert(e) -> ignore(check_is_bool e env); let curr_name = (match env.func_name with Some(n) -> n | None -> "" ) in let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " passed")])) in let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
+	| A.Assert(e) -> ignore(check_is_bool e env); let curr_name = 
+		(match env.func_name with 
+		  Some(n) -> n 
+		| None -> "" ) in let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " passed")])) in let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
 (* Converts 'using' code from ast to sast *)
 let with_using_sast r env = 
@@ -406,7 +400,7 @@ let check_includes includes =
 	
 
 (******************************************************************)
-(* Entry point for semantic checking AST. Output should be a SAST *)
+(* Entry point for semantic checking AST. Output is SAST *)
 (******************************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false} in
