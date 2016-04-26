@@ -1,0 +1,48 @@
+func struct node* initialize()
+{
+	struct node *header;
+	header = new struct node;
+	header->num = 0;
+	header->next = null(struct node*);
+	return header;
+}
+
+func void insert(struct node* header, int i)
+{
+	struct node *tmp;
+	struct node *prev;
+	struct node *new_node;
+	tmp = header;
+	while (tmp != null(struct node*)) {
+		prev = tmp;
+		tmp = tmp->next;
+	}
+
+	new_node = new struct node;
+	new_node->num = i;
+	new_node->next = null(struct node*);
+	prev->next = new_node;
+}
+
+func void free_list(struct node *header)
+{
+
+}
+
+func void print_list(struct node *header)
+{
+	struct node *tmp;
+	int i;
+	tmp = header;
+	while (tmp != null(struct node*)) {
+		i = tmp->num;	
+		print(i);	
+		tmp = tmp->next;
+	}
+}
+
+
+struct node {
+	int num;
+	struct node *next;
+};
