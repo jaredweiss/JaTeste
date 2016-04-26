@@ -20,6 +20,7 @@ exception InvalidStructField
 exception InvalidFree of string
 exception InvalidPointerDereference
 exception NotBoolExpr
+exception InvalidArrayAccess
 
 (* Print exceptions *)
 exception InvalidPrintCall

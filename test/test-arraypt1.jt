@@ -1,0 +1,24 @@
+func int main()
+{
+	int[10] *arr;
+	int a;
+	int b;
+	int c;
+
+	arr = new int[10];
+
+	arr[8] = 9;
+	arr[3] = 7;
+
+	c = arr[3];
+	b = arr[8];
+
+	if (c == 7) {
+		print("passed");
+		if (b == 9) {
+			print("passed");
+		}
+	}
+
+	return 0;
+}
