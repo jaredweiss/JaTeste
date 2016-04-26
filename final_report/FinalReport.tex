@@ -1,0 +1,916 @@
+\documentclass{article} 
+\usepackage{url, graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{textcomp}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{titling}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+\usepackage{listings} % for code highlighting/formatting
+
+\usepackage{color} %defining colors for syntax highlighting
+\definecolor{syntaxBlue}{RGB}{42,0.0,255}
+\definecolor{syntaxGreen}{RGB}{63,127,95}
+\definecolor{syntaxPurple}{RGB}{127,0,85}
+\definecolor{syntaxCyan}{RGB}{0,155,155}
+\definecolor{syntaxGreyBg}{RGB}{220,220,220}
+
+\lstdefinelanguage{JaTeste} %define the code highlighting/formatting
+{
+	% list of keywords
+	morekeywords={
+		func,
+		with,
+		test,
+		if,
+		else,
+		while,
+		for,
+		return,
+		using,
+		import
+	},
+	sensitive=true, % keywords ARE case-sensitive
+	morecomment=[s]{/*}{*/}, % /* and */ delimit comments
+	morestring=[b]" % string's MUST be in double quotes
+}
+\lstset{
+	language={JaTeste}, % tell listings package to use the JaTeste language spec
+	basicstyle=\small\ttfamily, % Global Code Style
+	tabsize=2, % number of spaces indented when discovering a tab 
+	columns=fixed, % make all characters equal width
+	keepspaces=true, % does not ignore spaces to fit width, convert tabs to spaces
+	showstringspaces=false, % lets spaces in strings appear as real spaces
+	breaklines=true, % wrap lines if they don't fit
+	frame=trbl, % draw a frame at the top, right, left and bottom of the listing
+	frameround=tttt, % make the frame round at all four corners
+	framesep=4pt, % quarter circle size of the round corners
+	numbers=left, % show line numbers at the left
+	numberstyle=\tiny\ttfamily, % style of the line numbers
+	commentstyle=\color{syntaxGreen},
+	keywordstyle=\color{syntaxPurple},
+	stringstyle=\color{syntaxBlue},
+	emph={int,char,double,struct,string},
+	emphstyle=\color{syntaxCyan},
+	backgroundcolor=\color{syntaxGreyBg},
+}
+
+\title{PLT 4115 Final Report: \textbf{JaTest\'{e}}}
+\author{
+	Andrew Grant\\
+	\texttt{amg2215@columbia.edu}
+	\and
+	Jemma Losh\\
+	\texttt{jal2285@columbia.edu}
+	\and
+	Jared Weiss\\
+	\texttt{jbw2140@columbia.edu}
+	\and
+	Jake Weissman\\
+	\texttt{jdw2159@columbia.edu}
+}
+
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\subsection{Motivation}
+The goal of JaTest\'{e} is to design a language that promotes good coding practices - mainly as it relates to testing.  JaTest\'{e} will require the user to explicitly define test cases for any function that is written in order to compile and execute code.  This will ensure that no code goes untested and will increase the overall quality of programmer code written in our language. By directly embedding test cases into source code, we remove the hassle associated with manually creating new test files. 
+
+\subsection {Language Description}
+JaTest\'{e} is mostly a functional language with a syntax quite similar to C.  The details of our language usage is provided in the rest of the document.
+
+\subsection{Simple Example}
+
+\subsection{Running the JaTeste Compiler}
+The JaTest\'{e} compiler will generate a test file based on the input program. At compile time, two files will be generated: (1) an executable file, and (2) an executable test file with all the relevant test cases. This allows the user to continue with his or her normal work flow and minimize interference from the compiler, while at the same time providing a robust test file to fully test one's program. 
+
+\section*{Language Reference Manual}
+
+\section{Lexical Conventions}
+This chapter will describe how input code will be processed and how tokens will be generated.
+
+\subsection{Identifiers}
+% Specs on how to name variables, functions, data types, etc.
+Identifiers are used to name a variable, a function, or other types of data.  An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters. The set of keyword, listed below, cannot be used as identifiers. 
+
+\begin{Verbatim}[frame=single]
+ID = "(['a'-'z' 'A'-'Z'] | '_') (['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_')*"
+\end{Verbatim}
+
+
+\subsection{Keywords}
+% Just a list of reserved keywords
+Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
+
+\texttt{int, char, double, struct, if, else, for, while, with test, using, func, return, string, int*, char*, struct*, double*, new, int[], char[], double[]}
+
+\subsection{Constants}
+% How to define constants such as x = 5
+Our language includes integer, character, real number, and string constants. They're defined in the following sections.
+
+\subsubsection{Integer Constants}
+% We should specify all ways you can define an integer
+Integer constants are a sequence of digits. An integer is taken to be decimal. The regular expression for an integer is as follows:
+
+\begin{Verbatim}[frame=single]
+digit = ['0' - '9']
+int = digit+
+\end{Verbatim}
+
+\subsubsection{Double Constants}
+% Do we want to allow for only ints?  If yes, delete this section
+Real number constants represent a floating point number. They are composed of a sequence of digits, representing the whole number portion, followed by a decimal and another sequence of digits, representing the fractional part. Here are some examples. The whole part or the fractional part may be omitted, but not both.  The regular expression for a double is as follows:
+
+\begin{Verbatim}[frame=single]
+double = int | digit*['.']digit+ | digit+['.']digit*
+\end{Verbatim}
+
+\subsubsection{Character Constants}
+% Same for character
+Character constants hold a single character and are enclosed in single quotes. They are stored in a variable of type char. Character constants that are preceded with a backslash have special meaning. The regex for a character is as follows:
+
+\begin{Verbatim}[frame=single]
+char = ['a' - 'z' 'A' - 'z']
+\end{Verbatim}
+
+\subsubsection{String Constants}
+% How to define a string constant
+Strings are a sequence of characters enclosed by double quotes. A String is treated like a character array. The regex for a string is as follows:
+
+\begin{Verbatim}[frame=single]
+string = char*
+\end{Verbatim}
+Strings are immutable; once they have been defined, they cannot change.
+
+\subsection{Operators}
+% Just note they can be used, will be explained more later
+Operators are special tokens such as multiply, equals, etc. that are applied to one or two operands.  Their use will be explained further in chapter 4.
+
+\subsection{White Space}
+Whitespace is considered to be a space, tab, or newline. It is used for token delimitation, but has no meaning otherwise. That is, when compiled, white space is thrown away.
+
+\begin{Verbatim}[frame=single]
+WHITESPACE = "[' '  '\t' '\r' '\n']"
+\end{Verbatim}
+
+\subsection{Comments}
+A comment is a sequence of characters beginning with a forward slash followed by an asterisk. It continues until it is ended with an asterisk followed by a forward slash. Comments are treated as whitespace. 
+\begin{Verbatim}[frame=single]
+COMMENT = "/\* [^ \*/]* \*/ "
+\end{Verbatim}
+
+\subsection{Separators}
+Separators are used to separate tokens. Separators are single character tokens, except for whitespace which is a separator, but not a token. 
+\begin{Verbatim}[frame=single]
+'('	{ LPAREN }
+')'	{ RPAREN }
+'{'	{ LBRACE }
+'}'	{ RBRACE }
+';'	{ SEMI }
+','	{ COMMA }
+\end{Verbatim}
+
+\section{Data Types}
+The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays. 
+
+\subsection{Primitives}
+% Define primitives and values they can hold
+The primitives our language recognizes are int, double, char, and string. 
+
+\subsubsection{Integer Types}
+The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword \texttt{int} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+
+\begin{lstlisting}
+int a;
+a = 10;
+a = 21 * 2;
+\end{lstlisting}
+
+The grammar that recognizes an integer deceleration is: 
+\begin{Verbatim}[frame=single]
+typ ID
+\end{Verbatim}
+
+The grammar that recognizes an integer initialization is: 
+\begin{Verbatim}[frame=single]
+ID ASSIGN expr
+\end{Verbatim}
+
+\subsubsection{Double Types}
+The double data type is a 64 bit value.  Keyword \texttt{double} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+
+\begin{lstlisting}
+double a;
+a = 9.9;
+a = 17 / 3;
+\end{lstlisting}
+
+The grammar that recognizes a double deceleration is: 
+\begin{Verbatim}[frame=single]
+typ ID
+\end{Verbatim}
+
+The grammar that recognizes a double initialization is: 
+\begin{Verbatim}[frame=single]
+ID ASSIGN expr
+\end{Verbatim}
+
+\subsubsection{Character Type}
+The character type is an 8 bit value that is used to hold a single character. The keyword \texttt{char} is used to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+\begin{lstlisting}
+char a;
+a = 'h';
+\end{lstlisting}
+
+The grammar that recognizes a char deceleration is: 
+\begin{Verbatim}[frame=single]
+typ ID SEMI
+\end{Verbatim}
+
+The grammar that recognizes a char initialization is: 
+\begin{Verbatim}[frame=single]
+typ ID ASSIGN expr SEMI
+\end{Verbatim}
+
+\subsubsection{String Type}
+The string type is variable length and used to hold a string of chars.  The keyword \texttt{string} is used to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+\begin{lstlisting}
+string a;
+a = "hello";
+\end{lstlisting}
+
+The grammar that recognizes a char deceleration is: 
+\begin{Verbatim}[frame=single]
+typ ID SEMI
+\end{Verbatim}
+
+The grammar that recognizes a char initialization is: 
+\begin{Verbatim}[frame=single]
+typ ID ASSIGN expr SEMI
+\end{Verbatim}
+
+\subsection{Structures}
+% I.e. structs
+The structure data type is a user-defined collection of primitive types and other structure data types. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is actually made of. As an example, consider the following:
+
+\subsubsection{Defining Structures}
+
+\begin{lstlisting}
+struct person = {
+string name;
+int age;
+int height;
+};
+
+struct manager = {
+struct person name;
+int salary;
+};
+\end{lstlisting}
+Here we have defined two structs, the first being of type \texttt{struct person} and the second of type \texttt{struct manager}.  The grammar that recognizes defining a structure is as follows:
+
+\begin{Verbatim}[frame=single]
+STRUCT STRING_LITERAL ASSIGN LBRACE vdecl_list RBRACE
+\end{Verbatim}
+
+\subsubsection{Initializing Structures}
+To create a structure, the new keyword is used as follow:
+\begin{lstlisting}
+struct manager yahoo_manager = new struct manager;
+struct person sam = new struct person;
+\end{lstlisting}
+
+\begin{Verbatim}[frame=single]
+NEW STRUCT ID 
+\end{Verbatim}
+
+Here, we create two variables yahoo\_manager and sam. The first is of type ``struct manager'', and the second is of type ``struct person''.
+
+\subsubsection{Accessing Structure Members}
+
+ To access structs and modify its variables, a period following by the variable name is used:
+
+ \begin{lstlisting}
+yahoo_manager.name = sam;
+yahoo_manager.age = 45;
+yahoo_manager.salary = 65000;
+\end{lstlisting}
+ Ultimately, all structures are backed by some collection of primitives. For example, the first structure, ``struct manager'', is made up of another struct and an int. Since ``struct person'' is made up of two ints, ``struct manager'' is really just made up of three ints. Note accessing members of structs is actually just another expression and thus always returns some value.
+ 
+ 
+\begin{Verbatim}[frame=single]
+expr DOT expr 
+\end{Verbatim}
+
+
+\subsection{Arrays}
+An array is a data structure that allows for the storage of one or more elements of the same data type consecutively in memory. Each element is stored at an index, and array indices begin at 0. This section will describe how to use Arrays.
+
+\subsubsection{Defining Arrays}
+An array is declared by specifying its data type, name, and size. The size must be positive. Here is an example of declaring an integer array of size 5:
+
+ \begin{lstlisting}
+arr = new int[5];
+\end{lstlisting}
+
+\begin{Verbatim}[frame=single]
+ID ASSIGN NEW prim_typ LBRACKET INT_LITERAL RBRACKET
+\end{Verbatim}
+
+\subsubsection{Initializing Arrays}
+An array can be initialized by listing the element values separated by commas and surrounded by brackets. Here is an example:
+
+ \begin{lstlisting}
+arr = { 0, 1, 2, 3, 4 };
+\end{lstlisting}
+
+It is not required to initialize all of the elements. Elements that are not initialized will have a default value of zero.
+
+\subsubsection{Accessing Array Elements}
+To access an element in an array, use the array name followed by the element index surrounded by square brackets. Here is an example that assigns the value 1 to the first element (at index 0) in the array:
+
+ \begin{lstlisting}
+arr[0] = 1;
+\end{lstlisting}
+
+Accessing arrays is simply an expression:
+\begin{Verbatim}[frame=single]
+ expr LBRACKET INT_LITERAL RBRACKET 
+\end{Verbatim}
+
+
+JaTeste does not test for index out of bounds, so the following code would compile although it is incorrect; thus it is up to the programmer to make sure he or she does not write past the end of arrays. 
+
+ \begin{lstlisting}
+arr = new int[2];
+arr[5] = 1;
+\end{lstlisting}
+
+\section{Expressions and Operators}
+
+\subsection{Expressions}
+An expression is a collection of one or more operands and zero or more operators that can be evaluated to produce a value.  A function that returns a value can be an operand as part of an expression.  Additionally, parenthesis can be used to group smaller expressions together as part of a larger expression.  A semicolon terminates an expression.  Some examples of expressions include:
+\begin{lstlisting}
+35 - 6;
+foo(42) * 10;
+8 - (9 / (2 + 1) );
+\end{lstlisting}
+
+The grammar for expressions is: 
+\begin{Verbatim}[frame=single]
+expr:
+expr:
+	  INT_LITERAL 	
+	| ID 		
+	| expr PLUS expr
+	| expr MINUS expr
+	| expr TIMES expr 
+	| expr DIVIDE expr 	
+	| expr EQ  expr 
+	| expr EXPO  expr 
+	| expr MODULO  expr 	
+	| expr NEQ  expr 	
+	| expr LT expr 		
+	| expr LEQ  expr 
+	| expr GT expr 		
+	| expr GEQ expr 	
+	| expr AND  expr 	
+	| expr OR expr 		
+	| NOT expr		
+	| AMPERSAND expr	
+	| expr ASSIGN expr
+	| expr DOT expr 	
+	| expr LBRACKET INT_LITERAL RBRACKET 	   
+	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET
+	| NEW STRUCT ID 			
+	| ID LPAREN actual_opts_list RPAREN          
+\end{Verbatim}
+
+
+
+\subsection{Assignment Operators}
+% =, +=, -=, etc
+Assignment can be used to assign the value of an expression on the right side to a named variable on the left hand side of the equals operator.  The left hand side can either be a named variable that has already been declared or a named variable that is being declared and initialized in this assignment.  Examples include:
+\begin{lstlisting}
+int x;
+x = 5;
+float y;
+y = 9.9;
+\end{lstlisting}
+
+\begin{Verbatim}[frame=single]
+ expr ASSIGN expr 
+\end{Verbatim}
+
+All assignments are pass by value. Our language supports pointers and so pass by reference can be mimicked using addresses (explained below).
+
+\subsection{Incrementing and Decrementing}
+% ++, --, etc.
+The following operators can also be used for variations of assignment:
+
+\begin{itemize}
+\item \texttt{+=} increments the left hand side by the result of the right hand side
+\item \texttt{-=} decrements the left hand side by the result of the right hand side
+\end{itemize}
+
+ The \texttt{++} operator to used to increment and the \texttt{--} operator is used to decrement a value.  If the operator is placed before a value it will be incremented / decremented first, then it will be evaluated.  If the operator is placed following a value, it will be evaluated with its original value and then incremented / decremented.
+
+\subsection{Arithmetic Operators}
+% +, -, ...
+\begin{itemize}
+\item \texttt{+} can be used for addition
+\item \texttt{-} can be used for subtraction (on two operands) and negation (on one operand)
+\item \texttt{*} can be used for multiplication
+\item \texttt{/} can be used for division
+\item \texttt{$\wedge$} can be used for exponents
+\item \texttt{$\%$} can be used for modular division
+\item \texttt{\&} can be used to get the address of an identifier
+\end{itemize}
+
+
+
+The grammar for the above operators, in order, is as follows:
+\begin{Verbatim}[frame=single]
+	| expr PLUS expr 	
+	| expr MINUS expr 	
+	| expr TIMES expr 
+	| expr DIVIDE expr 
+	| expr EQ  expr 
+	| expr EXPO  expr 
+	| expr MODULO  expr 
+	| AMPERSAND expr
+\end{Verbatim}
+
+
+\subsection{Comparison Operators}
+% ==, >, <, etc.
+\begin{itemize}
+\item \texttt{==} can be used to evaluate equality
+\item \texttt{!=} can be used to evaluate inequality
+\item \texttt{<} can be used to evaluate is the left less than the right
+\item \texttt{<=} can be used to evaluate is the left less than or equal to the right
+\item \texttt{>} can be used to evaluate is the left greater than the right
+\item \texttt{>=} can be used to evaluate is the left greater than or equal to the right
+
+The grammar for the above operators, in order, is as follows:
+\begin{Verbatim}[frame=single]
+expr EQ    expr
+expr NEQ   expr
+expr LT    expr
+expr LEQ   expr
+expr GT    expr
+expr GEQ   expr
+\end{Verbatim}
+\end{itemize}
+
+\subsection{Logical Operators}
+% &&, ||
+\begin{itemize}
+\item \texttt{!} can be used to evaluate the negation of one expression
+\item \texttt{$\&\&$} can be used to evaluate logical and
+\item \texttt{$\vert\vert$} can be used to evaluate logical or
+\end{itemize}
+
+The grammar for the above operators, in order, is as follows:
+\begin{Verbatim}[frame=single]
+NOT  expr
+expr AND  expr
+expr OR   expr
+\end{Verbatim}
+
+\subsection{Operator Precedence}
+We adhere to standard operator precedence rules. 
+
+
+\begin{Verbatim}[frame=single]
+/* 
+   Precedence rules 
+*/
+%nonassoc NOELSE 
+%nonassoc ELSE 
+%right ASSIGN 
+%left OR
+%left AND
+%left EQ NEQ
+%left LT GT LEQ GEQ 
+%left PLUS MINUS 
+%left TIMES DIVIDE MODULO
+%right EXPO
+%right NOT NEG AMPERSAND
+%right RBRACKET
+%left LBRACKET
+%right DOT
+\end{Verbatim}
+
+\subsection{Order of Evaluation}
+% ++ vs * and such
+Order of evaluation is dependent on the operator. For example, assignment is right associative, while addition is left associative. Associativity is indicated in the table above.
+
+\section{Statements}
+Statements include: \texttt{if, while, for, return}, as well all expressions, as explained in the following sections. That is, statements include all expressions, as well as snippets of code that are used solely for their side effects.
+
+\begin{Verbatim}[frame=single]
+stmt:
+	    expr SEMI 					
+	  | LBRACE stmt_list RBRACE				
+	  | RETURN SEMI					
+	  | RETURN expr SEMI				 
+	  | IF LPAREN expr RPAREN stmt ELSE stmt 	     
+	  | IF LPAREN expr RPAREN stmt \%prec NOELSE 	     
+	  | WHILE LPAREN expr RPAREN stmt 		   
+  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt 
+
+\end{Verbatim}
+
+\subsection{If Statement}
+% explain if, else if, else
+The if, else if, else construct will work as expected in other languages. Else clauses match with the closest corresponding if clause. Thus, their is no ambiguity when it comes to which if-else clauses match.
+
+\begin{lstlisting}
+if (x == 42) {
+	print("Gotcha");
+}
+else if (x > 42) {
+	print("Sorry, too big");
+}
+else {
+	print("I\'ll allow it");
+}
+\end{lstlisting}
+
+The grammar that recognizes an if statement is as follows:
+\begin{Verbatim}[frame=single]
+IF LPAREN expr RPAREN stmt ELSE stmt
+IF LPAREN expr RPAREN stmt %prec NOELSE
+\end{Verbatim}
+
+\subsection{While Statement}
+The while statement will evaluate in a loop as long as the specified condition in the while statement is true.
+
+\begin{lstlisting}
+/* Below code prints "Hey there" 10 times */
+int x = 0;
+while (x < 10) {
+	print("Hey there");
+	x++;
+}
+\end{lstlisting}
+
+The grammar that recognizes a while statement is as follows:
+\begin{Verbatim}[frame=single]
+WHILE LPAREN expr RPAREN stmt
+\end{Verbatim}
+
+\subsection{For Statement}
+The for condition will also run in a loop so long as the condition specified in the for statement is true.  The expectation for a for statement is as follows:
+
+\texttt{for ( <initial state>; <test condition>; <step forward> )}
+
+Examples are as follows:
+
+\begin{lstlisting}
+/* 	This will run as long as i is less than 100
+	i will be incremented on each iteration of the loop */
+for (int i = 0; i < 100; i++) {
+	/* do something */
+}
+
+/* i can also be declared or initialized outside of the for loop */
+int i;
+for (i = 0; i < 100; i += 2) {
+	/* code block */
+}
+\end{lstlisting}
+
+The grammar that recognizes a for statement is as follows:
+\begin{Verbatim}[frame=single]
+FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN
+\end{Verbatim}
+
+\subsection{Code Blocks}
+% Code within braces
+Blocks are code that is contained within a pair of brackets, \texttt{\{ code \}}, that gets executed within a statement.  For example, any code blocks that follow an \texttt{if} statement will get executed if the \texttt{if} condition is evaluated as true:
+
+\begin{lstlisting}
+int x = 42;
+if (x == 42) {
+	/* the following three lines are executed */
+	print("Hey");
+	x++;
+	print("Bye");
+}
+\end{lstlisting}
+
+The grammar that recognizes a block of code is as follows:
+\begin{Verbatim}[frame=single]
+LBRACE stmt RBRACE
+\end{Verbatim}
+
+Code blocks are used to define scope. Local variables are always given precedence over global variables. 
+
+\subsection{Return Statement}
+The \texttt{return} statement is used to exit out of a function and return a value.  The return value must be the same type that is specified by the function deceleration.  Return can be used as follows:
+
+\begin{lstlisting}
+/* The function trivially returns the input int value */
+func int someValue(int x) {
+	return x;
+}
+\end{lstlisting}
+
+The grammar that recognizes a return statement is as follows:
+\begin{Verbatim}[frame=single]
+RETURN SEMI
+RETURN expr SEMI
+\end{Verbatim}
+
+Note that functions can be declared as returning void; this is done as follows: 
+\begin{lstlisting}
+return ;
+\end{lstlisting}
+This adheres to the expectation that all functions return something.
+
+\section{Functions}
+Functions allow you to group snippets of code together that can subsequently be called from other parts of your program, depending on scope. Functions are global, unless they are prepended with the keyword ``private''. While not necessary, it is encouraged that you declare functions before defining them. Functions are usually declared at the top of the file they're defined in. Functions that aren't declared can only be called after they have been defined. 
+
+\subsection{Function Declarations}
+
+The keyword ``func'' is used to declare a function. A return type is also required using keyword ``return''; if your function doesn't return anything then use keyword ``void'' instead.  Functions are declared with or without parameters; if parameters are used, their types must be specified. A function can be defined with multiple, different parameters. Though a function can only have one return type, it can also be any data type, including void.
+
+\begin{lstlisting}
+func int add(int a, int b); /* this functions has two int parameters as input and returns an int */
+func void say_hi(); /* this function doesn't return anything nor takes any parameters */
+func int isSam(string name, int age); /* this functions has two input parameters, one of type string and one of type int */
+
+\end{lstlisting}
+
+\subsection{Function Definitions}
+Function definitions contain the instructions to be performed when that function is called. The first part of the syntax is similar to how you declare functions; but curly brackets are used to define what the function actually does. For example, 
+
+\begin{lstlisting}
+func int add(int a, int b); /* declaration */
+
+func int add(int x, int y) /* definition */
+{
+return x + y;
+}
+\end{lstlisting}
+
+\begin{Verbatim}[frame=single]
+fdecl:
+	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE
+\end{Verbatim}
+
+This snippet of code first declares add, and then defines it. Declaring before defining is best practice. Importantly, functions can \emph{not} reference global variables; that is, the only variables they can act on are formal parameters and local variables. For example:
+
+\begin{lstlisting}
+func int add_to_a(int x); /* declaration */
+int a = 10;
+func int add_to_a(int x) /* definition */
+{
+return x + a; /* this is NOT allowed */
+}
+\end{lstlisting}
+
+This code is no good because it relies on global variable ``a''. Functions can only reference formal parameters and/or local variables.
+
+\subsection{Calling Functions}
+
+A function is called using the name of the function along with any parameters it requires. You \emph{must} supply a function with the parameters it expects. For example, the following will not work:
+
+\begin{lstlisting}
+func int add(int a, int b); /* declaration */
+
+func int add(int x, int y) /* definition */
+{
+return x + y;
+}
+
+add(); /* this is wrong and will not compile because add expects two ints as parameters */
+
+\end{lstlisting}
+
+\begin{Verbatim}[frame=single]
+	 ID LPAREN actual_opts_list RPAREN { Call($1, $3)}
+\end{Verbatim}
+
+Note, calling functions is simply another expression. This means they are guaranteed to return a value and so can be used as part of other expressions.
+Functions are first class objects and so can be used anywhere a normal data type can be used. Of course, a function's return type must be compatible with the context it's being used in. For example, a function that returns a char cannot be used as an actual parameter to a function that expects an int.  Consider the following:
+
+\begin{lstlisting}
+func int add_int(int a, int b); /* declaration */
+
+func int add_int(int x, int y) /* definition */
+{
+return x + y;
+}
+
+func float add_float(float x, float y)
+{
+	return x + y;
+}
+
+func int subtract(int x, int y)
+{
+	return x - y;
+}
+
+int answer = subtract(add(10,10), 10); /* this is ok */
+int answer2 = subtract(add_float(10.0,10.0), 10); /* this is NOT ok because subtract expects its first parameter to be an int while add_float returns a float */
+
+\end{lstlisting}
+
+\subsection{Function Parameters}
+Formal parameters can be any data type. Furthermore, they need not be of the same type. For example, the following is syntactically fine:
+
+\begin{lstlisting}
+func void speak(int age, string name)
+{
+	print_string ("My name is" + name + " and I am "  + age);
+}
+\end{lstlisting}
+
+
+\begin{Verbatim}[frame=single]
+formal_opts_list:
+	  /* nothing */ 
+	| formal_opt 
+
+formal_opt:
+	     any_typ_not_void ID 		
+	   | formal_opt COMMA any_typ_not_void ID 	
+\end{Verbatim}
+
+
+While functions may be defined with multiple formal parameters, that number must be fixed. That is, functions cannot accept a variable number of arguments. As mentioned above, our language is pass by value. However, there is explicit support for passing pointers and addresses using * and $\&$. 
+
+\begin{lstlisting}
+int* int_pt;
+int a = 10;
+int_pt  = &a;
+\end{lstlisting}
+
+% \subsection{Main Function}
+% Do we want a main function?
+
+\subsection{Recursive Functions}
+
+Functions can be used recursively. Each recursive call results in the creation of a new stack and new set of local variables. It is up to the programmer to prevent infinite loops. 
+
+\subsection{Function Test Cases}
+Functions can be appended with test cases directly in the source code. Most importantly, the test cases will be compiled into a separate (executable) file. The keyword ``with test'' is used to define a test case as illustrated here:
+
+\begin{lstlisting}
+func int add(int a, int b); /* declaration */
+
+func int add(int x, int y) /* definition */
+{
+return x + y;
+}
+with test {
+	add(1,2) == 3;
+	add(-1, 1) == 0;
+}
+with test {
+	add(0,0) <= 0;
+	add(0,0) >= 0; 
+}
+
+\end{lstlisting}
+
+\begin{Verbatim}[frame=single]
+FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl 
+
+testdecl:
+	WTEST LBRACE stmt_list RBRACE usingdecl
+\end{Verbatim}
+
+Test cases contain a set of boolean expressions. Multiple boolean expressions can be defined, they just must be separated with semi-colons. As shown above, you can define separate test cases one after another too. \\ 
+Snippets of code can also be used to set up a given test case's enviornment using the ``using'' keyword. That is, ``using'' is used to define code that is executed right before the test case is run. Consider the following:
+
+\begin{lstlisting}
+func void changeAge(struct person temp_person, int age)
+{
+temp_person.age = age;
+}
+with test {
+	sam.age == 11;
+}
+using {
+struct person sam;
+sam.age = 10;
+changeAge(sam, 11);
+}
+
+
+\end{lstlisting}
+
+
+\begin{Verbatim}[frame=single]
+FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl 
+
+usingdecl:
+	USING LBRACE vdecl_list stmt_list RBRACE 
+\end{Verbatim}
+
+
+``using'' is used to create a struct and then call function changeAge; it is setting up the enviornment for it's corresponding test. Variables defined in the ``using'' section of code can safely be referenced in its corresponding test case as shown. Basically, the code in the ``using'' section is executed right before the boolean expressions are evaluated and tested. \\
+The ``using'' section is optional. As a result some test cases may contain ``using'' sections and others might not. As per convention, each ``using'' section will match up with its closest test case. For, example:
+
+\begin{lstlisting}
+
+func int add(int x, int y) /* definition */
+{
+return x + y;
+}
+with test { /*  variables a, b defined below are NOT in this test case's scope*/
+	add(1,2) == 3;
+	add(-1, 1) == 0;
+}
+with test { /* variables a and b ARE in this test case's scope */
+	add(a, b) == 20;
+}
+using {
+int a = 10;
+int b = 10;
+}
+
+\end{lstlisting}
+
+As explained in the comments, the ``using'' section is matched up with the second test case.
+\\
+Test cases are compiled into a separate program which can subsequently be run. The program will run all test cases and output appropriate information.
+	
+\section{Project Plan}
+
+\subsection{Planning Process}
+
+\subsection{Project Timeline}
+
+\subsection{Workflow}
+
+\subsection{Github Issue History} 
+
+\subsection{Team Responsibilities}
+
+\subsection{Software Development Environment}
+
+
+\section{Architecture}
+
+\subsection{The Compiler}
+
+\subsection{The Scanner}
+
+\subsection{The Parser}
+
+\subsection{The Semantic Checker}
+
+\subsection{The Code Generator}
+
+\subsection{Supplementary Code} %libraries, built in functions, etc
+
+
+\section{Testing}
+
+\subsection{Test Plan}
+
+\subsection{Test Suite Log}
+
+\subsection{Test Automation}
+
+
+\section{Conclusion}
+\subsection{Lessons Learned}
+\subsubsection{Andrew}
+\subsubsection{Jemma}
+\subsubsection{Jared}
+\subsubsection{Jake}
+
+\section{Code}
+\subsection{scanner.mll}
+\subsection{parser.mly}
+\subsection{semant.ml}
+\subsection{ast.ml}
+\subsection{sast.ml}
+\subsection{codegen.ml}
+\subsection{myprinter.ml}
+\subsection{interpreter.ml}
+\subsection{exceptions.ml}
+\subsection{jateste.ml}
+
+\end{document}
