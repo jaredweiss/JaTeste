@@ -1,3 +1,4 @@
+#include_jtlib <io.jt>
 func int add(int x, int y)
 {
 	return x + y;

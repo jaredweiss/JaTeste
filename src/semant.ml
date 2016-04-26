@@ -243,7 +243,7 @@ let rec check_expr expr env =
 		) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in
 			(match uop with
-				  A.Not -> expr_type 
+				  A.Not -> (match expr_type with A.Primitive(A.Bool) -> expr_type | _ -> raise Exceptions.NotBoolExpr) 
 				| A.Neg -> expr_type
 				| A.Addr -> A.Pointer_typ(expr_type)
 			)
@@ -285,7 +285,7 @@ let rec check_expr expr env =
 let check_is_bool expr env = 
 	ignore(check_expr expr env);
 	match expr with
-	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) | A.Binop(_,A.And,_) | A.Binop(_,A.Or,_) -> ()
+	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) | A.Binop(_,A.And,_) | A.Binop(_,A.Or,_) | A.Unop(A.Not,_) -> ()
 
 	| _ ->  raise (Exceptions.InvalidBooleanExpression)
 
