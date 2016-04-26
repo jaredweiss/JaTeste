@@ -55,6 +55,7 @@ let type_of_identifier var env =
 let type_of_array arr _ =
 	match arr with
 	  A.Array_typ(p,_) -> A.Primitive(p)
+	| A.Pointer_typ(A.Array_typ(p,_)) -> A.Primitive(p)
 	| _ -> raise (Exceptions.InvalidArrayVariable)
 
 (* Function is done for creating sast after semantic checking. Should only be called on struct or array access *)
@@ -182,7 +183,7 @@ let rec expr_sast expr env =
 	| A.Struct_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
 	| A.Pt_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
-	| A.Array_access (e, i) -> S.SArray_access (string_identifier_of_expr e, i)
+	| A.Array_access (e, i) -> let tmp_string = (string_identifier_of_expr e) in let tmp_type = find_var env.scope tmp_string in S.SArray_access (tmp_string, i, tmp_type)
 	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
@@ -266,7 +267,7 @@ let rec check_expr expr env =
 			 | _ -> raise (Exceptions.BugCatch "Deference") 
 						)
 				
-	| A.Array_create(size,prim_type) -> A.Array_typ(prim_type, size)
+	| A.Array_create(size,prim_type) -> A.Pointer_typ(A.Array_typ(prim_type, size))
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
 	| A.Free(p) -> let pt = string_identifier_of_expr p in let pt_typ = find_var env.scope pt in (match pt_typ with A.Pointer_typ(_) -> pt_typ | _ -> raise (Exceptions.InvalidFree "not a pointer"))
 	| A.Call("print", el) ->  if List.length el != 1 then raise Exceptions.InvalidPrintCall 

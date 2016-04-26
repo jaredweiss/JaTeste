@@ -16,7 +16,7 @@ type sexpr =
   | SStruct_access of string * string * int
   | SPt_access of string * string * int
   | SArray_create of int * prim
-  | SArray_access of string * int
+  | SArray_access of string * int * typ
   | SDereference of string
   | SFree of string
   | SCall of string * sexpr list

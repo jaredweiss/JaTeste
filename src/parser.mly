@@ -98,7 +98,7 @@ struct_typ:
 	| STRUCT ID { $2 }
 
 array_typ:
-	prim_typ LBRACKET INT_LITERAL RBRACKET  	{ ($1, $3) }
+	  prim_typ LBRACKET INT_LITERAL RBRACKET  	{ ($1, $3) }
 
 pointer_typ:
 	| prim_typ STAR 		{ Primitive($1) }
@@ -120,11 +120,11 @@ any_typ:
 
 
 any_typ_not_void:
-	  	  prim_typ 	{ Primitive($1) }
-		| struct_typ 	{ Struct_typ($1) }
-		| pointer_typ 	{ Pointer_typ($1) }
+	  	  prim_typ 		{ Primitive($1) }
+		| struct_typ 		{ Struct_typ($1) }
+		| pointer_typ 		{ Pointer_typ($1) }
 		| double_pointer_typ 	{ Pointer_typ($1) }
-		| array_typ	{ Array_typ(fst $1, snd $1) }
+		| array_typ		{ Array_typ(fst $1, snd $1) }
 
 /* 
 Rules for function syntax
