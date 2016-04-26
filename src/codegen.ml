@@ -167,23 +167,25 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	(* Two places to look for a variable 1) local HashMap 2) global HashMap *)
 	let find_var n = try StringMap.find n local_vars
 		with Not_found -> try Hashtbl.find global_variables n
-        	with Not_found -> raise (Failure ("undeclared variable " ^ n))
-        in
+		with Not_found -> raise (Failure ("undeclared variable " ^ n))
+		in
 
-	let type_of_expr e =
-		let tmp_type = L.type_of e in
-		let tmp_string = L.string_of_lltype tmp_type in
+		(*
+		 let type_of_expr e =
+		 let tmp_type = L.type_of e in
+		 let tmp_string = L.string_of_lltype tmp_type in ignore(print_string tmp_string);
 		match tmp_string  with 
 	  	  "i32*" -> A.Primitive(A.Int)
 	  	| "i32" -> A.Primitive(A.Int)
 	  	| "i8" -> A.Primitive(A.Char)
 	  	| "i8*" -> A.Primitive(A.Char)
 	  	| "i1" -> A.Primitive(A.Bool)
-	  	| "i1*" -> A.Primitive(A.Bool)
+		| "i1*" -> A.Primitive(A.Bool)
 		| "double"  -> A.Primitive(A.Double) 
 		| "double*"  -> A.Primitive(A.Double) 
 		| _ -> raise (Exceptions.BugCatch ("type_of_expr"))
-		in
+		in 
+		*)
 
 	(* Format to print given arguments in print(...) *)
 	let print_format e =
@@ -205,7 +207,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SString_lit (_) -> raise Exceptions.InvalidLhsOfExpr
 	| S.SChar_lit (_) -> raise Exceptions.InvalidLhsOfExpr
  	| S.SId(s) -> find_var s
-	| S.SBinop(_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
+	| S.SBinop(_,_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
  	| S.SUnop(_,e) -> addr_of_expr e builder
 	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in let deref = L.build_struct_gep tmp_value index "tmp" builder in deref
 	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
@@ -230,10 +232,10 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SString_lit s -> let temp_string = L.build_global_stringptr s "str" builder in temp_string 
 	| S.SChar_lit c -> L.const_int i8_t (C.code c)
 	| S.SDouble_lit d -> L.const_float d_t d
-	| S.SBinop (e1, op, e2) -> 
+	| S.SBinop (e1, op, e2,t) -> 
 		let e1' = expr builder e1 
-		and e2' = expr builder e2 in let tmp_type =  type_of_expr e1' in 
-		(match tmp_type with 
+		and e2' = expr builder e2 in
+		(match t with 
 		  A.Primitive(A.Int) | A.Primitive(A.Char) -> (match op with 
 		  A.Add -> L.build_add 
 		| A.Sub -> L.build_sub
@@ -245,7 +247,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Greater -> L.build_icmp L.Icmp.Sgt
 		| A.Geq -> L.build_icmp L.Icmp.Sge
 		| _ -> raise (Exceptions.BugCatch "Binop")		
-		)
+		)e1' e2' "add" builder
 		| A.Primitive(A.Double) ->
 		(match op with 
 		  A.Add -> ignore(print_string "j");L.build_fadd 
@@ -258,7 +260,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Greater -> L.build_fcmp L.Fcmp.Ogt
 		| A.Geq -> L.build_fcmp L.Fcmp.Oge
 		| _ -> raise (Exceptions.BugCatch "Binop")
-		) 
+		) e1' e2' "add" builder
 		| A.Primitive(A.Bool) -> 
 		(
 		match op with 
@@ -266,9 +268,14 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Or -> L.build_or
 		| A.Equal -> L.build_icmp L.Icmp.Eq
 		| _ -> raise (Exceptions.BugCatch "Binop")
-		) 		 
+		) e1' e2' "add" builder	
+		| A.Pointer_typ(_) ->
+			(match op with
+			  A.Equal -> L.build_is_null
+			| A.Neq -> L.build_is_not_null
+			| _ -> raise (Exceptions.BugCatch "Binop")
+			)e1' "add" builder
 		| _ -> raise (Exceptions.BugCatch "Binop")) 		 
-		e1' e2' "add" builder	
 
 	| S.SUnop(u,e) -> 
 			(match u with
@@ -295,6 +302,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	| S.SBoolLit(b) -> L.const_int i1_t b
+	| S.SNull(t) -> L.const_null (ltype_of_typ t)
 	in
 
 

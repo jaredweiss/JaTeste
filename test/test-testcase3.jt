@@ -23,7 +23,7 @@ func int max(int x, int y)
 	}
 	return y;
 } with test {
-	assert((max(a,b) == 10));
+	 assert((max(a,b) == 10));
 } using {
 	int a;
 	int b;

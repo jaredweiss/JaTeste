@@ -7,7 +7,7 @@ type sexpr =
   | SString_lit of string
   | SChar_lit of char
   | SDouble_lit of float
-  | SBinop   of sexpr * op * sexpr
+  | SBinop   of sexpr * op * sexpr * typ
   | SUnop    of uop * sexpr
   | SAssign  of sexpr * sexpr
   | SNoexpr
@@ -21,6 +21,7 @@ type sexpr =
   | SFree of string
   | SCall of string * sexpr list
   | SBoolLit of int
+  | SNull of typ
 
 type sstmt =
     SBlock of sstmt list   

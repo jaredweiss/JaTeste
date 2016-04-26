@@ -99,8 +99,16 @@ let check_not_void exceptf = function
 
 (* Helper function to check two types match up *)
 let check_assign lvaluet rvaluet err =
-     if lvaluet = rvaluet then lvaluet else raise err
+	(match lvaluet with
+	  A.Pointer_typ(A.Array_typ(p,0)) -> 
+					(match rvaluet with
+					A.Pointer_typ(A.Array_typ(p2,_)) -> if p = p2 then lvaluet else raise err
+					| _ -> raise err
+					)
+	| _ -> if lvaluet = rvaluet then lvaluet else raise err
+	)
 
+     
 (* Search hash table to see if the struct is valid *)
 let check_valid_struct s =
 	try Hashtbl.find struct_types s
@@ -156,6 +164,29 @@ let struct_contains_expr stru expr env =
 	match stru with
 	  A.Id(s) -> (match expr with A.Id(s1) -> struct_contains_field s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
+
+let rec type_of_expr env e =
+	match e with
+	  A.Lit(_) -> A.Primitive(A.Int)
+	| A.String_lit(_) -> A.Primitive(A.String)
+  	| A.Char_lit (_) -> A.Primitive(A.Char)
+  	| A.Double_lit(_) -> A.Primitive(A.Double)
+  	| A.Binop(e1,_,_) -> type_of_expr env e1
+  	| A.Unop (_,e1) -> type_of_expr env e1
+  	| A.Assign(e1,_) -> type_of_expr env e1
+  	| A.Id(s) -> find_var env.scope s
+	| A.Struct_create(s) -> A.Pointer_typ(A.Struct_typ(s))
+	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
+	| A.Dereference(e1) -> let tmp_e = type_of_expr env e1 in 
+		(
+		match tmp_e with
+		  A.Pointer_typ(p) -> p
+		| _ -> raise (Exceptions.BugCatch "type_of_expr")
+		)
+	| A.Call(s,_) -> let func_info = (check_valid_func_call s) in func_info.A.typ
+  	| A.BoolLit (_) -> A.Primitive(A.Bool)
+  	| A.Null(t) -> t
+	| _ -> raise (Exceptions.BugCatch "type_of_expr")
 	
 (* convert expr to sast expr *)
 let rec expr_sast expr env =
@@ -164,7 +195,7 @@ let rec expr_sast expr env =
 	| A.String_lit s -> S.SString_lit s	
 	| A.Char_lit c -> S.SChar_lit c
 	| A.Double_lit d -> S.SDouble_lit d
-	| A.Binop (e1, op, e2) -> S.SBinop (expr_sast e1 env, op, expr_sast e2 env)
+	| A.Binop (e1, op, e2) -> let tmp_type = type_of_expr env e1 in S.SBinop (expr_sast e1 env, op, expr_sast e2 env, tmp_type)
 	| A.Unop (u, e) -> S.SUnop(u, expr_sast e env)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s env, expr_sast e env)
 	| A.Noexpr -> S.SNoexpr
@@ -178,6 +209,7 @@ let rec expr_sast expr env =
 	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
+	| A.Null(t) -> S.SNull t
 
 
 (* Convert ast struct to sast struct *)
@@ -231,6 +263,7 @@ let rec check_expr expr env =
 			| A.Equal | A.Neq when e1' = e2' -> A.Primitive(A.Bool)
 			| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
+		| A.Pointer_typ(p) -> A.Pointer_typ(p) (* TODO *)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in
@@ -272,6 +305,7 @@ let rec check_expr expr env =
 		List.iter2 (fun (ft,_) e -> let e = check_expr e env in ignore(check_assign ft e (Exceptions.InvalidArgumentsToFunction ("Args to functions " ^ s ^ " don't match up with it's definition")))) func_info_formals el;
 	func_info.A.typ
 	| A.BoolLit(_) -> A.Primitive(A.Bool)
+	| A.Null(t) -> t
 
 (* Checks if expr is a boolean expr. Used for checking the predicate of things like if, while statements *)
 let check_is_bool expr env = 
