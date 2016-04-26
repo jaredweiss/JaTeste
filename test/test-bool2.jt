@@ -1,0 +1,12 @@
+func int main()
+{
+	bool my_bool;
+
+	my_bool = false;
+
+	if (!my_bool) {
+		print("passed");
+	}
+
+	return 0;
+}

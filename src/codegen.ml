@@ -147,8 +147,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	let str_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
 	let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
 
-	
-
 	(* This is where we push local variables onto the stack and add them to a local HashMap*)
 	let local_vars = 
 		let add_formal m(t, n) p = L.set_value_name n p;
@@ -241,9 +239,9 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Geq -> L.build_icmp L.Icmp.Sge
 		| _ -> raise (Exceptions.BugCatch "Binop")		
 		)
-		| A.Primitive(A.Double) -> 
+		| A.Primitive(A.Double) ->
 		(match op with 
-		  A.Add -> L.build_fadd 
+		  A.Add -> ignore(print_string "j");L.build_fadd 
 		| A.Sub -> L.build_fsub
 		| A.Mult -> L.build_fmul
 		| A.Equal -> L.build_fcmp L.Fcmp.Oeq
@@ -267,10 +265,10 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 
 	| S.SUnop(u,e) -> 
 			(match u with
-				  A.Neg -> L.const_int i32_t 0
-				| A.Not -> L.const_int i32_t 0
+				  A.Neg -> let e1 = expr builder e in L.build_not e1 "not" builder
+				| A.Not -> let e1 = expr builder e in L.build_not e1 "not" builder
 				| A.Addr -> let iden = string_of_expr e in let lvalue = find_var iden in lvalue
-				)
+			)
 	| S.SAssign (l, e) -> let e_temp = expr builder e in ignore(let l_val = (addr_of_expr l builder) in  (L.build_store e_temp l_val builder)); e_temp
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId (s) -> L.build_load (find_var s) s builder
@@ -353,7 +351,7 @@ let func_builder f b =
 	)
 
 	(***************************************************************)
-	(* Overall function that translates Ast.program to LLVM module *)
+	(* Entry point for translating Ast.program to LLVM module *)
 	(***************************************************************)
 let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in

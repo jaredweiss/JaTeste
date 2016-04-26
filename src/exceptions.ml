@@ -19,6 +19,7 @@ exception InvalidArrayVariable
 exception InvalidStructField
 exception InvalidFree of string
 exception InvalidPointerDereference
+exception NotBoolExpr
 
 (* Print exceptions *)
 exception InvalidPrintCall
