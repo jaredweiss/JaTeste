@@ -1,0 +1,14 @@
+#include_jtlib <int_list.jt>
+func int main()
+{
+	struct node* my_list;
+	my_list = initialize();
+	insert(my_list,1);
+	insert(my_list,9);
+	insert(my_list,8);
+	insert(my_list,1);
+	insert(my_list,2);
+	insert(my_list,1);
+	print_list(my_list);
+	return 0;
+}

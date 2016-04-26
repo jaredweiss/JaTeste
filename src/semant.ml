@@ -173,7 +173,7 @@ let rec type_of_expr env e =
   	| A.Double_lit(_) -> A.Primitive(A.Double)
   	| A.Binop(e1,_,_) -> type_of_expr env e1
   	| A.Unop (_,e1) -> type_of_expr env e1
-  	| A.Assign(e1,e2) -> type_of_expr env e1
+  	| A.Assign(e1,_) -> type_of_expr env e1
   	| A.Id(s) -> find_var env.scope s
 	| A.Struct_create(s) -> A.Pointer_typ(A.Struct_typ(s))
 	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
@@ -183,7 +183,7 @@ let rec type_of_expr env e =
 		  A.Pointer_typ(p) -> p
 		| _ -> raise (Exceptions.BugCatch "type_of_expr")
 		)
-	| A.Call(s,e1) -> let func_info = (check_valid_func_call s) in func_info.A.typ
+	| A.Call(s,_) -> let func_info = (check_valid_func_call s) in func_info.A.typ
   	| A.BoolLit (_) -> A.Primitive(A.Bool)
   	| A.Null(t) -> t
 	| _ -> raise (Exceptions.BugCatch "type_of_expr")

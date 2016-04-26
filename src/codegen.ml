@@ -167,23 +167,25 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	(* Two places to look for a variable 1) local HashMap 2) global HashMap *)
 	let find_var n = try StringMap.find n local_vars
 		with Not_found -> try Hashtbl.find global_variables n
-        	with Not_found -> raise (Failure ("undeclared variable " ^ n))
-        in
+		with Not_found -> raise (Failure ("undeclared variable " ^ n))
+		in
 
-	let type_of_expr e =
-		let tmp_type = L.type_of e in
-		let tmp_string = L.string_of_lltype tmp_type in ignore(print_string tmp_string);
+		(*
+		 let type_of_expr e =
+		 let tmp_type = L.type_of e in
+		 let tmp_string = L.string_of_lltype tmp_type in ignore(print_string tmp_string);
 		match tmp_string  with 
 	  	  "i32*" -> A.Primitive(A.Int)
 	  	| "i32" -> A.Primitive(A.Int)
 	  	| "i8" -> A.Primitive(A.Char)
 	  	| "i8*" -> A.Primitive(A.Char)
 	  	| "i1" -> A.Primitive(A.Bool)
-	  	| "i1*" -> A.Primitive(A.Bool)
+		| "i1*" -> A.Primitive(A.Bool)
 		| "double"  -> A.Primitive(A.Double) 
 		| "double*"  -> A.Primitive(A.Double) 
 		| _ -> raise (Exceptions.BugCatch ("type_of_expr"))
-		in
+		in 
+		*)
 
 	(* Format to print given arguments in print(...) *)
 	let print_format e =
