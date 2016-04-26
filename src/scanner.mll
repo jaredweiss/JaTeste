@@ -66,7 +66,6 @@ rule token = parse
 	| "func" 		{ FUNC }
 	| "new"			{ NEW }
 	| "free"		{ FREE }
-	| "[]"			{ ARRAY }
 
 	(* Testing keywords *)
 	| "with test" 		{ WTEST }

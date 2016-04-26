@@ -98,7 +98,8 @@ struct_typ:
 	| STRUCT ID { $2 }
 
 array_typ:
-	  prim_typ LBRACKET INT_LITERAL RBRACKET  	{ ($1, $3) }
+	    prim_typ LBRACKET INT_LITERAL RBRACKET  	{ ($1, $3) }
+	  | prim_typ LBRACKET RBRACKET  		{ ($1, 0) }
 
 pointer_typ:
 	| prim_typ STAR 		{ Primitive($1) }

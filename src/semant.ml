@@ -99,8 +99,16 @@ let check_not_void exceptf = function
 
 (* Helper function to check two types match up *)
 let check_assign lvaluet rvaluet err =
-     if lvaluet = rvaluet then lvaluet else raise err
+	(match lvaluet with
+	  A.Pointer_typ(A.Array_typ(p,0)) -> 
+					(match rvaluet with
+					A.Pointer_typ(A.Array_typ(p2,_)) -> if p = p2 then lvaluet else raise err
+					| _ -> raise err
+					)
+	| _ -> if lvaluet = rvaluet then lvaluet else raise err
+	)
 
+     
 (* Search hash table to see if the struct is valid *)
 let check_valid_struct s =
 	try Hashtbl.find struct_types s
