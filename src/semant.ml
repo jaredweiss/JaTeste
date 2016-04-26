@@ -186,6 +186,7 @@ let rec expr_sast expr env =
 	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
+	| A.Null(t) -> S.SNull t
 
 
 (* Convert ast struct to sast struct *)
@@ -280,6 +281,7 @@ let rec check_expr expr env =
 		List.iter2 (fun (ft,_) e -> let e = check_expr e env in ignore(check_assign ft e (Exceptions.InvalidArgumentsToFunction ("Args to functions " ^ s ^ " don't match up with it's definition")))) func_info_formals el;
 	func_info.A.typ
 	| A.BoolLit(_) -> A.Primitive(A.Bool)
+	| A.Null(t) -> t
 
 (* Checks if expr is a boolean expr. Used for checking the predicate of things like if, while statements *)
 let check_is_bool expr env = 

@@ -57,8 +57,8 @@ let process_headers ast:(A.program) =
 		let file = tmp_path ^ str in
 		let ic = 
 		try open_in file with _ -> raise (Exceptions.InvalidHeaderFile file) in
-		let (_,_,funcs,_) = parse ic in
-		let new_ast:(A.program) = (incl, globals, current_func_list @ funcs, structs) in
+		let (_,_,funcs,strs) = parse ic in
+		let new_ast:(A.program) = (incl, globals, current_func_list @ funcs, structs @ strs) in
 		new_ast 	
 	in
 	let modified_ast:(A.program) = List.fold_left gen_header_code ast includes in 

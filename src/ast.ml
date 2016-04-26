@@ -1,7 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or | Mod | Exp
 type uop = Neg | Not | Addr
 type prim = Int | Double | String | Char | Void | Bool
-type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim * int | Any
+type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim * int | Any 
 type bind = typ * string
 
 type dir_location = Curr | Standard
@@ -27,6 +27,7 @@ type expr =
   | Free of expr
   | Call of string * expr list
   | BoolLit of bool
+  | Null of typ
 
 type stmt =
     Block of stmt list   

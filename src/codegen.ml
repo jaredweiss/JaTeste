@@ -295,6 +295,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
 			       let actuals = List.rev (List.map (expr builder) (List.rev args)) in let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	| S.SBoolLit(b) -> L.const_int i1_t b
+	| S.SNull(t) -> L.const_null (ltype_of_typ t)
 	in
 
 
