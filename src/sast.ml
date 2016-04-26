@@ -7,7 +7,7 @@ type sexpr =
   | SString_lit of string
   | SChar_lit of char
   | SDouble_lit of float
-  | SBinop   of sexpr * op * sexpr
+  | SBinop   of sexpr * op * sexpr * typ
   | SUnop    of uop * sexpr
   | SAssign  of sexpr * sexpr
   | SNoexpr
