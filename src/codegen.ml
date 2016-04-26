@@ -190,7 +190,10 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		(match e with 
 		  (S.SString_lit(_)) -> str_format_str
 		| (S.SLit(_)) -> int_format_str
-		| (S.SId(i)) -> let i_value = find_var i in let i_type = L.type_of i_value in let string_i_type = L.string_of_lltype i_type in (match string_i_type with "i32*" -> int_format_str | _ -> raise (Exceptions.InvalidPrintFormat))		
+		| (S.SId(i)) -> let i_value = find_var i in let i_type = L.type_of i_value in let string_i_type = L.string_of_lltype i_type in 
+		(match string_i_type with 
+		    "i32*" -> int_format_str 
+		  | _ -> raise (Exceptions.InvalidPrintFormat))		
 		| _ -> raise (Exceptions.InvalidPrintFormat) 
 		)
 		in
@@ -208,7 +211,11 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
 	| S.SDereference(s) -> let tmp_value = find_var s in let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
-	| S.SArray_access(ar,index, t) -> let tmp_value = find_var ar in (match t with A.Array_typ(_) -> let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref | A.Pointer_typ(_) -> let loaded_value = L.build_load tmp_value "tmp" builder in let deref = L.build_gep loaded_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref | _ -> raise Exceptions.InvalidArrayAccess)
+	| S.SArray_access(ar,index, t) -> let tmp_value = find_var ar in 
+		(match t with 
+		  A.Array_typ(_) -> let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref 
+		| A.Pointer_typ(_) -> let loaded_value = L.build_load tmp_value "tmp" builder in let deref = L.build_gep loaded_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref 
+		| _ -> raise Exceptions.InvalidArrayAccess)
 	| _ -> raise (Exceptions.UndeclaredVariable("Invalid LHS of assignment"))
 
 	in 
@@ -276,7 +283,11 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in let deref = L.build_struct_gep tmp_value index "tmp" builder in let loaded_value = L.build_load deref "dd" builder in loaded_value
 	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_struct_gep load_tmp index "tmp" builder in let tmp_value = L.build_load deref "dd" builder in tmp_value
 	| S.SArray_create(i,p) -> let ar_type = L.array_type (prim_ltype_of_typ p) i in L.build_malloc ar_type "ar_create" builder 
-	| S.SArray_access(ar,index,t) -> let tmp_value = find_var ar in (match t with A.Pointer_typ(_) -> let loaded_value = L.build_load tmp_value "loaded" builder in  let deref = L.build_gep loaded_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in let final_value = L.build_load deref "arrayvalue" builder in final_value | A.Array_typ(_) -> let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in let final_value = L.build_load deref "arrayvalue" builder in final_value | _ -> raise Exceptions.InvalidArrayAccess)
+	| S.SArray_access(ar,index,t) -> let tmp_value = find_var ar in 
+		(match t with 
+		  A.Pointer_typ(_) -> let loaded_value = L.build_load tmp_value "loaded" builder in  let deref = L.build_gep loaded_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in let final_value = L.build_load deref "arrayvalue" builder in final_value 
+		| A.Array_typ(_) -> let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in let final_value = L.build_load deref "arrayvalue" builder in final_value 
+		| _ -> raise Exceptions.InvalidArrayAccess)
 	| S.SDereference(s) -> let tmp_value = find_var s in let load_tmp = L.build_load tmp_value "tmp" builder in let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
 
 	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
