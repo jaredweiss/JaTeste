@@ -105,6 +105,8 @@ let check_assign lvaluet rvaluet err =
 					A.Pointer_typ(A.Array_typ(p2,_)) -> if p = p2 then lvaluet else raise err
 					| _ -> raise err
 					)
+	| A.Primitive(A.String) -> (match rvaluet with A.Primitive(A.String) -> lvaluet | A.Array_typ(A.Char,_) -> lvaluet | _ -> raise err)
+	| A.Array_typ(A.Char,_) -> (match rvaluet with A.Array_typ((A.Char),_) -> lvaluet | A.Primitive(A.String) -> lvaluet | _ -> raise err)
 	| _ -> if lvaluet = rvaluet then lvaluet else raise err
 	)
 
@@ -177,12 +179,19 @@ let rec type_of_expr env e =
   	| A.Id(s) -> find_var env.scope s
 	| A.Struct_create(s) -> A.Pointer_typ(A.Struct_typ(s))
 	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
+	| A.Pt_access(e1,e2) -> let tmp_type = type_of_expr env e1 in 
+				(match tmp_type with
+				A.Pointer_typ(A.Struct_typ(_)) -> struct_contains_expr e1 e2 env
+				| _ -> raise (Exceptions.BugCatch "type_of_expr")
+				)
 	| A.Dereference(e1) -> let tmp_e = type_of_expr env e1 in 
 		(
 		match tmp_e with
 		  A.Pointer_typ(p) -> p
 		| _ -> raise (Exceptions.BugCatch "type_of_expr")
 		)
+	| A.Array_create(i,p) -> A.Pointer_typ(A.Array_typ(p,i))
+	| A.Array_access(e,_) -> type_of_array (type_of_expr env e) env
 	| A.Call(s,_) -> let func_info = (check_valid_func_call s) in func_info.A.typ
   	| A.BoolLit (_) -> A.Primitive(A.Bool)
   	| A.Null(t) -> t
@@ -263,7 +272,10 @@ let rec check_expr expr env =
 			| A.Equal | A.Neq when e1' = e2' -> A.Primitive(A.Bool)
 			| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
-		| A.Pointer_typ(p) -> A.Pointer_typ(p) (* TODO *)
+		| A.Pointer_typ(_) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e1 env)  in  (match op with
+		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> e1'
+		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
+		)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in

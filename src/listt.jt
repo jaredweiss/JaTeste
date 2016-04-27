@@ -2,6 +2,7 @@
 func int main()
 {
 	struct node* my_list;
+	struct node* my_list2;
 	my_list = initialize();
 	insert(my_list,1);
 	insert(my_list,9);
@@ -10,5 +11,9 @@ func int main()
 	insert(my_list,2);
 	insert(my_list,1);
 	print_list(my_list);
+
+	if (null(struct node*) == my_list2) {
+	
+	}
 	return 0;
 }

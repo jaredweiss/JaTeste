@@ -1,41 +1,61 @@
-func struct node* initialize()
+func struct int_list* int_list_initialize()
 {
-	struct node *header;
-	header = new struct node;
+	struct int_list *header;
+	header = new struct int_list;
 	header->num = 0;
-	header->next = null(struct node*);
+	header->next = NULL(struct int_list*);
 	return header;
 }
 
-func void insert(struct node* header, int i)
+func void int_list_insert(struct int_list* header, int i)
 {
-	struct node *tmp;
-	struct node *prev;
-	struct node *new_node;
+	struct int_list *tmp;
+	struct int_list *prev;
+	struct int_list *new_node;
 	tmp = header;
-	while (tmp != null(struct node*)) {
+	while (tmp != NULL(struct int_list*)) {
 		prev = tmp;
 		tmp = tmp->next;
 	}
 
-	new_node = new struct node;
+	new_node = new struct int_list;
 	new_node->num = i;
-	new_node->next = null(struct node*);
+	new_node->next = NULL(struct int_list*);
 	prev->next = new_node;
 }
 
-func void free_list(struct node *header)
+func void int_list_free_list(struct int_list *header)
 {
 	/* TODO */
 }
 
-func void print_list(struct node *header)
+func bool int_list_contains(struct int_list *header, int i)
 {
-	struct node *tmp;
+	bool has_int;
+	struct int_list *tmp;
+
+	has_int = false;
+
+	tmp = header;
+	tmp = tmp->next;
+	while (tmp != NULL(struct int_list*)) {
+		if ((tmp->num) == i) {
+			return true;
+		}
+		tmp = tmp->next;
+	}
+
+	return has_int;
+
+}
+
+func void int_list_print(struct int_list *header)
+{
+	struct int_list *tmp;
 	int i;
 	tmp = header;
 	tmp = tmp->next;
-	while (tmp != null(struct node*)) {
+	while (tmp != NULL(struct int_list*)) {
 		i = tmp->num;	
 		print(i);	
 		tmp = tmp->next;
@@ -43,7 +63,7 @@ func void print_list(struct node *header)
 }
 
 
-struct node {
+struct int_list {
 	int num;
-	struct node *next;
+	struct int_list *next;
 };

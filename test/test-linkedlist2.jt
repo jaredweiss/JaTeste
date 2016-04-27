@@ -1,0 +1,19 @@
+#include_jtlib <int_list.jt>
+
+func int main()
+{
+	struct int_list *header;
+	header = int_list_initialize();
+	int_list_insert(header,2);
+	int_list_insert(header,2);
+	int_list_insert(header,3);
+	int_list_insert(header,9);
+	int_list_insert(header,100);
+	int_list_insert(header,61);
+
+	if (int_list_contains(header,100) == true) {
+		print("passed contains test");
+	}
+
+	return 0;
+}
