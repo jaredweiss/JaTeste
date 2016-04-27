@@ -3,7 +3,7 @@ func struct int_list* int_list_initialize()
 	struct int_list *header;
 	header = new struct int_list;
 	header->num = 0;
-	header->next = null(struct int_list*);
+	header->next = NULL(struct int_list*);
 	return header;
 }
 
@@ -13,14 +13,14 @@ func void int_list_insert(struct int_list* header, int i)
 	struct int_list *prev;
 	struct int_list *new_node;
 	tmp = header;
-	while (tmp != null(struct int_list*)) {
+	while (tmp != NULL(struct int_list*)) {
 		prev = tmp;
 		tmp = tmp->next;
 	}
 
 	new_node = new struct int_list;
 	new_node->num = i;
-	new_node->next = null(struct int_list*);
+	new_node->next = NULL(struct int_list*);
 	prev->next = new_node;
 }
 
@@ -38,7 +38,7 @@ func bool int_list_contains(struct int_list *header, int i)
 
 	tmp = header;
 	tmp = tmp->next;
-	while (tmp != null(struct int_list*)) {
+	while (tmp != NULL(struct int_list*)) {
 		if ((tmp->num) == i) {
 			return true;
 		}
@@ -55,7 +55,7 @@ func void int_list_print(struct int_list *header)
 	int i;
 	tmp = header;
 	tmp = tmp->next;
-	while (tmp != null(struct int_list*)) {
+	while (tmp != NULL(struct int_list*)) {
 		i = tmp->num;	
 		print(i);	
 		tmp = tmp->next;
