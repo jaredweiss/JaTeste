@@ -3,7 +3,7 @@
 func int main()
 {
 
-	struct node *my_list;
+	struct int_list *my_list;
 	my_list = initialize();
 	insert(my_list,9);
 	insert(my_list,5);

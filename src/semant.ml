@@ -272,7 +272,7 @@ let rec check_expr expr env =
 			| A.Equal | A.Neq when e1' = e2' -> A.Primitive(A.Bool)
 			| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
-		| A.Pointer_typ(p) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e1 env)  in  (match op with
+		| A.Pointer_typ(_) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e1 env)  in  (match op with
 		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> e1'
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		)
