@@ -105,6 +105,8 @@ let check_assign lvaluet rvaluet err =
 					A.Pointer_typ(A.Array_typ(p2,_)) -> if p = p2 then lvaluet else raise err
 					| _ -> raise err
 					)
+	| A.Primitive(A.String) -> (match rvaluet with A.Primitive(A.String) -> lvaluet | A.Array_typ(A.Char,_) -> lvaluet | _ -> raise err)
+	| A.Array_typ(A.Char,_) -> (match rvaluet with A.Array_typ((A.Char),_) -> lvaluet | A.Primitive(A.String) -> lvaluet | _ -> raise err)
 	| _ -> if lvaluet = rvaluet then lvaluet else raise err
 	)
 
