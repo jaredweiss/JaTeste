@@ -1,4 +1,4 @@
-func struct int_list* initialize()
+func struct int_list* int_list_initialize()
 {
 	struct int_list *header;
 	header = new struct int_list;
@@ -7,7 +7,7 @@ func struct int_list* initialize()
 	return header;
 }
 
-func void insert(struct int_list* header, int i)
+func void int_list_insert(struct int_list* header, int i)
 {
 	struct int_list *tmp;
 	struct int_list *prev;
@@ -24,12 +24,12 @@ func void insert(struct int_list* header, int i)
 	prev->next = new_node;
 }
 
-func void free_list(struct int_list *header)
+func void int_list_free_list(struct int_list *header)
 {
 	/* TODO */
 }
 
-func bool ilist_contains(struct int_list *header, int i)
+func bool int_list_contains(struct int_list *header, int i)
 {
 	bool has_int;
 	struct int_list *tmp;
@@ -49,7 +49,7 @@ func bool ilist_contains(struct int_list *header, int i)
 
 }
 
-func void print_list(struct int_list *header)
+func void int_list_print(struct int_list *header)
 {
 	struct int_list *tmp;
 	int i;

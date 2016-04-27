@@ -4,17 +4,17 @@ func int main()
 {
 
 	struct int_list *my_list;
-	my_list = initialize();
-	insert(my_list,9);
-	insert(my_list,5);
-	insert(my_list,8);
-	insert(my_list,10);
-	insert(my_list,40);
-	insert(my_list,11);
-	insert(my_list,0);
-	insert(my_list,9);
-	insert(my_list,478);
-	print_list(my_list);
+	my_list = int_list_initialize();
+	int_list_insert(my_list,9);
+	int_list_insert(my_list,5);
+	int_list_insert(my_list,8);
+	int_list_insert(my_list,10);
+	int_list_insert(my_list,40);
+	int_list_insert(my_list,11);
+	int_list_insert(my_list,0);
+	int_list_insert(my_list,9);
+	int_list_insert(my_list,478);
+	int_list_print(my_list);
 
 	return 0;
 }
