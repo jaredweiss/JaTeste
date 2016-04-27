@@ -195,6 +195,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| (S.SId(i)) -> let i_value = find_var i in let i_type = L.type_of i_value in let string_i_type = L.string_of_lltype i_type in 
 		(match string_i_type with 
 		    "i32*" -> int_format_str 
+		  | "i8**" -> str_format_str
 		  | _ -> raise (Exceptions.InvalidPrintFormat))		
 		| _ -> raise (Exceptions.InvalidPrintFormat) 
 		)
