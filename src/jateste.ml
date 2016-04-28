@@ -108,6 +108,7 @@ let _ =
  	| Ast ->  let _ = parse source_file in ()
  	| Sast ->  let _ = semant source_file in () 
 	| Compile ->  let _ = code_gen source_file exec_name false in ()
-	| Compile_with_test -> let _ = code_gen source_file exec_name false in let source_test_file = open_in arguments.((Array.length Sys.argv - 1)) in let _ = code_gen source_test_file test_exec_name true in ()
+	| Compile_with_test -> let _ = code_gen source_file exec_name false in 
+			let source_test_file = open_in arguments.((Array.length Sys.argv - 1)) in 			  let _ = code_gen source_test_file test_exec_name true in ()
 	) in
 	close_in source_file
