@@ -142,6 +142,7 @@ let rec string_of_expr e env =
 		| false -> "false"
 		)
   	| A.Null(_) -> "NULL"
+  	| A.Dubs -> "NULL"
 
 (* Function is done for creating sast after semantic checking. Should only be called on struct fields *)
 let string_of_struct_expr expr = 
@@ -295,6 +296,7 @@ let rec expr_sast expr env =
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
 	| A.Null(t) -> S.SNull t
+	| A.Dubs -> S.SDubs
 
 
 (* Convert ast struct to sast struct *)
@@ -398,6 +400,7 @@ let rec check_expr expr env =
 	func_info.A.typ
 	| A.BoolLit(_) -> A.Primitive(A.Bool)
 	| A.Null(t) -> t
+	| A.Dubs -> A.Primitive(A.Void)
 
 (* Checks if expr is a boolean expr. Used for checking the predicate of things like if, while statements *)
 let check_is_bool expr env = 

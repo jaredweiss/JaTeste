@@ -323,6 +323,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			      let actuals = List.rev (List.map (expr builder) (List.rev args)) in 				let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	| S.SBoolLit(b) -> L.const_int i1_t b
 	| S.SNull(t) -> L.const_null (ltype_of_typ t)
+	| S.SDubs -> let tmp_call = S.SCall("print", [(S.SString_lit("dubs!"))]) in expr builder tmp_call 	
 	in
 
 
@@ -381,8 +382,9 @@ the_module
 let test_main functions = 
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
 	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
-	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
-	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = sast_calls; S.stests= None;  } in tmp_main
+	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " tests:")]))] @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
+	let print_stmt = S.SExpr(S.SCall("print",[S.SString_lit("Tests:")])) in 
+	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt::sast_calls; S.stests= None;  } in tmp_main
 
 
 let func_builder f b = 

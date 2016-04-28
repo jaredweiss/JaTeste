@@ -28,6 +28,7 @@ type expr =
   | Call of string * expr list
   | BoolLit of bool
   | Null of typ
+  | Dubs 
 
 type stmt =
     Block of stmt list   
