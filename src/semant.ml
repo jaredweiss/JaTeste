@@ -168,6 +168,8 @@ let check_ends_in_jt str =
 	| _ -> raise (Exceptions.InvalidHeaderFile str)
 	)
 
+let check_in_test e = if e.in_test_func = true then () else raise (Exceptions.InvalidAssert "assert can only be used in tests")
+
 (* Helper function to check a typ is not void *)
 let check_not_void exceptf = function
       (A.Primitive(A.Void), n) -> raise (Failure (exceptf n))
@@ -436,7 +438,7 @@ let rec check_stmt stmt env =
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s); S.SFor(expr_sast e1 env, expr_sast e2 env, expr_sast e3 env, check_stmt s env) 
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
-	| A.Assert(e) -> ignore(check_is_bool e env); 
+	| A.Assert(e) -> ignore(check_in_test env); ignore(check_is_bool e env); 
 			let str_expr = string_of_expr e env in  
 			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed")])) in 
 			let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
@@ -496,15 +498,15 @@ let rec check_function_body funct env =
 		| _ -> ()
 	) formals_and_locals;
 	(* Create new enviornment -> symbol table parent is set to previous scope's symbol table *)
-	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name); in_test_func = false} in
+	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name); in_test_func = env.in_test_func} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
 	let body_with_env = List.map (fun n -> check_stmt n new_env) funct.A.body in
 	(* Compile code for test case iff a function has defined a with test clause *)
 	let sast_func_with_test = 
 		(match funct.A.tests with
-		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") ; in_test_func = true} in
-	Some(check_function_body func_with_test new_env) 
+		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env2 = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") ; in_test_func = true} in
+	Some(check_function_body func_with_test new_env2) 
 		| None -> None
 		)
 	in	

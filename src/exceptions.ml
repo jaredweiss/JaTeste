@@ -39,3 +39,4 @@ exception IllegalArgument of string
 
 (* Test cases *)
 exception InvalidTestAsserts
+exception InvalidAssert of string
