@@ -142,7 +142,7 @@ let rec string_of_expr e env =
 		| false -> "false"
 		)
   	| A.Null(_) -> "NULL"
-  	| A.Dubs -> "NULL"
+  	| A.Dubs -> ""
 
 (* Function is done for creating sast after semantic checking. Should only be called on struct fields *)
 let string_of_struct_expr expr = 
