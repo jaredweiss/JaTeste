@@ -11,7 +11,7 @@
 %token INT DOUBLE VOID CHAR STRING BOOL NULL 
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
 %token ARRAY
-%token NEW FREE
+%token NEW FREE DUBS
 %token RETURN IF ELSE WHILE FOR ASSERT
 
 /* 
@@ -254,7 +254,7 @@ expr:
 	| FREE LPAREN expr RPAREN		     { Free($3) }
 	| ID LPAREN actual_opts_list RPAREN          { Call($1, $3)}
 	| NULL LPAREN any_typ_not_void RPAREN 	     { Null($3) }
-
+ 	| DUBS					     { Dubs }
 expr_opt:
 	  /* nothing */ { Noexpr }
 	| expr 		{ $1 }

@@ -22,6 +22,7 @@ type sexpr =
   | SCall of string * sexpr list
   | SBoolLit of int
   | SNull of typ
+  | SDubs
 
 type sstmt =
     SBlock of sstmt list   

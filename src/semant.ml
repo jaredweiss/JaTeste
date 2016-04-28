@@ -68,6 +68,82 @@ let rec string_identifier_of_expr expr =
 	| A.Call(s,_) -> s
 	| _ -> raise (Exceptions.BugCatch "string_identifier_of_expr")
 
+
+let rec string_of_expr e env =
+	match e with 
+	  A.Lit(i) -> string_of_int i
+  	| A.String_lit(s) -> s
+  	| A.Char_lit(c) -> String.make 1 c
+  	| A.Double_lit(_) -> ""
+  	| A.Binop(e1,op,e2) -> let str1 = string_of_expr e1 env in 
+		let str2 = string_of_expr e2 env in 
+		let str_op = 
+		(match op with
+		  A.Add-> "+"
+		| A.Sub -> "-"
+		| A.Mult -> "*"
+		| A.Div -> "/"
+		| A.Equal -> "=="
+		| A.Neq -> "!="
+		| A.Less -> "<="
+		| A.Leq -> "<"
+		| A.Greater -> ">="
+		| A.Geq -> ">"
+		| A.And -> "&&"
+		| A.Or -> "||"
+		| A.Mod  -> "%"
+		| A.Exp -> "^"
+		) in (String.concat " " [str1;str_op;str2])
+  	| A.Unop(u,e) -> let str_expr = string_of_expr e env in
+			 let str_uop = 
+			(match u with
+			  A.Neg -> "-"
+			| A.Not -> "!"
+			| A.Addr -> "&"
+			) in
+			let str1 = String.concat "" [str_uop; str_expr] in str1
+  	| A.Assign (_,_) -> ""
+  	| A.Noexpr -> ""
+  	| A.Id(s) -> s
+  	| A.Struct_create(_) -> ""
+  	| A.Struct_access(e1,e2) -> let str1 = string_of_expr e1 env in
+				let str2 = string_of_expr e2 env in
+				let str_acc = String.concat "." [str1; str2] in str_acc
+  	| A.Pt_access(e1,e2) -> let str1 = string_of_expr e1 env in
+				let str2 = string_of_expr e2 env in
+				let str_acc = String.concat "->" [str1; str2] in str_acc
+
+  	| A.Dereference(e) -> let str1 = string_of_expr e env in (String.concat "" ["*"; str1])
+  	| A.Array_create(i,p) -> let str_int = string_of_int i in
+			let rb = "]" in
+			let lb = "[" in
+			let new_ = "new" in 
+			let str_prim =
+			(match p with
+			  A.Int -> "int"
+			| A.Double ->"double"
+			| A.Char -> "char"
+			| _ -> raise (Exceptions.BugCatch "string_of_expr")
+			) in let str_ar_ac = String.concat "" [new_; " "; str_prim; lb; str_int; rb] in str_ar_ac   
+  	| A.Array_access(e,i) -> let lb = "[" in
+			let rb = "]" in
+			let str_int = string_of_int i in
+			let str_expr = string_of_expr e env in
+			let str_acc = String.concat "" [str_expr; lb; str_int; rb] in str_acc
+  	| A.Free(_) -> ""
+  	| A.Call(s,le) -> let str1 = s ^"(" in 
+		let str_exprs_rev = List.map (fun n -> string_of_expr n env) le in 
+		let str_exprs = List.rev str_exprs_rev in 
+		let str_exprs_commas = (String.concat "," str_exprs) in 
+		let str2 = (String.concat "" (str1::str_exprs_commas::[")"])) in str2  
+  	| A.BoolLit (b) -> 
+		(match b with
+		  true -> "true"
+		| false -> "false"
+		)
+  	| A.Null(_) -> "NULL"
+  	| A.Dubs -> ""
+
 (* Function is done for creating sast after semantic checking. Should only be called on struct fields *)
 let string_of_struct_expr expr = 
 	match expr with
@@ -214,11 +290,13 @@ let rec expr_sast expr env =
 	| A.Struct_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
 	| A.Pt_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
-	| A.Array_access (e, i) -> let tmp_string = (string_identifier_of_expr e) in let tmp_type = find_var env.scope tmp_string in S.SArray_access (tmp_string, i, tmp_type)
+	| A.Array_access (e, i) -> let tmp_string = (string_identifier_of_expr e) in 
+		let tmp_type = find_var env.scope tmp_string in S.SArray_access (tmp_string, i, tmp_type)
 	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
 	| A.Null(t) -> S.SNull t
+	| A.Dubs -> S.SDubs
 
 
 (* Convert ast struct to sast struct *)
@@ -257,7 +335,8 @@ let rec check_expr expr env =
 	| A.String_lit(_) -> A.Primitive(A.String)
 	| A.Char_lit(_) -> A.Primitive(A.Char)
 	| A.Double_lit(_) -> A.Primitive(A.Double)
-	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e2 env) in
+	| A.Binop(e1,op,e2) -> let e1' = (check_expr e1 env) in 
+		let e2' = (check_expr e2 env) in
 		(match e1' with 
 		  A.Primitive(A.Int) | A.Primitive(A.Double) | A.Primitive(A.Char)  -> 
 		(match op with
@@ -272,7 +351,9 @@ let rec check_expr expr env =
 			| A.Equal | A.Neq when e1' = e2' -> A.Primitive(A.Bool)
 			| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
-		| A.Pointer_typ(_) -> let e1' = (check_expr e1 env) in let e2' = (check_expr e1 env)  in  (match op with
+		| A.Pointer_typ(_) -> let e1' = (check_expr e1 env) in 
+			let e2' = (check_expr e1 env)  in  
+		(match op with
 		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> e1'
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		)
@@ -305,19 +386,21 @@ let rec check_expr expr env =
 				
 	| A.Array_create(size,prim_type) -> A.Pointer_typ(A.Array_typ(prim_type, size))
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
-	| A.Free(p) -> let pt = string_identifier_of_expr p in let pt_typ = find_var env.scope pt in (match pt_typ with A.Pointer_typ(_) -> pt_typ | _ -> raise (Exceptions.InvalidFree "not a pointer"))
+	| A.Free(p) -> let pt = string_identifier_of_expr p in 
+		       let pt_typ = find_var env.scope pt in (match pt_typ with A.Pointer_typ(_) -> pt_typ | _ -> raise (Exceptions.InvalidFree "not a pointer"))
 	| A.Call("print", el) ->  if List.length el != 1 then raise Exceptions.InvalidPrintCall 
 				else
 				List.iter (fun n -> ignore(check_expr n env); ()) el; A.Primitive(A.Int)
 	| A.Call(s,el) -> let func_info = (check_valid_func_call s) in
-	let func_info_formals = func_info.A.formals in
-		if List.length func_info_formals != List.length el then
-		raise (Exceptions.InvalidArgumentsToFunction (s ^ " is supplied with wrong args"))
+			  let func_info_formals = func_info.A.formals in
+			  if List.length func_info_formals != List.length el then
+			  raise (Exceptions.InvalidArgumentsToFunction (s ^ " is supplied with wrong args"))
 	else
 		List.iter2 (fun (ft,_) e -> let e = check_expr e env in ignore(check_assign ft e (Exceptions.InvalidArgumentsToFunction ("Args to functions " ^ s ^ " don't match up with it's definition")))) func_info_formals el;
 	func_info.A.typ
 	| A.BoolLit(_) -> A.Primitive(A.Bool)
 	| A.Null(t) -> t
+	| A.Dubs -> A.Primitive(A.Void)
 
 (* Checks if expr is a boolean expr. Used for checking the predicate of things like if, while statements *)
 let check_is_bool expr env = 
@@ -341,7 +424,8 @@ let rec check_stmt stmt env =
 			  [A.Return _ as s] -> let tmp_block = check_stmt s env2 in ([tmp_block]) 
 			| A.Return _ :: _ -> raise (Exceptions.InvalidReturnType "Can't have any code after return statement")
 			| A.Block l :: ss -> check_block (l @ ss) env2
-			| l :: ss -> let tmp_block = (check_stmt l env2) in let tmp_block2 = (check_block ss env2) in ([tmp_block] @ tmp_block2)
+			| l :: ss -> let tmp_block = (check_stmt l env2) in 
+				let tmp_block2 = (check_block ss env2) in ([tmp_block] @ tmp_block2)
 			| [] -> ([]))
 			in
 			let checked_block = check_block l env in S.SBlock(checked_block)
@@ -352,10 +436,10 @@ let rec check_stmt stmt env =
 	| A.While(e,s) -> ignore(check_is_bool e env); S.SWhile (expr_sast e env, check_stmt s env)
 	| A.For(e1,e2,e3,s) -> ignore(e1);ignore(e2);ignore(e3);ignore(s); S.SFor(expr_sast e1 env, expr_sast e2 env, expr_sast e3 env, check_stmt s env) 
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
-	| A.Assert(e) -> ignore(check_is_bool e env); let curr_name = 
-		(match env.func_name with 
-		  Some(n) -> n 
-		| None -> "" ) in let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " passed")])) in let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(curr_name ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
+	| A.Assert(e) -> ignore(check_is_bool e env); 
+			let str_expr = string_of_expr e env in  
+			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed")])) in 
+			let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
 (* Converts 'using' code from ast to sast *)
 let with_using_sast r env = 
@@ -373,7 +457,8 @@ let convert_test_to_func using_decl test_decl env =
 	let test_asserts = List.rev test_decl.A.asserts in
 	let concat_stmts = using_decl.A.stmts @ test_asserts  in
 	(match env.func_name with
-	  Some(fn) ->let new_func_name = fn ^ "test" in  let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
+	  Some(fn) ->let new_func_name = fn ^ "test" in  
+		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
 
 	|  None -> raise (Exceptions.BugCatch "convert_test_to_func")
 )
