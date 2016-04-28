@@ -94,16 +94,42 @@ let rec string_of_expr e env =
 		| A.Mod  -> "%"
 		| A.Exp -> "^"
 		) in (String.concat " " [str1;str_op;str2])
-  	| A.Unop  (_,_) -> ""
+  	| A.Unop(u,e) -> let str_expr = string_of_expr e env in
+			 let str_uop = 
+			(match u with
+			  A.Neg -> "-"
+			| A.Not -> "!"
+			| A.Addr -> "&"
+			) in
+			let str1 = String.concat "" [str_uop; str_expr] in str1
   	| A.Assign (_,_) -> ""
   	| A.Noexpr -> ""
   	| A.Id(s) -> s
   	| A.Struct_create(_) -> ""
-  	| A.Struct_access(_,_) -> ""
-  	| A.Pt_access(_,_) -> ""
+  	| A.Struct_access(e1,e2) -> let str1 = string_of_expr e1 env in
+				let str2 = string_of_expr e2 env in
+				let str_acc = String.concat "." [str1; str2] in str_acc
+  	| A.Pt_access(e1,e2) -> let str1 = string_of_expr e1 env in
+				let str2 = string_of_expr e2 env in
+				let str_acc = String.concat "->" [str1; str2] in str_acc
+
   	| A.Dereference(e) -> let str1 = string_of_expr e env in (String.concat "" ["*"; str1])
-  	| A.Array_create(_,_) -> ""
-  	| A.Array_access(_,_) -> ""
+  	| A.Array_create(i,p) -> let str_int = string_of_int i in
+			let rb = "]" in
+			let lb = "[" in
+			let new_ = "new" in 
+			let str_prim =
+			(match p with
+			  A.Int -> "int"
+			| A.Double ->"double"
+			| A.Char -> "char"
+			| _ -> raise (Exceptions.BugCatch "string_of_expr")
+			) in let str_ar_ac = String.concat "" [new_; " "; str_prim; lb; str_int; rb] in str_ar_ac   
+  	| A.Array_access(e,i) -> let lb = "[" in
+			let rb = "]" in
+			let str_int = string_of_int i in
+			let str_expr = string_of_expr e env in
+			let str_acc = String.concat "" [str_expr; lb; str_int; rb] in str_acc
   	| A.Free(_) -> ""
   	| A.Call(s,le) -> let str1 = s ^"(" in 
 		let str_exprs_rev = List.map (fun n -> string_of_expr n env) le in 
