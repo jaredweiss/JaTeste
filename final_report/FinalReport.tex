@@ -93,10 +93,25 @@ The goal of JaTest\'{e} is to design a language that promotes good coding practi
 \subsection {Language Description}
 JaTest\'{e} is mostly a functional language with a syntax quite similar to C.  The details of our language usage is provided in the rest of the document.
 
-\subsection{Simple Example}
-
 \subsection{Running the JaTeste Compiler}
 The JaTest\'{e} compiler will generate a test file based on the input program. At compile time, two files will be generated: (1) an executable file, and (2) an executable test file with all the relevant test cases. This allows the user to continue with his or her normal work flow and minimize interference from the compiler, while at the same time providing a robust test file to fully test one's program. 
+
+When inside the src folder, type make all to generate the jateste executable. To run type ./jatests.native [optional -options] $<$source file$>$\\
+\\
+The optional -options are:
+\begin{itemize}
+\item{"-t" Compile with test}
+\item{"-l" Scan only}
+\item{"-p" Parse only}
+\item{"-se" SAST}
+\item{"-ast" AST}
+\end{itemize}
+
+\newpage
+
+\section{Sample Programs}
+
+\newpage
 
 \section*{Language Reference Manual}
 
@@ -655,7 +670,6 @@ The keyword ``func'' is used to declare a function. A return type is also requir
 func int add(int a, int b); /* this functions has two int parameters as input and returns an int */
 func void say_hi(); /* this function doesn't return anything nor takes any parameters */
 func int isSam(string name, int age); /* this functions has two input parameters, one of type string and one of type int */
-
 \end{lstlisting}
 
 \subsection{Function Definitions}
@@ -854,23 +868,49 @@ int b = 10;
 As explained in the comments, the ``using'' section is matched up with the second test case.
 \\
 Test cases are compiled into a separate program which can subsequently be run. The program will run all test cases and output appropriate information.
-	
-\section{Project Plan}
 
-\subsection{Planning Process}
+\newpage
+
+\section{Project Plan}
+We arranged weekly meetings with our designated TA, David Watkins, to discuss progress and ask questions about issues we encountered. David's feedback helped us to make crucial decisions along the way, and kept us heading in the right direction. After meeting with David, we would work together as a group each week. During these meetings we would split up the work, and often have two people working together doing paired programming. 
 
 \subsection{Project Timeline}
+**not sure about this....
+\begin{itemize}
+\item{Proposal submitted}
+\item{LRM submitted, scanner and parser working}
+\item{AST}
+\item{'Hello, World' working}
+\item{Semantic analyzer and SAST}
+\item{Code generator}
+\item{With Test working}
+\item{Libraries and additional features}
+\end{itemize}
 
 \subsection{Workflow}
 
-\subsection{Github Issue History} 
+\subsection{Github Stats} 
 
 \subsection{Team Responsibilities}
+Our team didn't use rigid roles. The responsibilities became more fluid as the project progressed. In the beginning phases of the project, all members discussed and gave input on the components of the language and what features to include/omit. Throughout the project we exercised paired programming to write the code. In the end stages....
 
 \subsection{Software Development Environment}
+\begin{itemize}
+\item Version Control \\
+	- Git \\
+\item Languages \\
+	- OCaml for parser, scanner, ast, semantic checker, sast, code generation \\
+	-LaTex for reports and documentation \\
+\item Text Editors \\
+	- Vim \\
+\end{itemize}
 
+
+\newpage
 
 \section{Architecture}
+
+\subsection{Block Diagram}
 
 \subsection{The Compiler}
 
@@ -885,14 +925,980 @@ Test cases are compiled into a separate program which can subsequently be run. T
 \subsection{Supplementary Code} %libraries, built in functions, etc
 
 
+\newpage
+
 \section{Testing}
 
 \subsection{Test Plan}
 
 \subsection{Test Suite Log}
+We wrote tests for every feature in the compiler. There are several small tests that we used to test individual elements such as structs, function calls, loops, etc. We included tests that were expected to pass, as well as tests that were expected to fail\\
+Test Suite Log:\\
+========= Running All Tests! ========== \\
+make[1]: Entering directory '/home/plt/JaTeste/test' \\
+Makefile:23: warning: overriding recipe for target 'all-tests' \\
+Makefile:15: warning: ignoring old recipe for target 'all-tests' \\
+Testing 'hello-world.jt' \\
+  ----$>$  Test passed!\\
+Testing 'global-scope.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-func1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-func2.jt'\\
+  ----$>$  Test passed!\\
+========= Runtime Tests Passed! ==========\\
+Testing 'local-var-fail.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'no-main-fail.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'return-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'struct-access-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'invalid-assignment-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+======= Compilation Tests Passed! ========\\
+Testing 'test-func3.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-pointer1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-while1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-for1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-malloc1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-free1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-testcase1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-testcase2.jt'\\
+  ----$>$  Test passed!//
+Testing 'test-testcase3.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-array1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-lib1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-gcd1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-struct-access1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-bool1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-bool2.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-arraypt1.jt'\\
+  ----$>$  Test passed!\\
+=========== All Tests Passed! ============\\
+
 
 \subsection{Test Automation}
+We had x tests in our test suite. In order to run all of the tests and see if they pass, type make all in the src directory. This diffs the outputs of the tests with the files that we created that include expected outputs. If there are differences, it marks the test as a failure, otherwise it prints "Test passed!" as can be seen in the Test Suit Log
 
+\subsection{Tests}
+
+global-scope.jt
+\begin{lstlisting}
+int global_var;
+
+func int main()
+{
+	int temp;
+	global_var = 10;
+	temp = 20;
+	my_print();
+	return 0;
+}
+
+func void my_print()
+{
+	int temp;
+	if (global_var == 10) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+	if (temp == 20) {
+		print("failed");
+	} else {
+		print("passed");
+	}
+
+}
+\end{lstlisting}
+
+global-scope.out
+\begin{lstlisting}
+passed
+passed
+\end{lstlisting}
+
+\newpage
+
+hello-world.jt
+\begin{lstlisting}
+func int main()
+{
+	print("hello world!");
+
+	return 0;
+}
+\end{lstlisting}
+
+hello-world.out
+\begin{lstlisting}
+hello world!
+\end{lstlisting}
+
+\newpage
+
+
+invalid-assignment-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	char b;
+	a = b;
+}
+\end{lstlisting}
+
+invalid-assignment-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.IllegalAssignment
+\end{lstlisting}
+
+\newpage
+
+
+local-var-fail.jt
+\begin{lstlisting}
+func int main()
+{
+	int main_var;
+	main_var = 10;
+	return 0;
+}
+func void do_something_sick()
+{
+	int my_var;
+	main_var;
+}
+\end{lstlisting}
+
+local-var-fail.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.UndeclaredVariable("main_var")
+\end{lstlisting}
+
+\newpage
+
+no-main-fail.jt
+\begin{lstlisting}
+func int my_main()
+{
+	return 0;
+}
+\end{lstlisting}
+
+no-main-fail.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.MissingMainFunction
+\end{lstlisting}
+
+\newpage
+
+
+return-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	int b;
+	int c;
+	int d;
+
+	a = 1;
+	b = 2;
+	c = 3;
+
+	d = do_something(a,b,c);
+
+	return 0;
+	d = 10;
+}
+
+func int do_something(int x, int y, int z)
+{
+	return x + y + z;
+}
+\end{lstlisting}
+
+return-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidReturnType("Can't have any code after return statement")
+\end{lstlisting}
+
+\newpage
+
+
+struct-access-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+	struct car *toyota;
+	
+	toyota = new struct car;
+
+	toyota->priice;	
+
+	return 0;
+}
+
+struct car {
+	int price;
+	int year;
+	int weight;
+};
+\end{lstlisting}
+
+struct-access-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidStructField
+\end{lstlisting}
+
+\newpage
+
+
+test-array1.jt
+\begin{lstlisting}
+func int main()
+{
+	int[10] arr;
+	int a;
+	int b;
+
+	a = 10;
+	
+	arr[2] = 10;
+	
+	b = arr[2];
+
+	if (b == 10) {
+		print("passed");
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-array1.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+
+test-arraypt1.jt
+\begin{lstlisting}
+func int main()
+{
+	int[10] *arr;
+	int a;
+	int b;
+	int c;
+
+	arr = new int[10];
+
+	arr[8] = 9;
+	arr[3] = 7;
+
+	c = arr[3];
+	b = arr[8];
+
+	if (c == 7) {
+		print("passed");
+		if (b == 9) {
+			print("passed");
+		}
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-arraypt1.out
+\begin{lstlisting}
+passed
+passed
+\end{lstlisting}
+
+\newpage
+
+test-bool1.jt
+\begin{lstlisting}
+func int main()
+{
+	bool my_bool;
+	bool my_bool2;	
+
+	my_bool = true;
+	my_bool2 = false;
+
+	if (my_bool || my_bool2) {
+		print("or passed");
+	}
+
+	if (my_bool && my_bool2) {
+	} else {
+		print("and passed");
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-bool1.out
+\begin{lstlisting}
+or passed
+and passed
+\end{lstlisting}
+
+\newpage
+
+
+test-bool2.jt
+\begin{lstlisting}
+func int main()
+{
+	bool my_bool;
+
+	my_bool = false;
+
+	if (!my_bool) {
+		print("passed");
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-bool2.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+
+test-for1.jt
+\begin{lstlisting}
+func int main()
+{
+	int i;
+	for (i = 0; i < 5; i = i + 1) {
+		print(i);
+	}
+	return 0;
+}
+\end{lstlisting}
+
+test-for1.out
+\begin{lstlisting}
+0
+1
+2
+3
+4
+\end{lstlisting}
+
+\newpage
+
+test-free1.jt
+\begin{lstlisting}
+func int main()
+{
+	struct person *sam;
+
+	sam = new struct person;
+		
+	sam->age = 100;
+	sam->height = 100;
+	sam->gender = 100;
+	
+	free(sam);
+
+	print("freed");
+	
+	
+	return 0;
+}
+
+struct person {
+	int age;
+	int height;
+	int gender;
+};
+\end{lstlisting}
+
+test-for1.out
+\begin{lstlisting}
+0
+1
+2
+3
+4
+\end{lstlisting}
+
+\newpage
+
+test-free1.jt
+\begin{lstlisting}
+func int main()
+{
+	struct person *sam;
+
+	sam = new struct person;
+		
+	sam->age = 100;
+	sam->height = 100;
+	sam->gender = 100;
+	
+	free(sam);
+
+	print("freed");
+	
+	
+	return 0;
+}
+
+struct person {
+	int age;
+	int height;
+	int gender;
+};
+\end{lstlisting}
+
+test-free1.out
+\begin{lstlisting}
+freed
+\end{lstlisting}
+
+\newpage
+
+
+test-func1.jt
+\begin{lstlisting}
+func int main()
+{
+	int sum;
+	sum = add(10,10);
+	if (sum == 20) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+	return 0;
+}
+
+func int add(int x, int y)
+{
+	return x + y;
+}
+\end{lstlisting}
+
+test-func1.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+
+test-func2.jt
+\begin{lstlisting}
+int global_var;
+
+func int main()
+{
+	global_var = 0;
+	add_to_global();
+	if (global_var == 1) {	
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+}
+
+func void add_to_global()
+{
+	global_var = global_var + 1;
+}
+\end{lstlisting}
+
+test-func2.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+
+test-func3.jt
+\begin{lstlisting}
+func int main()
+{	
+	int a;
+	struct person *sam;
+	sam = new struct person;
+	update_age(sam);
+
+	a = sam->age;
+
+	if (a == 10) {
+		print("passed");
+	}
+
+	return 0;
+}
+
+func void update_age(struct person *p)
+{
+	p->age = 10;
+}
+
+struct person {
+	int age;
+	int height;
+};
+\end{lstlisting}
+
+test-func3.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+
+test-gcd1.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	int b;
+	int c;
+
+	c = gcd(15,27);
+
+	if (c == 3) {
+		print("passed");
+	}
+
+	return 0;
+
+}
+
+func int gcd(int a, int b)
+{
+	while (a != b) {
+		if (a > b) {
+			a = a - b;
+		}
+		else { 
+			b = b - a; 
+		}
+	}
+	return a;
+}
+\end{lstlisting}
+
+test-gcd1.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+
+test-lib1.jt
+\begin{lstlisting}
+
+#include_jtlib <math.jt>
+
+func int main()
+{
+	int a;
+	int b;
+	int c;
+	a = 10;
+	b = 3;
+
+	c = add(a,b);
+	if (c == 13) {
+		print("passed");
+	}
+}
+\end{lstlisting}
+
+test-lib1.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+
+test-linkedlist1.jt
+\begin{lstlisting}
+#include_jtlib <int_list.jt>
+
+func int main()
+{
+
+	struct int_list *my_list;
+	my_list = int_list_initialize();
+	int_list_insert(my_list,9);
+	int_list_insert(my_list,5);
+	int_list_insert(my_list,8);
+	int_list_insert(my_list,10);
+	int_list_insert(my_list,40);
+	int_list_insert(my_list,11);
+	int_list_insert(my_list,0);
+	int_list_insert(my_list,9);
+	int_list_insert(my_list,478);
+	int_list_print(my_list);
+
+	return 0;
+}
+\end{lstlisting}
+
+test-linkedlist1.out
+\begin{lstlisting}
+9
+5
+8
+10
+40
+11
+0
+9
+478
+\end{lstlisting}
+
+\newpage
+
+test-linkedlist2.jt
+\begin{lstlisting}
+#include_jtlib <int_list.jt>
+
+func int main()
+{
+	struct int_list *header;
+	header = int_list_initialize();
+	int_list_insert(header,2);
+	int_list_insert(header,2);
+	int_list_insert(header,3);
+	int_list_insert(header,9);
+	int_list_insert(header,100);
+	int_list_insert(header,61);
+
+	if (int_list_contains(header,100) == true) {
+		print("passed contains test");
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-linkedlist2.out
+\begin{lstlisting}
+passed contains test
+\end{lstlisting}
+
+\newpage
+
+test-malloc1.jt
+\begin{lstlisting}
+func int main()
+{
+
+	struct person *andy;
+	int *a;
+	int b;
+	int zipcode;
+
+	andy = new struct person;
+
+	b = 25;
+	
+	a = &b;
+	
+	andy->age = *a;
+	andy->height = 100;
+	andy->zipcode = 10027;
+
+	
+	zipcode = andy->zipcode;
+
+	if (zipcode == 10027) {
+		print("passed");
+	}
+
+	*a = andy->age;
+
+	if (*a == 25) {
+		print("word up");
+	}
+
+	return 0;
+
+}
+
+
+struct person {
+	int age;
+	int zipcode;
+	int height;
+};
+\end{lstlisting}
+
+test-malloc1.out
+\begin{lstlisting}
+passed
+word up
+\end{lstlisting}
+
+\newpage
+
+test-pointer1.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	int b;
+	int *c;
+
+
+	a = 10;
+	b = 500;
+
+	c = &b;
+
+	if (*c == 500) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-pointer1.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+
+test-struct-access1.jt
+\begin{lstlisting}
+func int main()
+{
+	struct house my_house;
+	int a;
+	int b;
+	int c;
+	
+	a = 99;	
+	my_house.price = a;
+	c = my_house.price;
+	my_house.age = 10;
+	b = my_house.age;
+
+	print(c);
+	print(b);
+	
+	return 0;
+}
+
+struct house {
+	int price;
+	int age;
+};
+\end{lstlisting}
+
+test-struct-access1.out
+\begin{lstlisting}
+99
+10
+\end{lstlisting}
+
+\newpage
+
+test-testcase1.jt
+\begin{lstlisting}
+func int main()
+{
+	int i;
+	i = add(2,3);
+	if (i == 5) {
+		print("passed");
+	}
+	return 0;
+}
+
+
+func int add(int x, int y)
+{
+	return x + y;
+} with test {
+	assert(a == a);
+} using {
+	int a;
+	int b;
+	a = 10;
+	b = 5;
+}
+\end{lstlisting}
+
+test-testcase1.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+test-testcase2.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	int b;
+	int c;
+
+	a = 10;
+	b = 5;
+	c = 0;
+
+	a = b - c;
+	if (a == 5) {
+		print("passed");
+	}
+	return 0;
+}
+
+
+func int sub(int x, int y)
+{
+	return x - y;
+} with test {
+	assert(a == b - 5);
+} using {
+	int a;
+	int b;
+	a = 5;
+	b = 10;
+}
+\end{lstlisting}
+
+test-testcase2.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+test-testcase3.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	int b;
+	int c;
+
+	a = 10;
+	b = 23;
+
+	c = max(a, b);
+
+	if (c == 23) {
+		print("passed");
+	}
+
+	return 0;
+}
+
+func int max(int x, int y)
+{
+	if (x > y) {
+		return x;
+	}
+	return y;
+} with test {
+	 assert((max(a,b) == 10));
+} using {
+	int a;
+	int b;
+	a = 10;
+	b = 9;
+}
+\end{lstlisting}
+
+test-testcase3.out
+\begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+test-while1.jt
+\begin{lstlisting}
+func int main()
+{
+	int i;
+	int sum;
+	i = 0;
+	while (i < 10) {
+		print("looping");	
+		i = i + 1;
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-while1.out
+\begin{lstlisting}
+looping
+looping
+looping
+looping
+looping
+looping
+looping
+looping
+looping
+looping
+\end{lstlisting}
+
+\newpage
 
 \section{Conclusion}
 \subsection{Lessons Learned}
@@ -900,6 +1906,8 @@ Test cases are compiled into a separate program which can subsequently be run. T
 \subsubsection{Jemma}
 \subsubsection{Jared}
 \subsubsection{Jake}
+
+\newpage
 
 \section{Code}
 \subsection{scanner.mll}
