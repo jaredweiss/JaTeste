@@ -1,14 +1,23 @@
-*.aux
-*.log
-*.synctex.gz
-*a.out
+# Mac-specific ignores
+*.DS_Store
+
+# Intermediate JaTeste compiling files
 *.cmi
 *.cmo
-*.swp
 scanner.ml
 interpreter
 parser.ml
 parser.mli
 src/_build/
+
+# The built compiler
 src/jateste.native
+
+# Compiled '.ll' files
 *.ll
+
+# Other
+*.aux
+*.log
+*.synctex.gz
+*.swp
