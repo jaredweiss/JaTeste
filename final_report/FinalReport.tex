@@ -88,28 +88,160 @@
 \section{Introduction}
 
 \subsection{Motivation}
-The goal of JaTest\'{e} is to design a language that promotes good coding practices - mainly as it relates to testing.  JaTest\'{e} will require the user to explicitly define test cases for any function that is written in order to compile and execute code.  This will ensure that no code goes untested and will increase the overall quality of programmer code written in our language. By directly embedding test cases into source code, we remove the hassle associated with manually creating new test files. 
+The goal of JaTest\'{e} is to design a language that promotes good coding practices - mainly as it relates to testing.  JaTest\'{e} will require the user to explicitly define test cases for any function that is written in order to compile and execute code.  This will ensure that no code goes untested and will increase the overall quality of programmer code written in our language. By directly embedding test cases into source code, we remove the hassle associated with manually creating new test files.
 
 \subsection {Language Description}
-JaTest\'{e} is mostly a functional language with a syntax quite similar to C.  The details of our language usage is provided in the rest of the document.
+JaTest\'{e} is an imperative, C-like language, with a few object oriented features added, that makes it easy to add test cases to one's code. The syntax is very similar to C, but with added capability of adding methods directly 
+to ``structs". Furthermore, test cases are appended to user-defined functions, that enable the user to define test cases right away. By appending the keyword ``with test" onto the end of a function, the programmer is able to test his or her code straight away. Code samples will be supplied through the report. 
 
 \subsection{Running the JaTeste Compiler}
-The JaTest\'{e} compiler will generate a test file based on the input program. At compile time, two files will be generated: (1) an executable file, and (2) an executable test file with all the relevant test cases. This allows the user to continue with his or her normal work flow and minimize interference from the compiler, while at the same time providing a robust test file to fully test one's program. 
-
-When inside the src folder, type make all to generate the jateste executable. To run type ./jatests.native [optional -options] $<$source file$>$\\
+At compile time, The JaTest\'{e} compiler generates two files: (1) an executable file, and (2) an executable test file with all the relevant test cases.  This allows the user to continue with his or her normal work flow and minimize interference from the compiler, while at the same time providing a robust test file to fully test one's program. All code is compiled into LLVM, a portable assembly-like language. To run the compiled LLVM code, we use `lli", an LLVM interpreter. 
+\par
+For the first file, the compiler completely disregards the test cases and thus produces an executable without any of the test cases code. This enables the programmer to produce a regular executable without the overhead of the test cases when he or she desired. 
+\par
+For the second file, the compiler turns the test cases into functions, and precedes to run each function from a completely brand new ``main" method. ``main" essentially runs through each function, each of which runs the user-defined tests. Furthermore, the compiler adds ``printf" calls to each test letting the user known whether a given test passed or failed.
+\par
+When inside the src folder, type ``make all" to generate the jateste executable. To run type ./jateste.native [optional -options] $<$source\_file$>.jt$\\
 \\
 The optional -options are:
 \begin{itemize}
+\item{No arguments}
+If run without arguments, the compiler ignores the test cases and creates one executable.
 \item{"-t" Compile with test}
+This results in the compiler creating two LLVM files: 1) a regular executable named ``source\_file.ll" 2) a test file named ``source\_file-test.ll"
 \item{"-l" Scan only}
+This results in the compiler simply scanning the source code
 \item{"-p" Parse only}
+This results in the compiler simply parsing the source code
 \item{"-se" SAST}
+This results in the compiler running the semantic checker on the source code and the stopping.
 \item{"-ast" AST}
+This also results in the compiler running the semantic checker on the source code and the stopping.
 \end{itemize}
+
 
 \newpage
 
-\section{Sample Programs}
+\section{Short Tutorial}
+\subsection{JaTest\'{e} Overview}
+Any given JaTest\'{e} program can be broken down into three segments: 1) global variable declarations 2) function definitions 3) struct definitions. 
+\par
+Global variable declarations are exactly like in C. 
+\par
+Function definitions are similar to C, except the keyword ``func" is needed before the return type. Furthermore, all variable declarations must be done at the top of a function. Any function with return type other than void, must use the keyword ``return" to return the given value; code cannot be written after a return statement. 
+\par
+Structs are also similar to C, except the programmer can define methods within the struct. 
+\subsection{Samples Programs}
+\begin{enumerate}
+\item Here's the first example of a JaTest\'{e} program. As illustrated, the syntax is very similar to C. Note the keyword ``func" that is needed for defining functions. 
+\begin{lstlisting}
+func int main()
+{
+        int i;
+        i = add(2,3);
+        if (i == 5) {
+                print("passed");
+        }
+        return 0;
+}
+
+
+func int add(int x, int y)
+{
+        return x + y;
+} with test {
+        assert(add(a,0)  == 10);
+} using {
+        int a;
+        int b;
+        a = 10;
+        b = 5;
+}
+\end{lstlisting}
+As can be seen the ``add" function has a snippet of code directly preceding it. This is an example of using test cases. The code within the ``with test" block defines the test cases for the add function. Furthermore, note the code following the test case that starts with ``using $\ldots $". The block is used to setup the environment for the test cases. In this example, the test single test case ``assert(a == 10);" references the variable ``a"; it is within ``using " block scope that a is defined. 
+\item
+Here's another example program: \\
+\begin{lstlisting}
+func int main()
+{
+        int a;
+        int b;
+        int c;
+
+        a = 10;
+        b = 5;
+        c = 0;
+
+        a = b - c;
+        if (a == 5) {
+                print("passed");
+        }
+        return 0;
+}
+
+
+func int sub(int x, int y)
+{
+        return x - y;
+} with test {
+        assert(sub(10,5) == b - 5);
+        assert(sub(b,d) == 1);
+        assert(sub(c,d) == 4);
+} using {
+        int a;
+        int b;
+        int c;
+        int d;
+        a = 5;
+        b = 10;
+        c = 13;
+        d = 9;
+}
+\end{lstlisting}
+This example is similar to the previous one; however, note that there are now multiple ``asserts". The programmer may define as many test cases as he or she wants. When compiled with the ``-t" command line argument, the compiler creates a file ``test-testcase2-test.ll" (the name of the source program being ''test-testcase2.jt" in this case. 
+When ``lli test-testcase2-test.l" is run, the output is: \\
+Tests: \\
+subtest tests: \\
+sub(10,5) == b - 5 passed \\
+sub(b,d) == 1 passed \\
+sub(c,d) == 4 passed \\
+\item
+Here's another example that uses structs. The syntax is very similar to C: \\
+
+\begin{lstlisting}
+int global_var;
+
+func int main()
+{
+        int tmp;
+        struct rectangle *rec_pt;
+        rec_pt = new struct rectangle;
+        update_rec(rec_pt, 6);
+        tmp = rec_pt->width;
+
+        print(tmp);
+
+        return 0;
+}
+
+func void update_rec(struct rectangle *p, int x)
+{
+        p->width = x;
+} with test {
+        assert(t->width == 10);
+} using {
+        struct rectangle *t;
+        t = new struct rectangle;
+        update_rec(t, 10);
+}
+
+struct rectangle {
+        int width;
+        int height;
+};
+\end{lstlisting}
+Note the syntax here: global variables are declared at the top, functions are defined in the middle, and structs are defined at the bottom. This is required for all  JaTest\'{e} programs. 
+\end{enumerate}
 
 \newpage
 
@@ -126,12 +258,11 @@ Identifiers are used to name a variable, a function, or other types of data.  An
 ID = "(['a'-'z' 'A'-'Z'] | '_') (['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_')*"
 \end{Verbatim}
 
-
 \subsection{Keywords}
 % Just a list of reserved keywords
 Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
 
-\texttt{int, char, double, struct, if, else, for, while, with test, using, func, return, string, int*, char*, struct*, double*, new, int[], char[], double[]}
+\texttt{int, char, double, struct, bool, if, else, for, while, with test, using, assert, true, false, func, method, malloc, free, NULL, return, string, int*, char*, struct*, double*, new, int[], char[], double[]}
 
 \subsection{Constants}
 % How to define constants such as x = 5
@@ -144,6 +275,7 @@ Integer constants are a sequence of digits. An integer is taken to be decimal. T
 \begin{Verbatim}[frame=single]
 digit = ['0' - '9']
 int = digit+
+
 \end{Verbatim}
 
 \subsubsection{Double Constants}
@@ -151,7 +283,7 @@ int = digit+
 Real number constants represent a floating point number. They are composed of a sequence of digits, representing the whole number portion, followed by a decimal and another sequence of digits, representing the fractional part. Here are some examples. The whole part or the fractional part may be omitted, but not both.  The regular expression for a double is as follows:
 
 \begin{Verbatim}[frame=single]
-double = int | digit*['.']digit+ | digit+['.']digit*
+double = (digit+) ['.'] digit+
 \end{Verbatim}
 
 \subsubsection{Character Constants}
@@ -167,7 +299,7 @@ char = ['a' - 'z' 'A' - 'z']
 Strings are a sequence of characters enclosed by double quotes. A String is treated like a character array. The regex for a string is as follows:
 
 \begin{Verbatim}[frame=single]
-string = char*
+my_string = '"' (['a' - 'z'] | [' '] | ['A' - 'Z'] | ['_'] | '!' | ',' )+ '"'
 \end{Verbatim}
 Strings are immutable; once they have been defined, they cannot change.
 
@@ -199,12 +331,12 @@ Separators are used to separate tokens. Separators are single character tokens, 
 ','	{ COMMA }
 \end{Verbatim}
 
-\section{Data Types}
+\subsection{Data Types}
 The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays. 
 
 \subsection{Primitives}
 % Define primitives and values they can hold
-The primitives our language recognizes are int, double, char, and string. 
+The primitives our language recognizes are int, bool, double, char, and string. 
 
 \subsubsection{Integer Types}
 The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword \texttt{int} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
@@ -224,6 +356,14 @@ The grammar that recognizes an integer initialization is:
 \begin{Verbatim}[frame=single]
 ID ASSIGN expr
 \end{Verbatim}
+
+\subsubsection{bool Types}
+The bool type is your standard boolean data type that can take on one of two values: 1) true 2) false. Booleans get compiled into 1 bit integers.
+
+\begin{lstlisting}
+ bool my_bool;
+ my_bool = true;
+\end{lstlisting}
 
 \subsubsection{Double Types}
 The double data type is a 64 bit value.  Keyword \texttt{double} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
@@ -280,15 +420,30 @@ typ ID ASSIGN expr SEMI
 
 \subsection{Structures}
 % I.e. structs
-The structure data type is a user-defined collection of primitive types and other structure data types. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is actually made of. As an example, consider the following:
+The structure data type is a user-defined collection of primitive types, other structure data types and, optionally, methods. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is actually made of. As an example, consider the following:
 
 \subsubsection{Defining Structures}
 
 \begin{lstlisting}
-struct person = {
-string name;
-int age;
-int height;
+struct square {
+        int height;
+        int width;
+
+        method int get_area()
+        {
+                int temp_area;
+                temp_area = height * width;
+                return temp_area;
+        }
+
+        method void set_height(int h) {
+                height = h;
+        }
+
+        method void set_width(int w) {
+                width = w;
+        }
+
 };
 
 struct manager = {
@@ -296,10 +451,10 @@ struct person name;
 int salary;
 };
 \end{lstlisting}
-Here we have defined two structs, the first being of type \texttt{struct person} and the second of type \texttt{struct manager}.  The grammar that recognizes defining a structure is as follows:
+Here we have defined two structs, the first being of type \texttt{struct square} and the second of type \texttt{struct manager}. The square struct has methods associated with it, unlike the manage struct which is just like a regular C struct.  The grammar that recognizes defining a structure is as follows:
 
 \begin{Verbatim}[frame=single]
-STRUCT STRING_LITERAL ASSIGN LBRACE vdecl_list RBRACE
+STRUCT ID LBRACE vdecl_list struc\_func\_decls RBRACE SEMI
 \end{Verbatim}
 
 \subsubsection{Initializing Structures}
@@ -313,18 +468,29 @@ struct person sam = new struct person;
 NEW STRUCT ID 
 \end{Verbatim}
 
-Here, we create two variables yahoo\_manager and sam. The first is of type ``struct manager'', and the second is of type ``struct person''.
+Here, we create two variables yahoo\_manager and sam. The first is of type ``struct manager'', and the second is of type ``struct person''. When using the ``new" keyword, the memory is allocated on the heap for the given structs. Structs can also be allocated on the stack as follows:
+
+\begin{lstlisting}
+struct manager yahoo_manager;
+struct person sam;
+\end{lstlisting}
 
 \subsubsection{Accessing Structure Members}
 
- To access structs and modify its variables, a period following by the variable name is used:
+ To access structs and modify its variables, a right arrow as in C is used followed by the variable name is used:
 
+ \begin{lstlisting}
+yahoo_manager->name = sam;
+yahoo_manager->age = 45;
+yahoo_manager->salary = 65000;
+\end{lstlisting}
+
+If the struct is allocated on the stack, use:
  \begin{lstlisting}
 yahoo_manager.name = sam;
 yahoo_manager.age = 45;
 yahoo_manager.salary = 65000;
 \end{lstlisting}
- Ultimately, all structures are backed by some collection of primitives. For example, the first structure, ``struct manager'', is made up of another struct and an int. Since ``struct person'' is made up of two ints, ``struct manager'' is really just made up of three ints. Note accessing members of structs is actually just another expression and thus always returns some value.
  
  
 \begin{Verbatim}[frame=single]
