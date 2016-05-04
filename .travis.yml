@@ -12,7 +12,8 @@ addons:
     - m4
     - pkg-config
     - make
-    - curl
+    - llvm-3.8-dev
+    - llvm-3.8
     - llvm
 
 before_script:
