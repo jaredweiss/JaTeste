@@ -3,7 +3,7 @@ addons:
     sources:
     - avsm
     - llvm-toolchain-precise
-    - llvm-toolchain-precise-3.8
+    - llvm-toolchain-precise-3.7
     packages:
     - opam
     - m4
@@ -18,5 +18,4 @@ before_script:
   - opam install llvm -y
 
 script:
-  - export PATH=$PATH:$HOME/llvm
   - make all
