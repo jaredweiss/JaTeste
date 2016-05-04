@@ -24,6 +24,7 @@ type environment = {
 	return_type : A.typ option;
 	func_name : string option;
 	in_test_func : bool;
+	in_struct_method : bool;
 }
 
 (* For debugging *)
@@ -311,9 +312,11 @@ let struct_sast r =
 let add_pt_to_arg s f =
 	let tmp_formals = f.A.formals in
 	let tmp_type = A.Pointer_typ(A.Struct_typ(s.A.sname)) in 
-	let new_formal = (tmp_type, "*p") in
+	let tmp_string = "*p" in
+	let new_formal:(A.bind) = (tmp_type, tmp_string) in
 	let formals_with_pt = new_formal :: tmp_formals in
-	formals_with_pt
+	let new_func = {A.typ = f.A.typ ; A.fname = f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
+	new_func
 
 (* Creates new functions whose first paramters is a pointer to the struct type that the method is associated with *)
 let add_pts_to_args s fl = 
@@ -330,7 +333,7 @@ let check_structs structs =
 	ignore (List.map (fun n -> (List.iter (check_not_void (fun n -> "Illegal void field" ^ n)) n.A.attributes)) structs);
 	ignore(List.iter (fun n -> Hashtbl.add struct_types n.A.sname n) structs);
 	let tmp_funcs = List.map (fun n -> (n, n.A.methods)) structs in
-	let tmp_funcs_with_formals = List.map (fun s -> (add_pts_to_args (fst s) (snd s))) tmp_funcs in
+	let tmp_funcs_with_formals = List.fold_left (fun l s  -> let tmp_l = (add_pts_to_args (fst s) (snd s)) in l @ tmp_l) [] tmp_funcs in
 	(structs, tmp_funcs_with_formals)
 
 (* Globa variables semantic checker *)
@@ -515,14 +518,14 @@ let rec check_function_body funct env =
 		| _ -> ()
 	) formals_and_locals;
 	(* Create new enviornment -> symbol table parent is set to previous scope's symbol table *)
-	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name); in_test_func = env.in_test_func} in
+	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name); in_test_func = env.in_test_func ; in_struct_method = false} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
 	let body_with_env = List.map (fun n -> check_stmt n new_env) funct.A.body in
 	(* Compile code for test case iff a function has defined a with test clause *)
 	let sast_func_with_test = 
 		(match funct.A.tests with
-		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env2 = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") ; in_test_func = true} in
+		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env2 = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") ; in_test_func = true ; in_struct_method = false} in
 	Some(check_function_body func_with_test new_env2) 
 		| None -> None
 		)
@@ -553,9 +556,9 @@ let check_includes includes =
 (* Entry point for semantic checking AST. Output is SAST *)
 (******************************************************************)
 let check (includes, globals, functions, structs) =  
-	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false} in
+	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false} in
 	let _ = check_includes includes in
-	let (structs_added,_) = check_structs structs in
+	let (structs_added, struct_methods) = check_structs structs in
 	let globals_added = check_globals globals prog_env in
-	let sast = check_functions functions prog_env includes globals_added structs_added in
+	let sast = check_functions (functions @ struct_methods) prog_env includes globals_added structs_added in
 	sast
