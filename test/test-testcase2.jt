@@ -20,10 +20,16 @@ func int sub(int x, int y)
 {
 	return x - y;
 } with test {
-	assert(a == b - 5);
+	assert(sub(10,5) == b - 5);
+	assert(sub(b,d) == 1);
+	assert(sub(c,d) == 4);
 } using {
 	int a;
 	int b;
+	int c;
+	int d;
 	a = 5;
 	b = 10;
+	c = 13;
+	d = 9;
 }

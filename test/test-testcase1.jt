@@ -14,7 +14,7 @@ func int add(int x, int y)
 {
 	return x + y;
 } with test {
-	assert(a == a);
+	assert(add(a,0) == 10);
 } using {
 	int a;
 	int b;
