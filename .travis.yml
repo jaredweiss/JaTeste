@@ -9,16 +9,21 @@ addons:
     - opam
     - m4
     - pkg-config
+    - make
     - cmake
 
-before_script:
+cache:
+  directories:
+  - $HOME/llvm
+
+install:
   - wget http://llvm.org/releases/3.8.0/llvm-3.8.0.src.tar.xz
   - tar -xf llvm-3.8.0.src.tar.xz
   - cd llvm-3.8.0.src
   - mkdir -v build &&
     cd       build &&
     CC=gcc CXX=g++                              \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr           \
+    cmake -DCMAKE_INSTALL_PREFIX=--prefix=$HOME/llvm           \
           -DLLVM_ENABLE_FFI=ON                  \
           -DCMAKE_BUILD_TYPE=Release            \
           -DBUILD_SHARED_LIBS=ON                \
@@ -26,10 +31,14 @@ before_script:
           -Wno-dev ..                           &&
     make
   - make install
+
+before_script:
+  - export PATH=$PATH:$HOME/llvm
   - opam init -y
   - eval $(opam config env)
   - opam install ocamlfind -y
   - opam install llvm -y
 
 script:
+  - export PATH=$PATH:$HOME/llvm
   - make all
