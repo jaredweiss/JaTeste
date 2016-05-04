@@ -128,13 +128,14 @@ This also results in the compiler running the semantic checker on the source cod
 
 \section{Short Tutorial}
 \subsection{JaTest\'{e} Overview}
-Any given JaTest\'{e} program can be broken down into three segments: 1) global variable declarations 2) function definitions 3) struct definitions. 
-\par
-Global variable declarations are exactly like in C. 
-\par
-Function definitions are similar to C, except the keyword ``func" is needed before the return type. Furthermore, all variable declarations must be done at the top of a function. Any function with return type other than void, must use the keyword ``return" to return the given value; code cannot be written after a return statement. 
-\par
-Structs are also similar to C, except the programmer can define methods within the struct. 
+Any given JaTest\'{e} program can be broken down into three segments: 
+\begin{enumerate}
+\item global variable declarations. Global variable declarations are exactly like in C. 
+\item function definitions. Function definitions are similar to C, except the keyword ``func" is needed before the return type. Furthermore, all variable declarations must be done at the top of a function. Any function with return type other than void, must use the keyword ``return" to return the given value; code cannot be written after a return statement
+\item struct definitions. Structs are also similar to C, except the programmer can define methods within the struct.
+\end{enumerate}
+Each of these segments must be used in order. So, global variables, if used, must be declared before function definitions. And function definitions must come before struct definition.
+
 \subsection{Samples Programs}
 \begin{enumerate}
 \item Here's the first example of a JaTest\'{e} program. As illustrated, the syntax is very similar to C. Note the keyword ``func" that is needed for defining functions. 
@@ -251,7 +252,7 @@ Note the syntax here: global variables are declared at the top, functions are de
 
 \section*{Language Reference Manual}
 
-\section{Lexical Conventions}
+\section{LRM - Lexical Conventions}
 This chapter will describe how input code will be processed and how tokens will be generated.
 
 \subsection{Identifiers}
@@ -545,7 +546,7 @@ arr = new int[2];
 arr[5] = 1;
 \end{lstlisting}
 
-\section{Expressions and Operators}
+\section{LRM - Expressions and Operators}
 
 \subsection{Expressions}
 An expression is a collection of one or more operands and zero or more operators that can be evaluated to produce a value.  A function that returns a value can be an operand as part of an expression.  Additionally, parenthesis can be used to group smaller expressions together as part of a larger expression.  A semicolon terminates an expression.  Some examples of expressions include:
@@ -705,7 +706,7 @@ We adhere to standard operator precedence rules.
 % ++ vs * and such
 Order of evaluation is dependent on the operator. For example, assignment is right associative, while addition is left associative. Associativity is indicated in the table above.
 
-\section{Statements}
+\section{LRM - Statements}
 Statements include: \texttt{if, while, for, return}, as well all expressions, as explained in the following sections. That is, statements include all expressions, as well as snippets of code that are used solely for their side effects.
 
 \begin{Verbatim}[frame=single]
@@ -829,7 +830,7 @@ return ;
 \end{lstlisting}
 This adheres to the expectation that all functions return something.
 
-\section{Functions}
+\section{LRM - Functions}
 Functions allow you to group snippets of code together that can subsequently be called from other parts of your program, depending on scope. Functions are global, unless they are prepended with the keyword ``private''. While not necessary, it is encouraged that you declare functions before defining them. Functions are usually declared at the top of the file they're defined in. Functions that aren't declared can only be called after they have been defined. 
 
 \subsection{Function Declarations}
@@ -1042,39 +1043,47 @@ Test cases are compiled into a separate program which can subsequently be run. T
 \newpage
 
 \section{Project Plan}
-We arranged weekly meetings with our designated TA, David Watkins, to discuss progress and ask questions about issues we encountered. David's feedback helped us to make crucial decisions along the way, and kept us heading in the right direction. After meeting with David, we would work together as a group each week. During these meetings we would split up the work, and often have two people working together doing paired programming. 
-
+\subsection{Team Roles}
+From the onset of the project, we assigned roles among the team as was recommended.  Andy came up with the idea for the language, so it seemed natural that he would be the Language Guru.  All of us had input on the design of the language but we always consulted with Andy to ensure continuity with his vision for the project.  Jake helped form the team, had good organization skills, and was on top of things from the start, so it seemed like he would be a good fit as the team Manager.  Jake worked throughout the term to make sure that team meetings took place and deadlines were met.  Jared had extensive experience with group projects and version control software, so he fell nicely into the role of System Architect.  Jared drew up a work flow, based on pull requests, for our group to adhere to in order to ensure things went smoothly.  Jemma had significant prior experience with testing and agreed to take the lead as the Tester for the team.  Jemma worked to ensure that tests were created alongside of feature implementation to ensure that code was fully tested.  As the project progressed, roles became more fluid as work was required in varying areas and everyone pitched in where things needed to get done.  However, final say in any given area always remained with the assigned team member for that role.
+\subsection{Planning and Development}
+As a team, we made a commitment to meet weekly with David to make sure we were on the right track and to help answer any question we had about how to move forward.  On weeks that we did not meet with David, we were conscious to meet as a team to discuss our progress over that week.  Each week we identified tasks that needed to get done and assigned work for the week.  We also utilized team meeting time to do research when necessary, and implement some feature together to make sure everyone was on the same page.  We communicated throughout the week on our progress when it affected the work of another team member.  Additionally, for tasks that could be picked up and implemented by anyone when they had a chance, we used a system of creating "issues" on GitHub that described portions of work that needed to get done.  We also made some "milestones" on GitHub to motivate each other to get large segments of work done.
+\subsection{Testing Procedure}
+In the beginning we decided that it would be reasonable to write tests for the code we are submitting, and verify that all of the code builds properly without warning or errors and that tests passed before issuing a pull request.  This focus on quality reduced headache associated with code that negatively affects the workflow of other team members.  This worked as the team was diligent in this effort.  At a later stage of the project, we decided that it would be awesome to have an automatic continuous integration in place to make the testing effort more seamless.  We designed this system so that before issuing a pull request, all of the committed code is built remotely to make sure that nothing is broken, as well as all of the tests are run remotely to ensure that the new code does not break any of the pre-existing tests.  We found that this process helped identify errors in the code earlier on and made fixing bugs less of a headache.
+\subsection{Programming Style Guide}
+\subsubsection{Comments}
+Comments used are to be associated with the code directly below the comment.  Multi-line comments are allowed when necessary but discouraged.  Keep comments concise and to one line when possible.
+\subsubsection{Naming Conventions}
+When possible, use names that are meaningful and relate to the use of the code.  Function names are to be all lower case with underscores to separate words as\_such.  Types are to be started with a capital and the rest of the deceleration will be lower case, with underscores to separate words As\_such.  Variable names are to be all lower case with underscores separating words the same way functions are.
+\subsubsection{Indentation}
+Indent using tabs and set tabbing to 4 spaces for consistency.  A new block of code should start on a new, indented line.  A very long line can be broken into two lines, and the second line should be indented.
+\subsubsection{Parenthesis}
+Use parenthesis for chunks of code when necessary but avoid unnecessary parenthesis that clutters up the code.
 \subsection{Project Timeline}
-**not sure about this....
-\begin{itemize}
-\item{Proposal submitted}
-\item{LRM submitted, scanner and parser working}
-\item{AST}
-\item{'Hello, World' working}
-\item{Semantic analyzer and SAST}
-\item{Code generator}
-\item{With Test working}
-\item{Libraries and additional features}
-\end{itemize}
+\begin{tabular}{| c | l |} \hline
+	\textbf{Date} & \textbf{Goal} \\ \hline
+	1/29/16 & Set group meeting, TA meeting, Come up with idea \\ \hline
+	2/5/16 & Finish language proposal \\ \hline
+	2/12/16 & Hash out specs of language, start LRM \\ \hline
+	2/19/16 & Build scanner for the language \\ \hline
+	2/26/16 & Build parser, finish LRM \\ \hline
+	3/4/16 & Start working on AST \\ \hline
+	3/11/16 & Spring Break \\ \hline
+	3/18/16 & Continue work on AST, discuss code gen plan \\ \hline
+	3/25/16 & Get up to speed on LLVM, work on AST \\ \hline
+	4/1/16 & Finish AST, start SAST, code gen for "Hello, World" \\ \hline
+	4/8/16 & Work on SAST, code gen, incremental testing \\ \hline
+	4/15/16 & Implement code gen to two files, one for testing \\ \hline
+	4/22/16 & Continue code gen / testing, automatic continuous integration \\ \hline
+	4/29/16 & Finish automatic continuous integration, clean up code \\ \hline
+	5/6/16 & Work on final report and presentation \\ \hline
+\end{tabular}
 
-\subsection{Workflow}
-
-\subsection{Github Stats} 
-
-\subsection{Team Responsibilities}
-Our team didn't use rigid roles. The responsibilities became more fluid as the project progressed. In the beginning phases of the project, all members discussed and gave input on the components of the language and what features to include/omit. Throughout the project we exercised paired programming to write the code. In the end stages....
+\subsection{GitHub Progression}
+\includegraphics[width=\textwidth]{github_stats.png}
+\par As you can see from our chart, we were sow to start as we had to hash out the details of our language and did not involve a ton of code.  The first major bump is at the time of the LRM deadline as a lot of code was written leading up to that deadline to get everything up and running.  From that point on, we worked at a slow and steady pace, through the "Hello, World" deadline, and leading into the final deadline.
 
 \subsection{Software Development Environment}
-\begin{itemize}
-\item Version Control \\
-	- Git \\
-\item Languages \\
-	- OCaml for parser, scanner, ast, semantic checker, sast, code generation \\
-	-LaTex for reports and documentation \\
-\item Text Editors \\
-	- Vim \\
-\end{itemize}
-
+We used Git and GitHub for version control.  We used issues, pull requests, and local branches to keep things running smoothly.  All of our development was done in OCaml.  Since our language compiled down to LLVM, we did a lot of development in VirtualBox using the image that was provided by the teaching staff.  Some of us used Vim in the VirtualBox as our primary text editor, others decided to stick with Sublime on our local machine.  We also used LaTex for our submissions and reports.
 
 \newpage
 
@@ -1116,16 +1125,37 @@ Our team didn't use rigid roles. The responsibilities became more fluid as the p
 
 
 \subsection{The Compiler}
-
+The entry point of the compiler for a given source.jt file is jateste.ml. This is where the different phases of the compiler are coordinated. As described in the introduction section the compiler is capable of producing two executables:
+\begin{enumerate}
+\item regular executable: source.ll
+\item test executable: source-test.ll. If the ``-t" argument is given on the command line, a test file is created.
+\end{enumerate}
+Both can be run using the LLVM intepreter ``lli". At a high level, the compiler reads characters from source.jt, builds up an AST in the parser, performs a few walks of the AST to create the SAST, which is then passed on to the codegen phase which actually creates the LLVM code.
+\par
+An important part of the jateste.ml file is creating the SAST for the test file. If the user provides the ``t" argument, the compiler iterates through each function that has a tests, and creates a new function which essentially runs the tests. The compiler also manually creates a main function, which calls each test function. All of this is done between the parser and semantic checker. 
 \subsection{The Scanner}
-
+The scanner reads characters from source.jt according to the regular expressions in scanner.ml and outputs a stream of tokens to parser.mly
 \subsection{The Parser}
-
+The parser receives tokens from the scanner and creates an AST from the given context free grammar. The CFG is defined in parser.mly. At a high level, the AST is made up of a 3-element record: \\
+\begin{lstlisting}
+type program = header list * bind list * func_decl list * struct_decl list
+\end{lstlisting}
+As illustrated, the AST consists of a list of global variables, a list of function definitions, and a list of struct definitions
 \subsection{The Semantic Checker}
-
+The semantic checker receives the AST from the parser, walks the tree, and creates an SAST. The SAST carries additional information that helps the codegen phases of the compiler. For example, each array access is represented by a node; the SAST contains the array type information for such an access, which the AST does not.
 \subsection{The Code Generator}
+codegen.ml takes an SAST as input and creates LLVM code. We take advantage of OCaml's built in support for LLVM to help build the assembly code. Again, we walk the SAST to create the code. 
 
 \subsection{Supplementary Code} %libraries, built in functions, etc
+There is a Jateste standard library located in the lib folder. To include other jateste files in a given sourcr code file, source.jt, the programmer has two options. If the file to include is in the current directory, the following syntax is used to include a file called file.jt: 
+\begin{lstlisting}
+#include_jtlib "file.jt"
+\end{lstlisting}
+If the file to include is in the standard library, use:
+\begin{lstlisting}
+#include_jtlib <file.jt>
+\end{lstlisting
+
 
 
 \newpage
@@ -2387,12 +2417,11 @@ looping
 
 \newpage
 
-\section{Conclusion}
-\subsection{Lessons Learned}
-\subsubsection{Andrew}
-\subsubsection{Jemma}
-\subsubsection{Jared}
-\subsubsection{Jake}
+\section{Lessons Learned}
+\subsection{Andrew}
+\subsection{Jemma}
+\subsection{Jared}
+\subsection{Jake}
 
 \newpage
 
@@ -2573,55 +2602,42 @@ includes:
 include_file:
 	  POUND INCLUDE STRING_LITERAL { (Curr, $3) } 
 	| POUND INCLUDE LT INCLUDE_FILE GT       { (Standard,$4) }
-
 var_decls: 			  
 	/* nothing */ { [] }
 	| var_decls vdecl   { $2::$1 }
-
 func_decls:	
 	 fdecl {[$1]}
 	| func_decls fdecl  {$2::$1}
-
 mthd:
 	  METHOD any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
 		$9; tests = None }}
-
 struc_func_decls:
 	  /* nothing */ { [] }
 	| struc_func_decls mthd { $2::$1 } 
-
 struc_decls:
 	  /*nothing*/ { [] }
 	| struc_decls sdecl {$2::$1}
-
 prim_typ:
 	| STRING 	{ String }
 	| DOUBLE 	{ Double }
 	| INT 		{ Int }
 	| CHAR 		{ Char }
 	| BOOL		{ Bool }
-
 void_typ:
 	| VOID 		{ Void }
 	
 struct_typ:
 	| STRUCT ID { $2 }
-
 array_typ:
 	    prim_typ LBRACKET INT_LITERAL RBRACKET  	{ ($1, $3) }
 	  | prim_typ LBRACKET RBRACKET  		{ ($1, 0) }
-
 pointer_typ:
 	| prim_typ STAR 		{ Primitive($1) }
 	| struct_typ STAR 		{ Struct_typ($1) }
 	| array_typ STAR 		{ Array_typ(fst $1, snd $1) }
-
 double_pointer_typ:
 	| pointer_typ STAR 		{ Pointer_typ($1)  }
-
-
-
 any_typ:
 	  prim_typ 		{ Primitive($1) }
 	| struct_typ 		{ Struct_typ($1) }
@@ -2629,15 +2645,12 @@ any_typ:
 	| double_pointer_typ 	{ Pointer_typ($1) }
 	| void_typ 		{ Primitive($1) }
 	| array_typ		{ Array_typ(fst $1, snd $1) }
-
-
 any_typ_not_void:
 	  	  prim_typ 		{ Primitive($1) }
 		| struct_typ 		{ Struct_typ($1) }
 		| pointer_typ 		{ Pointer_typ($1) }
 		| double_pointer_typ 	{ Pointer_typ($1) }
 		| array_typ		{ Array_typ(fst $1, snd $1) }
-
 /* 
 Rules for function syntax
 */
@@ -2651,68 +2664,53 @@ fdecl:
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
 		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
-
 /* 
 "with test" rule 
 */
 testdecl:
 	WTEST LBRACE stmt_list RBRACE { $3 }
-
 /* 
 "using" rule 
 */
 usingdecl:
 	USING LBRACE vdecl_list stmt_list RBRACE { (List.rev $3, List.rev $4) }
-
-
 /*
 Formal parameter rules
 */
 formal_opts_list:
 	  /* nothing */    { [] }
 	| formal_opt { $1 }
-
 formal_opt:
 	     any_typ_not_void ID 			{[($1,$2)]}
 	   | formal_opt COMMA any_typ_not_void ID 	{($3,$4)::$1}
-
 actual_opts_list:
 	  /* nothing */ { [] }
 	| actual_opt 	{ $1 }
-
 actual_opt:
 	     expr { [$1] }
 	   | actual_opt COMMA expr {$3::$1}
-
 /* 
 Rule for declaring a list of variables, including variables of type struct x 
 */
 vdecl_list: 
 	  /* nothing */ { [] }
 	| vdecl_list vdecl { $2::$1 }
-
 /*
 Includes declaring a struct
 */
-
 vdecl:
 	  any_typ_not_void ID SEMI { ($1, $2) }
-
 /* 
 Rule for defining a struct 
 */
 sdecl:
 	STRUCT ID LBRACE vdecl_list struc_func_decls RBRACE SEMI {{
 		sname = $2; attributes = List.rev $4; methods = List.rev $5 }}
-
-
 func_body: 
 	stmt_list 	{[Block(List.rev $1)]}
-
 stmt_list:
 	  /* nothing */ { [] }
 	| stmt_list stmt { $2::$1 }
-
 /* 
 Rule for statements. Statments include expressions 
 */
@@ -2726,7 +2724,6 @@ stmt:
 	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
   	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
 	  | ASSERT LPAREN expr RPAREN SEMI 			    { Assert($3) }
-
 /* 
 Rule for building expressions 
 */
@@ -2771,7 +2768,6 @@ expr_opt:
 	| expr 		{ $1 }
 \end{lstlisting}
 \newpage
-
 \subsection{ast.ml}
 \begin{lstlisting}
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or | Mod | Exp
@@ -2779,11 +2775,8 @@ type uop = Neg | Not | Addr
 type prim = Int | Double | String | Char | Void | Bool
 type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim * int | Any 
 type bind = typ * string
-
 type dir_location = Curr | Standard
-
 type header = dir_location * string
-
 type expr =
     Lit     of int
   | String_lit of string
@@ -2805,7 +2798,6 @@ type expr =
   | BoolLit of bool
   | Null of typ
   | Dubs 
-
 type stmt =
     Block of stmt list   
   | Expr of expr
@@ -2814,17 +2806,14 @@ type stmt =
   | For of expr * expr * expr * stmt
   | Return of expr
   | Assert of expr
-
 type with_using_decl = {
   uvdecls : bind list;
   stmts : stmt list;
 }
-
 type with_test_decl = {
   asserts : stmt list;
   using : with_using_decl; 
 }
-
 (* Node that describes a function *)
 type func_decl = {
   typ : typ;
@@ -2834,41 +2823,32 @@ type func_decl = {
   body  :   stmt list;
   tests   :   with_test_decl option; 
 }
-
 (* Node that describes a given struct *)
 type struct_decl = {
   sname   : string;
   attributes  : bind list;
   methods  : func_decl list;
 }
-
 (* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
 type program = header list * bind list * func_decl list * struct_decl list
 \end{lstlisting}
 \newpage
-
 \subsection{semant.ml}
 \begin{lstlisting}
 (* Semantic checker code. Takes Ast as input and returns a Sast *)
-
 module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
-
 type variable_decls = A.bind;;
-
 (* Hashtable of valid structs. This is filled out when we iterate through the user defined structs *)
 let struct_types:(string, A.struct_decl) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
-
 let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None }
-
 (* Symbol table used for checking scope *)
 type symbol_table = {
 	parent : symbol_table option;
 	variables : (string, A.typ) Hashtbl.t;
 }
-
 (* Environment*)
 type environment = {
 	scope : symbol_table;
@@ -2878,7 +2858,6 @@ type environment = {
 	in_struct_method : bool;
 	struct_name : string option
 }
-
 (* For debugging *)
 let rec string_of_typ t =
 	match t with
@@ -2891,7 +2870,6 @@ let rec string_of_typ t =
 	| A.Pointer_typ(t) -> "pointer " ^ (string_of_typ t)
 	| A.Array_typ(p,_) -> "Array type " ^ (string_of_typ (A.Primitive(p)))
 	| _ -> "not sure"
-
 (* Search symbol tables to see if the given var exists somewhere *)
 let rec find_var (scope : symbol_table) var =
 	try Hashtbl.find scope.variables var
@@ -2899,18 +2877,15 @@ let rec find_var (scope : symbol_table) var =
 	match scope.parent with
 	  Some(parent) -> find_var parent var
 	| _ -> raise (Exceptions.UndeclaredVariable var)	
-
 (* Helper function to reeturn an identifers type *)
 let type_of_identifier var env = 
 	find_var env.scope var
-
 (* Returns the type of the arrays elements. E.g. int[10] arr... type_of_array arr would return A.Int *)
 let type_of_array arr _ =
 	match arr with
 	  A.Array_typ(p,_) -> A.Primitive(p)
 	| A.Pointer_typ(A.Array_typ(p,_)) -> A.Primitive(p)
 	| _ -> raise (Exceptions.InvalidArrayVariable)
-
 (* Function is done for creating sast after semantic checking. Should only be called on struct or array access *)
 let rec string_identifier_of_expr expr = 
 	match expr with
@@ -2920,8 +2895,6 @@ let rec string_identifier_of_expr expr =
 	| A.Array_access(e1, _) -> string_identifier_of_expr e1
 	| A.Call(s,_) -> s
 	| _ -> raise (Exceptions.BugCatch "string_identifier_of_expr")
-
-
 let rec string_of_expr e env =
 	match e with 
 	  A.Lit(i) -> string_of_int i
@@ -2965,7 +2938,6 @@ let rec string_of_expr e env =
   	| A.Pt_access(e1,e2) -> let str1 = string_of_expr e1 env in
 				let str2 = string_of_expr e2 env in
 				let str_acc = String.concat "->" [str1; str2] in str_acc
-
   	| A.Dereference(e) -> let str1 = string_of_expr e env in (String.concat "" ["*"; str1])
   	| A.Array_create(i,p) -> let str_int = string_of_int i in
 			let rb = "]" in
@@ -2996,7 +2968,6 @@ let rec string_of_expr e env =
 		)
   	| A.Null(_) -> "NULL"
   	| A.Dubs -> ""
-
 (* Function is done for creating sast after semantic checking. Should only be called on struct fields *)
 let string_of_struct_expr expr = 
 	match expr with
@@ -3010,7 +2981,6 @@ let report_duplicate exceptf list =
       | _ :: t -> helper t
       | [] -> ()
     in helper (List.sort compare list)
-
 (* Used to check include statments *)
 let check_ends_in_jt str = 
 	let len = String.length str in
@@ -3020,14 +2990,11 @@ let check_ends_in_jt str =
 	  ".jt" -> ()
 	| _ -> raise (Exceptions.InvalidHeaderFile str)
 	)
-
 let check_in_test e = if e.in_test_func = true then () else raise (Exceptions.InvalidAssert "assert can only be used in tests")
-
 (* Helper function to check a typ is not void *)
 let check_not_void exceptf = function
       (A.Primitive(A.Void), n) -> raise (Failure (exceptf n))
     | _ -> ()
-
 (* Helper function to check two types match up *)
 let check_assign lvaluet rvaluet err =
 	(match lvaluet with
@@ -3040,25 +3007,20 @@ let check_assign lvaluet rvaluet err =
 	| A.Array_typ(A.Char,_) -> (match rvaluet with A.Array_typ((A.Char),_) -> lvaluet | A.Primitive(A.String) -> lvaluet | _ -> raise err)
 	| _ -> if lvaluet = rvaluet then lvaluet else raise err
 	)
-
      
 (* Search hash table to see if the struct is valid *)
 let check_valid_struct s =
 	try Hashtbl.find struct_types s
 	with | Not_found -> raise (Exceptions.InvalidStruct s)
-
 (* Checks the hash table to see if the function exists *)
 let check_valid_func_call s = 
 	try Hashtbl.find func_names s
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
-
-
 (* Helper function that finds index of first matching element in list *)
 let rec index_of_list x l = 
 	match l with
 	  [] -> raise (Exceptions.BugCatch "index_of_list")
 	| hd::tl -> let (_,y) = hd in if x = y then 0 else 1 + index_of_list x tl
-
 let index_helper s field env = 
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
@@ -3069,16 +3031,11 @@ let index_helper s field env =
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		try let index = index_of_list field stru.A.attributes in index with | Not_found -> raise (Exceptions.BugCatch "index_helper"))
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
-
-
 (* Function that returns index of the field in a struct. E.g. given: stuct person {int age; int height;};.... index_of_struct_field *str "height" env will return 1 *)
 let index_of_struct_field stru expr env = 	
 		match stru with
 	  		A.Id(s) -> (match expr with A.Id(s1) -> index_helper s s1 env | _ -> raise (Exceptions.BugCatch "index_of_struct")) 
 			| _ -> raise (Exceptions.InvalidStructField)
-
-
-
 (* Checks the relevant struct actually has a given field *)
 let struct_contains_field s field env = 
 		let struct_var = find_var env.scope s in 
@@ -3090,19 +3047,14 @@ let struct_contains_field s field env =
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> 
 		try let tmp_fun = (List.find (fun f -> if f.A.fname = field then true else false) stru.A.methods) in tmp_fun.A.typ with | Not_found -> raise (Exceptions.InvalidStructField))
-
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
-
 let struct_contains_method s methd env =
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
 		 A.Pointer_typ(A.Struct_typ(struc_name)) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		 try let tmp_fun = (List.find (fun f -> if f.A.fname = methd then true else false) stru.A.methods) in tmp_fun.A.typ with | Not_found -> raise (Exceptions.InvalidStructField))
-
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
-
-
 (* Checks that struct contains expr *)
 let struct_contains_expr stru expr env = 
 	match stru with
@@ -3111,11 +3063,9 @@ let struct_contains_expr stru expr env =
 			|  A.Call(s1, _) -> struct_contains_method s s1 env
 			| _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
-
 let struct_field_is_local str fiel env =
 	try (let _ = struct_contains_field str fiel env in false) 
 	with | Exceptions.InvalidStructField -> true
-
 let rec type_of_expr env e =
 	match e with
 	  A.Lit(_) -> A.Primitive(A.Int)
@@ -3195,14 +3145,10 @@ let rec expr_sast expr env =
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
 	| A.Null(t) -> S.SNull t
 	| A.Dubs -> S.SDubs
-
-
 (* Convert ast struct to sast struct *)
 let struct_sast r = 
 	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes} in
 	tmp
-
-
 (* function that adds struct pointer to formal arg *)
 let add_pt_to_arg s f =
 	let tmp_formals = f.A.formals in
@@ -3212,25 +3158,20 @@ let add_pt_to_arg s f =
 	let formals_with_pt = new_formal :: tmp_formals in
 	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
 	new_func
-
 (* Creates new functions whose first paramters is a pointer to the struct type that the method is associated with *)
 let add_pts_to_args s fl = 
 	let list_of_struct_funcs = List.map (fun n -> add_pt_to_arg s n) fl in	
 	list_of_struct_funcs
 	
-
 (* Struct semantic checker *)
 let check_structs structs = 
 	(report_duplicate(fun n -> "duplicate struct " ^ n) (List.map (fun n -> n.A.sname) structs)); 
-
 	ignore (List.map (fun n -> (report_duplicate(fun n -> "duplicate struct field " ^ n) (List.map (fun n -> snd n) n.A.attributes))) structs);
-
 	ignore (List.map (fun n -> (List.iter (check_not_void (fun n -> "Illegal void field" ^ n)) n.A.attributes)) structs);
 	ignore(List.iter (fun n -> Hashtbl.add struct_types n.A.sname n) structs);
 	let tmp_funcs = List.map (fun n -> (n, n.A.methods)) structs in
 	let tmp_funcs_with_formals = List.fold_left (fun l s  -> let tmp_l = (add_pts_to_args (fst s) (snd s)) in l @ tmp_l) [] tmp_funcs in
 	(structs, tmp_funcs_with_formals)
-
 (* Globa variables semantic checker *)
 let check_globals globals env = 
 	ignore(env);
@@ -3244,7 +3185,6 @@ let check_globals globals env =
 	(* Add global variables to top level symbol table. Side effects *)
 	List.iter (fun (t,s) -> (Hashtbl.add env.scope.variables s t)) globals;
 	globals
-
 (* Main entry pointer for checking the semantics of an expression *)
 let rec check_expr expr env =
 	match expr with
@@ -3318,21 +3258,17 @@ let rec check_expr expr env =
 	| A.BoolLit(_) -> A.Primitive(A.Bool)
 	| A.Null(t) -> t
 	| A.Dubs -> A.Primitive(A.Void)
-
 (* Checks if expr is a boolean expr. Used for checking the predicate of things like if, while statements *)
 let check_is_bool expr env = 
 	ignore(check_expr expr env);
 	match expr with
 	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) | A.Binop(_,A.And,_) | A.Binop(_,A.Or,_) | A.Unop(A.Not,_) -> ()
-
 	| _ ->  raise (Exceptions.InvalidBooleanExpression)
-
 (* Checks that return value is the same type as the return type in the function definition*)
 let check_return_expr expr env = 
 	match env.return_type with
 	  Some(rt) -> if rt = check_expr expr env then () else raise (Exceptions.InvalidReturnType "return type doesnt match with function definition")
 	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
-
 (* Main entry point for checking semantics of statements *)
 let rec check_stmt stmt env = 
 	match stmt with
@@ -3357,17 +3293,14 @@ let rec check_stmt stmt env =
 			let str_expr = string_of_expr e env in  
 			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed")])) in 
 			let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
-
 (* Converts 'using' code from ast to sast *)
 let with_using_sast r env = 
 	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
 	 tmp
-
 (* Converts 'test' code from ast to sast *)
 let with_test_sast r env =
 	let tmp:(S.swith_test_decl) = {S.sasserts = (List.map (fun n -> check_stmt n env) r.A.asserts) ; S.susing = (with_using_sast r.A.using env)} in
 	tmp 
-
 (* Here we convert the user defined test cases to functions which can subseqeuntly be called by main in the test file *)
 let convert_test_to_func using_decl test_decl env = 
 	List.iter (fun n -> (match n with A.Assert(_) -> () | _ -> raise Exceptions.InvalidTestAsserts)) test_decl.A.asserts;
@@ -3376,10 +3309,8 @@ let convert_test_to_func using_decl test_decl env =
 	(match env.func_name with
 	  Some(fn) ->let new_func_name = fn ^ "test" in  
 		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
-
 	|  None -> raise (Exceptions.BugCatch "convert_test_to_func")
 )
-
 (* Function names (aka can't have two functions with same name) semantic checker *)
 let check_function_names functions = 
 	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) functions));	
@@ -3387,25 +3318,21 @@ let check_function_names functions =
 	ignore(Hashtbl.add func_names built_in_print_string.A.fname built_in_print_string);
 	(* Go through the functions and add their names to a global hashtable that stores the whole function as its value -> (key, value) = (func_decl.fname, func_decl) *)
 	ignore(List.iter (fun n -> Hashtbl.add func_names n.A.fname n) functions); ()
-
 let check_prog_contains_main funcs =
 	let contains_main = List.exists (fun n -> if n.A.fname = "main" then true else false) funcs in
 	(match contains_main with
 	  true -> ()
 	| false -> raise Exceptions.MissingMainFunction
 	)
-
 (* Checks programmer hasn't defined function print as it's reserved *)
 let check_function_not_print names = 
 	ignore(if List.mem "print" (List.map (fun n -> n.A.fname) names ) then raise (Failure ("function print may not be defined")) else ()); ()
-
 (* Check the body of the function here *)
 let rec check_function_body funct env =
 	let curr_func_name = funct.A.fname in
 	report_duplicate (fun n -> "duplicate formal arg " ^ n) (List.map snd funct.A.formals);
 	report_duplicate (fun n -> "duplicate local " ^ n) (List.map snd funct.A.vdecls);
 	(* Check no duplicates *)
-
 	let in_struc = env.in_struct_method in
 	let formals_and_locals =
 		(match in_struc with
@@ -3418,7 +3345,6 @@ let rec check_function_body funct env =
                  | false -> List.append funct.A.formals funct.A.vdecls
                  )
          in
-
 	report_duplicate (fun n -> "same name for formal and local var " ^ n) (List.map snd formals_and_locals);
 	(* Check structs are valid *)
 	List.iter (fun (t,_) -> match t with 
@@ -3441,7 +3367,6 @@ let rec check_function_body funct env =
 		
 	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test)} in
 	tmp
-
 (* Entry point to check functions *)
 let check_functions functions_with_env includes globals_add structs_add = 
 	let function_names = List.map (fun n -> fst n) functions_with_env in 
@@ -3454,14 +3379,12 @@ let check_functions functions_with_env includes globals_add structs_add =
 	let sast = (includes, globals_add, sast_funcs, (List.map struct_sast structs_add )) in
 	sast
 	(* Need to check function test + using code here *)
-
 let check_includes includes = 
 	let headers = List.map (fun n -> snd n) includes in
 	report_duplicate (fun n -> "duplicate header file " ^ n) headers;
 	List.iter check_ends_in_jt headers;
 	()
 	
-
 (******************************************************************)
 (* Entry point for semantic checking AST. Output is SAST *)
 (******************************************************************)
@@ -3476,13 +3399,10 @@ let check (includes, globals, functions, structs) =
 	sast
 \end{lstlisting}
 \newpage
-
 \subsection{sast.ml}
 \begin{lstlisting}
 open Ast
-
 type var_info = (string * typ)
-
 type sexpr =
     SLit     of int
   | SString_lit of string
@@ -3504,7 +3424,6 @@ type sexpr =
   | SBoolLit of int
   | SNull of typ
   | SDubs
-
 type sstmt =
     SBlock of sstmt list   
   | SExpr of sexpr
@@ -3512,17 +3431,14 @@ type sstmt =
   | SWhile of sexpr * sstmt
   | SFor of sexpr * sexpr * sexpr * sstmt
   | SReturn of sexpr
-
 type swith_using_decl = {
   suvdecls : bind list;
   sstmts : sstmt list;
 }
-
 type swith_test_decl = {
   sasserts : sstmt list;
   susing : swith_using_decl;
 }
-
 (* Node that describes a function *)
 type sfunc_decl = {
   styp : typ;
@@ -3532,32 +3448,26 @@ type sfunc_decl = {
   sbody  :   sstmt list;
   stests   :   sfunc_decl option;
 }
-
 (* Node that describes a given struct *)
 type sstruct_decl = {
   ssname   : string;
   sattributes  : bind list;
 }
-
 (* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
 type sprogram = header list * bind list * sfunc_decl list * sstruct_decl list
 \end{lstlisting}
 \newpage
-
 \subsection{codegen.ml}
 \begin{lstlisting}
-
 module L = Llvm
 module A = Ast
 module S = Sast
 module C = Char
 module StringMap = Map.Make(String)
-
 let context = L.global_context () 
 (* module is what is returned from this file aka the LLVM code *)
 let main_module = L.create_module context "Jateste" 
 let test_module = L.create_module context "Jateste-test" 
-
 (* Defined so we don't have to type out L.i32_type ... every time *)
 let i32_t = L.i32_type context
 let i64_t = L.i64_type context
@@ -3566,29 +3476,22 @@ let i1_t = L.i1_type context
 let d_t = L.double_type context
 let void_t = L.void_type context
 let str_t = L.pointer_type i8_t 
-
 (* Hash table of the user defined structs *)
 let struct_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 10
 (* Hash table of global variables *)
 let global_variables:(string, L.llvalue) Hashtbl.t = Hashtbl.create 50
-
 (* Helper function that returns L.lltype for a struct. This should never fail as semantic checker should catch invalid structs *)
 let find_struct_name name = 
 	try Hashtbl.find struct_types name
 	with | Not_found -> raise(Exceptions.InvalidStruct name)
-
 let rec index_of_list x l = 
          match l with
            	  [] -> raise (Exceptions.InvalidStructField)
  		| hd::tl -> let (_,y) = hd in if x = y then 0 else 1 + index_of_list x tl
-
-
 (* Code to declare struct *)
 let declare_struct s =
 	let struct_t = L.named_struct_type context s.S.ssname in
 	Hashtbl.add struct_types s.S.ssname struct_t
-
-
 let prim_ltype_of_typ = function
 	  A.Int -> i32_t
 	| A.Double -> d_t
@@ -3596,22 +3499,17 @@ let prim_ltype_of_typ = function
 	| A.Void -> void_t
 	| A.String -> str_t
 	| A.Bool -> i1_t
-
-
 let rec ltype_of_typ = function
 	| A.Primitive(s) -> prim_ltype_of_typ s
 	| A.Struct_typ(s) ->  find_struct_name s
 	| A.Pointer_typ(s) -> L.pointer_type (ltype_of_typ s)
 	| A.Array_typ(t,n) -> L.array_type (prim_ltype_of_typ t) n
     	| _ -> void_t 
-
 let type_of_llvalue v = L.type_of v
-
 let string_of_expr e =
 	match e with
 	  S.SId(s) -> s
 	| _  -> raise (Exceptions.BugCatch "string_of_expr")
-
 (* Function that builds LLVM struct *)
 let define_struct_body s =
 	let struct_t = Hashtbl.find struct_types s.S.ssname in
@@ -3619,11 +3517,9 @@ let define_struct_body s =
 	let attributes = List.map ltype_of_typ attribute_types in		
 	let attributes_array = Array.of_list attributes in 
 	L.struct_set_body struct_t attributes_array false
-
 (* Helper function to create an array of size i fille with l values *)
 let array_of_zeros i l = 
 	Array.make i l
-
 let default_value_for_prim_type t = 
 	match t with 
 		  A.Int -> L.const_int (prim_ltype_of_typ t) 0
@@ -3632,7 +3528,6 @@ let default_value_for_prim_type t =
 		| A.Char ->L.const_int (prim_ltype_of_typ t) 0
 		| A.Void ->L.const_int (prim_ltype_of_typ t) 0
 		| A.Bool ->L.const_int (prim_ltype_of_typ t) 0
-
 (* Here we define and initailize global vars *)
 let define_global_with_value (t, n) = 
 		match t with 
@@ -3646,15 +3541,10 @@ let define_global_with_value (t, n) =
 			| A.Bool -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
 		)
 		| A.Struct_typ(s) -> let init = L.const_named_struct (find_struct_name s) [||] in (L.define_global n init main_module)		
-
 		| A.Pointer_typ(_) ->let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init main_module)		
-
 		| A.Array_typ(p,i) ->let init = L.const_array (prim_ltype_of_typ p) (array_of_zeros i (default_value_for_prim_type ((p)))) in (L.define_global n init main_module)		
-
 		| A.Func_typ(_) ->let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)		
 		| A.Any -> raise (Exceptions.BugCatch "define_global_with_value")
-
-
 (* Where we add global variabes to global data section *)
 let define_global_var (t, n) =
 		match t with
@@ -3664,16 +3554,12 @@ let define_global_var (t, n) =
 		| A.Array_typ(_,_) -> Hashtbl.add global_variables n (define_global_with_value (t,n))
 		| A.Func_typ(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n main_module)
 		| A.Any -> raise (Exceptions.BugCatch "define_global_with_value")
-
 	
 (* Translations functions to LLVM code in text section  *)
 let translate_function functions the_module = 
-
 (* Here we define the built in print function *)
 let printf_t = L.var_arg_function_type i32_t [||] in
 let printf_func = L.declare_function "printf" printf_t the_module in
-
-
 (* Here we iterate through Ast.functions and add all the function names to a HashMap *)
 	let function_decls =
 		let function_decl m fdecl =
@@ -3683,7 +3569,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
             	in let ftype = L.function_type (ltype_of_typ fdecl.S.styp) formal_types in
              	StringMap.add name (L.define_function name ftype the_module, fdecl) m in
     		List.fold_left function_decl StringMap.empty functions in
-
 		(* Create format strings for printing *)
 		let (main_function,_) = StringMap.find "main" function_decls in
 		let builder = L.builder_at_end context (L.entry_block main_function) in
@@ -3691,13 +3576,11 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		let str_format_str = L.build_global_stringptr "%s\n" "fmt_string" builder in
 		let int_format_str = L.build_global_stringptr "%d\n" "fmt_int" builder in
 		let float_format_str = L.build_global_stringptr "%f\n" "fmt_float" builder in
-
 (* Method to build body of function *)
 	let build_function_body fdecl =
 	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
 	(* builder is the LLVM instruction builder *)
 	let builder = L.builder_at_end context (L.entry_block the_function) in
-
 	
 	(* This is where we push local variables onto the stack and add them to a local HashMap*)
 	let local_vars = 
@@ -3705,23 +3588,18 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		let local = L.build_alloca (ltype_of_typ t) n builder in
 		ignore (L.build_store p local builder);
 		StringMap.add n local m in
-
 		let add_local m (t, n) =
         	let local_var = L.build_alloca (ltype_of_typ t) n builder
         	in StringMap.add n local_var m in
-
 	(* This is where we push formal arguments onto the stack *)
 	let formals = List.fold_left2 add_formal StringMap.empty fdecl.S.sformals
           (Array.to_list (L.params the_function)) in
           List.fold_left add_local formals fdecl.S.svdecls in
-
-
 	(* Two places to look for a variable 1) local HashMap 2) global HashMap *)
 	let find_var n = try StringMap.find n local_vars
 		with Not_found -> try Hashtbl.find global_variables n
 		with Not_found -> raise (Failure ("undeclared variable " ^ n))
 		in
-
 		(*
 		 let type_of_expr e =
 		 let tmp_type = L.type_of e in
@@ -3738,7 +3616,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| _ -> raise (Exceptions.BugCatch ("type_of_expr"))
 		in 
 		*)
-
 	(* Format to print given arguments in print(...) *)
 	let print_format e =
 		(match e with 
@@ -3757,7 +3634,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| _ -> raise (Exceptions.InvalidPrintFormat) 
 		)
 		in
-
 	(* Returns address of i. Used for lhs of assignments *)
 	let rec addr_of_expr i builder= 
 	match i with
@@ -3774,7 +3650,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
 	| S.SDereference(s) -> let tmp_value = find_var s in 
 			let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
-
 	| S.SArray_access(ar,index, t) -> let tmp_value = find_var ar in 
 		(match t with 
 		  A.Array_typ(_) -> let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref 
@@ -3782,13 +3657,11 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			let deref = L.build_gep loaded_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref 
 		| _ -> raise Exceptions.InvalidArrayAccess)
 	| _ -> raise (Exceptions.UndeclaredVariable("Invalid LHS of assignment"))
-
 	in 
 	let add_terminal builder f =
           match L.block_terminator (L.insertion_block builder) with
         	  Some _ -> ()
       		| None -> ignore (f builder) in	
-
 	(* This is where we build LLVM expressions *)
 	let rec expr builder = function 
 	  S.SLit l -> L.const_int i32_t l
@@ -3839,7 +3712,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			| _ -> raise (Exceptions.BugCatch "Binop")
 			)e1' "add" builder
 		| _ -> raise (Exceptions.BugCatch "Binop")) 		 
-
 	| S.SUnop(u,e) -> 
 			(match u with
 				  A.Neg -> let e1 = expr builder e in L.build_not e1 "not" builder
@@ -3871,7 +3743,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SDereference(s) -> let tmp_value = find_var s in 
 			let load_tmp = L.build_load tmp_value "tmp" builder in 
 			let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in 			  let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
-
 	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
 	| S.SCall("print", [e]) | S.SCall("print_int", [e])-> L.build_call printf_func [|(print_format e); (expr builder e) |] "printresult" builder
 	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
@@ -3880,8 +3751,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SNull(t) -> L.const_null (ltype_of_typ t)
 	| S.SDubs -> let tmp_call = S.SCall("print", [(S.SString_lit("dubs!"))]) in expr builder tmp_call 	
 	in
-
-
 	(* This is where we build the LLVM statements *)
 	let rec stmt builder = function 
 	  S.SBlock b -> List.fold_left stmt builder b
@@ -3895,7 +3764,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		let merge_bb = L.append_block context "merge" the_function in
 		(* then block *)
 		let then_bb = L.append_block context "then" the_function in
-
 		add_terminal (stmt (L.builder_at_end context then_bb) then_stmt) (L.build_br merge_bb);
 		(* else block*)
 		let else_bb = L.append_block context "else" the_function in 
@@ -3912,7 +3780,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		let merge_bb = L.append_block context "merge" the_function in
 		ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);	
 		L.builder_at_end context merge_bb
-
 	| S.SFor(e1,e2,e3,s) -> ignore(expr builder e1); let tmp_stmt = S.SExpr(e3) in 
 			let tmp_block = S.SBlock([s] @ [tmp_stmt]) in  
 			let tmp_while = S.SWhile(e2, tmp_block) in stmt builder tmp_while 
@@ -3932,7 +3799,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 (* Here we go through each function and build the body of the function *)
 List.iter build_function_body functions;
 the_module
-
 (* Create a main function in test file - main then calls the respective tests *)
 let test_main functions = 
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
@@ -3940,14 +3806,11 @@ let test_main functions =
 	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " tests:")]))] @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
 	let print_stmt = S.SExpr(S.SCall("print",[S.SString_lit("Tests:")])) in 
 	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt::sast_calls; S.stests= None;  } in tmp_main
-
-
 let func_builder f b = 
 	(match b with 
 	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> l)) [] f in (tests @ [(test_main f)]) 
 	| false -> f
 	)
-
 	(***************************************************************)
 	(* Entry point for translating Ast.program to LLVM module *)
 	(***************************************************************)
@@ -3960,23 +3823,17 @@ let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool =
 	the_module
 \end{lstlisting}
 \newpage
-
 \subsection{myprinter.ml}
 \newpage
-
 \subsection{exceptions.ml}
 \begin{lstlisting}
 (* Program structure exceptions *)
 exception MissingMainFunction
-
 exception InvalidHeaderFile of string
-
 (* Struct exceptions*)
 exception InvalidStruct of string
-
 (* Variable exceptions*)
 exception UndeclaredVariable of string
-
 (*Expression exceptions *)
 exception InvalidExpr of string
 exception InvalidBooleanExpression 
@@ -3989,40 +3846,30 @@ exception InvalidFree of string
 exception InvalidPointerDereference
 exception NotBoolExpr
 exception InvalidArrayAccess
-
 (* Print exceptions *)
 exception InvalidPrintCall
 exception InvalidPrintFormat
-
 (* Statement exceptions*)
 exception InvalidReturnType of string
 exception InvalidLhsOfExpr
-
 (* Bug catcher *)
 exception BugCatch of string
-
 (* Input *)
 exception IllegalInputFormat
 exception IllegalArgument of string
-
 (* Test cases *)
 exception InvalidTestAsserts
 exception InvalidAssert of string
 \end{lstlisting}
 \newpage
-
 \subsection{jateste.ml}
 \begin{lstlisting}
 open Printf 
 module A = Ast
 module S = Sast
-
-
 let standard_library_path = "/home/plt/JaTeste/lib/"
 let current_dir_path = "./"
-
 type action = Scan | Parse |  Ast | Sast | Compile | Compile_with_test
-
 (* Determines what action compiler should take based on command line args *)
 let determine_action args = 
 	let num_args = Array.length args in
@@ -4041,30 +3888,25 @@ let determine_action args =
 	
 	| _ -> raise (Exceptions.IllegalArgument "Can't recognize arguments")
 	)
-
 (* Create executable filename *)
 let executable_filename filename =
 	let len = String.length filename in
 	let str = String.sub filename 0 (len - 3) in
 	let exec = String.concat "" [str ; ".ll"] in
 	exec 
-
 (* Create test executable filename *)
 let test_executable_filename filename =
 	let len = String.length filename in
 	let str = String.sub filename 0 (len - 3) in
 	let exec = String.concat "" [str ; "-test.ll"] in
 	exec 
-
 (* Just scan input *)
 let scan input_raw = 
 	let lexbuf = Lexing.from_channel input_raw in (print_string "Scanned\n"); lexbuf
-
 (* Scan, then parse input *)
 let parse input_raw =
 	let input_tokens = scan input_raw in
 	let ast:(A.program) = Parser.program Scanner.token input_tokens in (print_string "Parsed\n"); ast
-
 (* Process include statements. Input is ast, and output is a new ast *)
 let process_headers ast:(A.program) =
 	let (includes,_,_,_) = ast in
@@ -4079,14 +3921,11 @@ let process_headers ast:(A.program) =
 	in
 	let modified_ast:(A.program) = List.fold_left gen_header_code ast includes in 
 	modified_ast
-
-
 (* Scan, parse, and run semantic checking. Returns Sast *)
 let semant input_raw = 
 	let tmp_ast = parse input_raw in
 	let input_ast = process_headers tmp_ast in
 	let sast:(S.sprogram) = Semant.check input_ast in (print_string "Semantic check passed\n"); sast
-
 (* Generate code given file. @bool_tests determines whether to create a test file *)
 let code_gen input_raw exec_name bool_tests =
 	let input_sast = semant input_raw in
@@ -4097,11 +3936,9 @@ let code_gen input_raw exec_name bool_tests =
 	fprintf oc "%s\n" (Llvm.string_of_llmodule m); 
 	close_out oc;
 	()
-
 let get_ast input_raw =
 	let ast = parse input_raw in
 	ast
-
 		
 		 
 (******************************)
@@ -4129,5 +3966,4 @@ let _ =
 	) in
 	close_in source_file
 \end{lstlisting}
-
 \end{document}
