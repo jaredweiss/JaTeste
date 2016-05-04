@@ -4,8 +4,8 @@
 \contentsline {subsection}{\numberline {1.3}Running the JaTeste Compiler}{4}
 \contentsline {section}{\numberline {2}Short Tutorial}{5}
 \contentsline {subsection}{\numberline {2.1}JaTest\'{e} Overview}{5}
-\contentsline {subsection}{\numberline {2.2}Samples Programs}{5}
-\contentsline {section}{\numberline {3}Lexical Conventions}{8}
+\contentsline {subsection}{\numberline {2.2}Sample Programs}{5}
+\contentsline {section}{\numberline {3}LRM - Lexical Conventions}{8}
 \contentsline {subsection}{\numberline {3.1}Identifiers}{8}
 \contentsline {subsection}{\numberline {3.2}Keywords}{8}
 \contentsline {subsection}{\numberline {3.3}Constants}{8}
@@ -32,7 +32,7 @@
 \contentsline {subsubsection}{\numberline {3.11.1}Defining Arrays}{12}
 \contentsline {subsubsection}{\numberline {3.11.2}Initializing Arrays}{12}
 \contentsline {subsubsection}{\numberline {3.11.3}Accessing Array Elements}{13}
-\contentsline {section}{\numberline {4}Expressions and Operators}{13}
+\contentsline {section}{\numberline {4}LRM - Expressions and Operators}{13}
 \contentsline {subsection}{\numberline {4.1}Expressions}{13}
 \contentsline {subsection}{\numberline {4.2}Assignment Operators}{14}
 \contentsline {subsection}{\numberline {4.3}Incrementing and Decrementing}{14}
@@ -41,13 +41,13 @@
 \contentsline {subsection}{\numberline {4.6}Logical Operators}{15}
 \contentsline {subsection}{\numberline {4.7}Operator Precedence}{15}
 \contentsline {subsection}{\numberline {4.8}Order of Evaluation}{16}
-\contentsline {section}{\numberline {5}Statements}{16}
+\contentsline {section}{\numberline {5}LRM - Statements}{16}
 \contentsline {subsection}{\numberline {5.1}If Statement}{16}
 \contentsline {subsection}{\numberline {5.2}While Statement}{16}
 \contentsline {subsection}{\numberline {5.3}For Statement}{17}
 \contentsline {subsection}{\numberline {5.4}Code Blocks}{17}
 \contentsline {subsection}{\numberline {5.5}Return Statement}{17}
-\contentsline {section}{\numberline {6}Functions}{18}
+\contentsline {section}{\numberline {6}LRM - Functions}{18}
 \contentsline {subsection}{\numberline {6.1}Function Declarations}{18}
 \contentsline {subsection}{\numberline {6.2}Function Definitions}{18}
 \contentsline {subsection}{\numberline {6.3}Calling Functions}{19}
@@ -55,36 +55,36 @@
 \contentsline {subsection}{\numberline {6.5}Recursive Functions}{20}
 \contentsline {subsection}{\numberline {6.6}Function Test Cases}{20}
 \contentsline {section}{\numberline {7}Project Plan}{22}
-\contentsline {subsection}{\numberline {7.1}Project Timeline}{22}
-\contentsline {subsection}{\numberline {7.2}Workflow}{22}
-\contentsline {subsection}{\numberline {7.3}Github Stats}{22}
-\contentsline {subsection}{\numberline {7.4}Team Responsibilities}{22}
-\contentsline {subsection}{\numberline {7.5}Software Development Environment}{22}
-\contentsline {section}{\numberline {8}Architecture}{23}
-\contentsline {subsection}{\numberline {8.1}Block Diagram}{23}
-\contentsline {subsection}{\numberline {8.2}The Compiler}{23}
-\contentsline {subsection}{\numberline {8.3}The Scanner}{23}
-\contentsline {subsection}{\numberline {8.4}The Parser}{23}
-\contentsline {subsection}{\numberline {8.5}The Semantic Checker}{23}
-\contentsline {subsection}{\numberline {8.6}The Code Generator}{23}
-\contentsline {subsection}{\numberline {8.7}Supplementary Code}{23}
-\contentsline {section}{\numberline {9}Testing}{24}
-\contentsline {subsection}{\numberline {9.1}Test Plan}{24}
-\contentsline {subsection}{\numberline {9.2}Test Suite Log}{25}
-\contentsline {subsection}{\numberline {9.3}Test Automation}{27}
-\contentsline {subsection}{\numberline {9.4}Tests}{28}
-\contentsline {section}{\numberline {10}Conclusion}{63}
-\contentsline {subsection}{\numberline {10.1}Lessons Learned}{63}
-\contentsline {subsubsection}{\numberline {10.1.1}Andrew}{63}
-\contentsline {subsubsection}{\numberline {10.1.2}Jemma}{63}
-\contentsline {subsubsection}{\numberline {10.1.3}Jared}{63}
-\contentsline {subsubsection}{\numberline {10.1.4}Jake}{63}
-\contentsline {section}{\numberline {11}Code}{64}
-\contentsline {subsection}{\numberline {11.1}scanner.mll}{65}
-\contentsline {subsection}{\numberline {11.2}ast.ml}{72}
-\contentsline {subsection}{\numberline {11.3}semant.ml}{74}
-\contentsline {subsection}{\numberline {11.4}sast.ml}{87}
-\contentsline {subsection}{\numberline {11.5}codegen.ml}{89}
-\contentsline {subsection}{\numberline {11.6}myprinter.ml}{97}
-\contentsline {subsection}{\numberline {11.7}exceptions.ml}{98}
-\contentsline {subsection}{\numberline {11.8}jateste.ml}{99}
+\contentsline {subsection}{\numberline {7.1}Team Roles}{22}
+\contentsline {subsection}{\numberline {7.2}Planning and Development}{22}
+\contentsline {subsection}{\numberline {7.3}Testing Procedure}{22}
+\contentsline {subsection}{\numberline {7.4}Programming Style Guide}{22}
+\contentsline {subsubsection}{\numberline {7.4.1}Comments}{22}
+\contentsline {subsubsection}{\numberline {7.4.2}Naming Conventions}{22}
+\contentsline {subsubsection}{\numberline {7.4.3}Indentation}{23}
+\contentsline {subsubsection}{\numberline {7.4.4}Parenthesis}{23}
+\contentsline {subsection}{\numberline {7.5}Project Timeline}{23}
+\contentsline {subsection}{\numberline {7.6}GitHub Progression}{23}
+\contentsline {subsection}{\numberline {7.7}Software Development Environment}{23}
+\contentsline {section}{\numberline {8}Architecture}{24}
+\contentsline {subsection}{\numberline {8.1}Block Diagram}{24}
+\contentsline {subsection}{\numberline {8.2}The Compiler}{24}
+\contentsline {subsection}{\numberline {8.3}The Scanner}{24}
+\contentsline {subsection}{\numberline {8.4}The Parser}{24}
+\contentsline {subsection}{\numberline {8.5}The Semantic Checker}{25}
+\contentsline {subsection}{\numberline {8.6}The Code Generator}{25}
+\contentsline {subsection}{\numberline {8.7}Supplementary Code}{26}
+\contentsline {section}{\numberline {9}Lessons Learned}{63}
+\contentsline {subsection}{\numberline {9.1}Andrew}{63}
+\contentsline {subsection}{\numberline {9.2}Jemma}{63}
+\contentsline {subsection}{\numberline {9.3}Jared}{63}
+\contentsline {subsection}{\numberline {9.4}Jake}{63}
+\contentsline {section}{\numberline {10}Code}{64}
+\contentsline {subsection}{\numberline {10.1}scanner.mll}{65}
+\contentsline {subsection}{\numberline {10.2}ast.ml}{71}
+\contentsline {subsection}{\numberline {10.3}semant.ml}{73}
+\contentsline {subsection}{\numberline {10.4}sast.ml}{85}
+\contentsline {subsection}{\numberline {10.5}codegen.ml}{86}
+\contentsline {subsection}{\numberline {10.6}myprinter.ml}{94}
+\contentsline {subsection}{\numberline {10.7}exceptions.ml}{95}
+\contentsline {subsection}{\numberline {10.8}jateste.ml}{96}
