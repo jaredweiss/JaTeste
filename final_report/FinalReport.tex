@@ -92,35 +92,34 @@
 \section{Introduction}
 
 \subsection{Motivation}
-The goal of JaTest\'{e} is to design a language that promotes good coding practices - mainly as it relates to testing.  JaTest\'{e} will require the user to explicitly define test cases for any function that is written in order to compile and execute code.  This will ensure that no code goes untested and will increase the overall quality of programmer code written in our language. By directly embedding test cases into source code, we remove the hassle associated with manually creating new test files.
+The goal of JaTest\'{e} is to design a language that promotes good coding practices - mainly as it relates to testing.  JaTest\'{e} will allow the user to explicitly define test cases for any function that is written in order to compile and execute code.  This will ensure that no code goes untested and will increase the overall quality of programmer code written in our language. By directly embedding test cases into source code, we remove the hassle associated with manually creating new test files.
 
 \subsection {Language Description}
-JaTest\'{e} is an imperative, C-like language, with a few object oriented features added, that makes it easy to add test cases to one's code. The syntax is very similar to C, but with added capability of adding methods directly 
-to ``structs". Furthermore, test cases are appended to user-defined functions, that enable the user to define test cases right away. By appending the keyword ``with test" onto the end of a function, the programmer is able to test his or her code straight away. Code samples will be supplied through the report. 
+JaTest\'{e} is an imperative, C-like language, with a few object oriented features added, that makes it easy to add test cases to ones code. The syntax is very similar to C, but with the added capability of associating functions with ``structs", similarly to how methods are implemented in objects, like in Java. Test cases are easily appended to user-defined functions, by appending the keyword ``with test" onto the end of a function. The compiler subsequently outputs two seperate files: 1) a regular executable 2) an executable test file that runs all user defined tests.
 
 \subsection{Running the JaTeste Compiler}
-At compile time, The JaTest\'{e} compiler generates two files: (1) an executable file, and (2) an executable test file with all the relevant test cases.  This allows the user to continue with his or her normal work flow and minimize interference from the compiler, while at the same time providing a robust test file to fully test one's program. All code is compiled into LLVM, a portable assembly-like language. To run the compiled LLVM code, we use `lli", an LLVM interpreter. 
+The JaTest\'{e} compiler generates (1) an executable file, and if the ``-t'' command line argument is supplied, (2) an executable test file with all the relevant test cases. This relieves the programmer from having to create test files from scratch. All code is compiled into LLVM, a portable assembly-like language. To run the compiled LLVM code, we use `lli", an LLVM interpreter. 
 \par
-For the first file, the compiler completely disregards the test cases and thus produces an executable without any of the test cases code. This enables the programmer to produce a regular executable without the overhead of the test cases when he or she desired. 
+For regular executable, the compiler completely disregards the test cases and thus produces an executable as if the tests had never been written. This enables the programmer to produce a regular executable without the overhead of the test cases when he or she desires. 
 \par
-For the second file, the compiler turns the test cases into functions, and precedes to run each function from a completely brand new ``main" method. ``main" essentially runs through each function, each of which runs the user-defined tests. Furthermore, the compiler adds ``printf" calls to each test letting the user known whether a given test passed or failed.
+For the test file, the compiler turns the test cases into functions, and precedes to run each function from a completely brand new ``main" method. ``main" essentially runs through each function, each of which runs the user-defined tests. Furthermore, the compiler adds ``printf" calls to each test letting the user known whether a given test passed or failed.
 \par
-When inside the src folder, type ``make all" to generate the jateste executable. To run type ./jateste.native [optional -options] $<$source\_file$>.jt$\\
+When inside the src folder, type ``make all" to generate the jateste executable. To run type ./jateste.native [optional -options] $<$source\_file.jt$>$\\
 \\
 The optional -options are:
 \begin{itemize}
 \item{No arguments}
-If run without arguments, the compiler ignores the test cases and creates one executable.
+If run without arguments, the compiler ignores the test cases and creates a regular executable, source\_file.ll, as if the test cases were never there to begin with. 
 \item{"-t" Compile with test}
 This results in the compiler creating two LLVM files: 1) a regular executable named ``source\_file.ll" 2) a test file named ``source\_file-test.ll"
 \item{"-l" Scan only}
-This results in the compiler simply scanning the source code
+This results in the compiler simply scanning the source code.
 \item{"-p" Parse only}
-This results in the compiler simply parsing the source code
+This results in the compiler simply parsing the source code.
 \item{"-se" SAST}
-This results in the compiler running the semantic checker on the source code and the stopping.
+This results in the compiler running the semantic checker on the source code and then stopping.
 \item{"-ast" AST}
-This also results in the compiler running the semantic checker on the source code and the stopping.
+This also results in the compiler running the semantic checker on the source code and then stopping.
 \end{itemize}
 
 
@@ -131,12 +130,14 @@ This also results in the compiler running the semantic checker on the source cod
 Any given JaTest\'{e} program can be broken down into three segments: 
 \begin{enumerate}
 \item global variable declarations. Global variable declarations are exactly like in C. 
-\item function definitions. Function definitions are similar to C, except the keyword ``func" is needed before the return type. Furthermore, all variable declarations must be done at the top of a function. Any function with return type other than void, must use the keyword ``return" to return the given value; code cannot be written after a return statement
-\item struct definitions. Structs are also similar to C, except the programmer can define methods within the struct.
+\item function definitions. Function definitions are similar to C, except the keyword ``func" is needed before the return type. Furthermore, all variable declarations must be done at the beginning of each function. Any function with return type other than void, must use the keyword ``return" to return the given value; code cannot be written after a return statement. Functions can optionllay be appended with:\\
+with test \{ $\ldots$ \} using \{ $\ldots $ \}.\\
+The tests to run are put inside the with test \{ $\ldots$ \}. using \{ $\ldots $ \} is used to set up the environment in the test cases. For example, a test may want to use variables; using \{ $\ldots $ \} is where such a variable would be defined. Examples below should illustrate this.
+\item struct definitions. Structs are also similar to C, except the programmer can define methods within the struct. All struct fields must be delared before the struct's methods. The syntax for struct methods is exactly like any regular function, except the keywork method is used instead of func.
 \end{enumerate}
-Each of these segments must be used in order. So, global variables, if used, must be declared before function definitions. And function definitions must come before struct definition.
+Each of these segments must be used in order. So, global variables, if used, must be declared before function definitions. And function definitions must come before struct definitions.
 
-\subsection{Samples Programs}
+\subsection{Sample Programs}
 \begin{enumerate}
 \item Here's the first example of a JaTest\'{e} program. As illustrated, the syntax is very similar to C. Note the keyword ``func" that is needed for defining functions. 
 \begin{lstlisting}
@@ -211,7 +212,7 @@ sub(10,5) == b - 5 passed \\
 sub(b,d) == 1 passed \\
 sub(c,d) == 4 passed \\
 \item
-Here's another example that uses structs. The syntax is very similar to C: \\
+Here we introduce structs. The syntax is very similar to C: \\
 
 \begin{lstlisting}
 int global_var;
@@ -245,7 +246,7 @@ struct rectangle {
         int height;
 };
 \end{lstlisting}
-Note the syntax here: global variables are declared at the top, functions are defined in the middle, and structs are defined at the bottom. This is required for all  JaTest\'{e} programs. 
+Note the syntax of the whole program here. More precisely, global variables are declared at the top, functions are defined in the middle, and structs are defined at the bottom. This is the required order for all  JaTest\'{e} programs. 
 \end{enumerate}
 
 \newpage
@@ -257,7 +258,7 @@ This chapter will describe how input code will be processed and how tokens will 
 
 \subsection{Identifiers}
 % Specs on how to name variables, functions, data types, etc.
-Identifiers are used to name a variable, a function, or other types of data.  An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters. The set of keyword, listed below, cannot be used as identifiers. 
+Identifiers are used to name a variable, a function, or other types of data, as in most programming language. An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters. The set of keyword, listed below, cannot be used as identifiers.
 
 \begin{Verbatim}[frame=single]
 ID = "(['a'-'z' 'A'-'Z'] | '_') (['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_')*"
@@ -1125,16 +1126,18 @@ We used Git and GitHub for version control.  We used issues, pull requests, and 
 
 
 \subsection{The Compiler}
-The entry point of the compiler for a given source.jt file is jateste.ml. This is where the different phases of the compiler are coordinated. As described in the introduction section the compiler is capable of producing two executables:
+The entry point of the compiler for a given source.jt file is jateste.ml. This is where the different phases of the compilation process are coordinated. At a high level, the compiler reads characters from source.jt, builds up an AST in the parser, performs a walk of the AST to create the SAST, passes the SAST on to the codegen, which finally creates the LLVM code. 
+\par
+As described in the introduction section the compiler is capable of producing two executables:
 \begin{enumerate}
 \item regular executable: source.ll
 \item test executable: source-test.ll. If the ``-t" argument is given on the command line, a test file is created.
 \end{enumerate}
-Both can be run using the LLVM intepreter ``lli". At a high level, the compiler reads characters from source.jt, builds up an AST in the parser, performs a few walks of the AST to create the SAST, which is then passed on to the codegen phase which actually creates the LLVM code.
+Both can be run using the LLVM intepreter ``lli".
 \par
-An important part of the jateste.ml file is creating the SAST for the test file. If the user provides the ``t" argument, the compiler iterates through each function that has a tests, and creates a new function which essentially runs the tests. The compiler also manually creates a main function, which calls each test function. All of this is done between the parser and semantic checker. 
+jateste.ml is also where include files are handled. More specifically, if a given source file wants to include an external \*.jt file, jateste.ml is where the given is searched for.
 \subsection{The Scanner}
-The scanner reads characters from source.jt according to the regular expressions in scanner.ml and outputs a stream of tokens to parser.mly
+The scanner reads characters from source.jt according to the regular expressions in scanner.ml and outputs a stream of tokens to parser.mly.
 \subsection{The Parser}
 The parser receives tokens from the scanner and creates an AST from the given context free grammar. The CFG is defined in parser.mly. At a high level, the AST is made up of a 3-element record: \\
 \begin{lstlisting}
@@ -1143,8 +1146,73 @@ type program = header list * bind list * func_decl list * struct_decl list
 As illustrated, the AST consists of a list of global variables, a list of function definitions, and a list of struct definitions
 \subsection{The Semantic Checker}
 The semantic checker receives the AST from the parser, walks the tree, and creates an SAST. The SAST carries additional information that helps the codegen phases of the compiler. For example, each array access is represented by a node; the SAST contains the array type information for such an access, which the AST does not.
+\par
+An important part of the semantic checker is converting test cases into functions. More specifically, after checking the test case for a given function is semantically valid, semant.ml turns the test cases into standlone functions, where the using clause is copied and pasted to the top of the new function. Codegen is subsequently responsible for turning the new test case functions into standalone snippets of code.  
 \subsection{The Code Generator}
-codegen.ml takes an SAST as input and creates LLVM code. We take advantage of OCaml's built in support for LLVM to help build the assembly code. Again, we walk the SAST to create the code. 
+codegen.ml takes an SAST as input and creates LLVM code. We take advantage of OCaml's built in support for LLVM to help build the assembly code. 
+\par
+One of the most important jobs of the Code Generator is to create the test file. If instructed to, codegen.ml creates code for the test functions that were constructed as nodes in the SAST in the semantic checking phase. Importantly, codegen.ml ignores the user-defined main function, and calls the test functions from a branch new main. For example, consider the following snippet of code:
+\begin{lstlisting}
+
+func int main()
+{
+    Do_insightful_stuff;
+    return 0;
+}
+
+func int add(int x, int y)
+{
+        return x + y;
+} with test {
+        assert(add(a,0) == 10);
+} using {
+        int a;
+        a = 10;
+}
+\end{lstlisting}
+
+codegen.ml would compile this into the following pseudo code test file:
+
+\begin{lstlisting}
+
+func int main()
+{
+    printResultOf: addtest();
+    return 0;
+}
+
+func int add(int x, int y)
+{
+        return x + y;
+} 
+
+func void addtest()
+{
+        int a;
+        a = 10;
+        assert(add(a,0) == 10);
+}
+
+\end{lstlisting}
+
+For the regular file, codegen.ml would compile the snippet of code into something like the following pseudo code:
+
+\begin{lstlisting}
+
+func int main()
+{
+     Do_insightful_stuff;
+    return 0;
+}
+
+func int add(int x, int y)
+{
+        return x + y;
+} 
+
+
+\end{lstlisting}
+
 
 \subsection{Supplementary Code} %libraries, built in functions, etc
 There is a Jateste standard library located in the lib folder. To include other jateste files in a given sourcr code file, source.jt, the programmer has two options. If the file to include is in the current directory, the following syntax is used to include a file called file.jt: 
