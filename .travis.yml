@@ -1,0 +1,31 @@
+
+sudo: required
+
+cache:
+  apt: true
+
+addons:
+  apt:
+    sources:
+    - avsm
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise
+    - llvm-toolchain-precise-3.8
+    packages:
+    - opam
+    - m4
+    - pkg-config
+    - make
+    - llvm-3.8
+    - llvm
+
+before_script:
+  - eval $(alias sudo='')
+  - opam init -y
+  - eval $(opam config env)
+  - opam install ocamlfind -y
+  - opam install llvm.3.8 -y
+
+script:
+  - cd src
+  - make all
