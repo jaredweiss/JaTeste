@@ -329,7 +329,11 @@ let rec expr_sast expr env =
 	| A.Pt_access (e1, e2) ->  
 		(match e2 with
 		  A.Id(_) -> let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index) in  t
-		| A.Call(ec,le) -> S.SCall (ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
+		| A.Call(ec,le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
+			(match struct_decl with
+			A.Pointer_typ(A.Struct_typ(struct_type_string)) -> S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
+			| _ -> raise (Exceptions.BugCatch "expr_sast")
+			)
 		| _ -> raise (Exceptions.BugCatch "expr_sast")
 		)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
@@ -355,7 +359,7 @@ let add_pt_to_arg s f =
 	let tmp_string = "p" in
 	let new_formal:(A.bind) = (tmp_type, tmp_string) in
 	let formals_with_pt = new_formal :: tmp_formals in
-	let new_func = {A.typ = f.A.typ ; A.fname = f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
+	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
 	new_func
 
 (* Creates new functions whose first paramters is a pointer to the struct type that the method is associated with *)
