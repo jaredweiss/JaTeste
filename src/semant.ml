@@ -227,6 +227,7 @@ let index_of_struct_field stru expr env =
 			| _ -> raise (Exceptions.InvalidStructField)
 
 
+
 (* Checks the relevant struct actually has a given field *)
 let struct_contains_field s field env = 
 		let struct_var = find_var env.scope s in 
@@ -259,6 +260,10 @@ let struct_contains_expr stru expr env =
 			|  A.Call(s1, _) -> struct_contains_method s s1 env
 			| _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
+
+let struct_field_is_local str fiel env =
+	try (let _ = struct_contains_field str fiel env in false) 
+	with | Exceptions.InvalidStructField -> true
 
 let rec type_of_expr env e =
 	match e with
@@ -309,7 +314,11 @@ let rec expr_sast expr env =
 	| A.Id s ->  (match env.in_struct_method with
 			  true -> 
 				(match env.struct_name with
-				  Some(nm) -> let tmp_id = A.Id(nm) in let tmp_pt_access = A.Pt_access(tmp_id, A.Id(s)) in (expr_sast tmp_pt_access env)
+				  Some(nm) -> let local_struct_field = struct_field_is_local nm s env in 
+				(match local_struct_field with
+				  true -> S.SId (s)
+				| false -> let tmp_id = A.Id(nm) in let tmp_pt_access = A.Pt_access(tmp_id, A.Id(s)) in (expr_sast tmp_pt_access env)
+				)
 				| None -> raise (Exceptions.BugCatch "expr_sast")
 				)
 			| false -> S.SId (s)

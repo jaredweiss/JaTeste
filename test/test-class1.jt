@@ -1,0 +1,40 @@
+func int main()
+{
+
+	struct square *p;
+	int area;
+	p = new struct square;
+	p->height = 7;
+	p->width = 9;
+	area = p->get_area();
+	print(area);
+	p->set_height(55);
+	p->set_width(3);
+	area = p->get_area();
+	print(area);
+
+
+	return 0;
+}
+
+
+struct square {
+	int height;
+	int width;
+
+	method int get_area()
+	{
+		int temp_area;
+		temp_area = height * width;
+		return temp_area;	
+	}
+
+	method void set_height(int h) {
+		height = h;
+	}
+
+	method void set_width(int w) {
+		width = w;
+	}
+
+};
