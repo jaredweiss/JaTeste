@@ -15,7 +15,7 @@ before_script:
   - opam init -y
   - eval $(opam config env)
   - opam install ocamlfind -y
-  - opam install llvm -y
+  - opam install llvm.3.7 -y
 
 script:
   - make all
