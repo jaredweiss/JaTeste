@@ -11,7 +11,7 @@ define run-test =
 @echo " \033[0;32m ---->  \033[0mTest passed!"
 endef
 
-all-tests: test-hello-world test-global-scope test-func1 test-func2 test-func3 test-pointer1 test-while1 test-for1 test-malloc1 test-free1 test-testcase1 test-testcase2 test-testcase3 test-array1 test-lib1 test-gcd1 test-struct-access1 test-bool1 test-bool2 test-arraypt1 test-linkedlist1 test-linkedlist2 test-class1
+all-tests: test-hello-world test-global-scope test-func1 test-func2 test-func3 test-pointer1 test-while1 test-for1 test-malloc1 test-free1 test-testcase1 test-testcase2 test-testcase3 test-array1 test-lib1 test-gcd1 test-struct-access1 test-bool1 test-bool2 test-arraypt1 test-linkedlist1 test-linkedlist2 test-class1 test-class2 test-class3
 	@echo "\033[0;32m========= All Tests Passed! ==========\033[0m"
 define test-compile-fail=
 @echo "Testing '$1.jt', should fail to compile..."
@@ -26,7 +26,7 @@ all-tests: runtime-tests compile-tests
 runtime-tests: test-hello-world test-global-scope test-func1 test-func2 
 	@echo "\033[0;32m========= Runtime Tests Passed! ==========\033[0m"
 
-compile-tests: test-local-var-fail test-no-main-fail return-fail1 struct-access-fail1 invalid-assignment-fail1 
+compile-tests: test-local-var-fail test-no-main-fail return-fail1 struct-access-fail1 invalid-assignment-fail1 class1-var-fail1 
 	@echo "\033[0;32m======= Compilation Tests Passed! ========\033[0m"
 
 .PHONY: clean
@@ -105,6 +105,14 @@ test-linkedlist2:
 test-class1:
 	$(call run-test,test-class1)
 
+test-class2:
+	$(call run-test,test-class2)
+
+test-class3:
+	$(call run-test,test-class3)
+
+
+
 
 
 
@@ -126,6 +134,10 @@ struct-access-fail1:
 
 invalid-assignment-fail1:
 	$(call test-compile-fail,invalid-assignment-fail1)
+
+class1-var-fail1:
+	$(call test-compile-fail,class1-var-fail1)
+
 
 
 

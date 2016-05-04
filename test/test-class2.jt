@@ -1,0 +1,60 @@
+func int main()
+{
+
+	struct house *my_house;
+	int price;
+	int vol;
+
+	my_house->set_price(100);
+	my_house->set_height(88);
+	my_house->set_width(60);
+	my_house->set_length(348);
+
+	price = my_house->get_price();
+	vol = my_house->get_volumne();
+
+	print(price);
+	print(vol);
+	return 0;
+}
+
+struct house {
+	int price;
+	int height;
+	int width;
+	int length;
+
+	method void set_price(int x)
+	{
+		price = x;
+	}
+
+	method void set_height(int x)
+	{
+		height = x;
+	}
+
+	method void set_width(int x)
+	{
+		width = x;
+	}
+
+	method void set_length(int x)
+	{
+		length = x;
+	}
+
+	method int get_price()
+	{
+		return price;
+	}
+
+	method int get_volumne()
+	{
+		int temp;
+		temp = height * width * length;
+		return temp;
+	}
+
+
+};
