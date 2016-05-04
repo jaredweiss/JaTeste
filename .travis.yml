@@ -1,0 +1,31 @@
+
+sudo: required
+
+addons:
+  apt:
+    sources:
+    - avsm
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise
+    - llvm-toolchain-precise-3.8
+    packages:
+    - opam
+    - m4
+    - pkg-config
+    - make
+    - libllvm3.8
+    - llvm-3.8-dev
+    - llvm-3.8
+    - llvm
+
+before_script:
+  - eval $(alias sudo='')
+  - opam init -y
+  - eval $(opam config env)
+  - opam instal depext -y
+  - opam install ocamlfind -y
+#  - opam depext llvm.3.8 -i
+  - opam install llvm.3.8 -y
+
+script:
+  - make all
