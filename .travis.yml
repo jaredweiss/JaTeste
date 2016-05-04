@@ -12,6 +12,7 @@ addons:
     - m4
     - pkg-config
     - make
+    - libllvm3.8
     - llvm-3.8-dev
     - llvm-3.8
     - llvm
