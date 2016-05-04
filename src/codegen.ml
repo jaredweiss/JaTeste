@@ -136,18 +136,22 @@ let printf_func = L.declare_function "printf" printf_t the_module in
             	in let ftype = L.function_type (ltype_of_typ fdecl.S.styp) formal_types in
              	StringMap.add name (L.define_function name ftype the_module, fdecl) m in
     		List.fold_left function_decl StringMap.empty functions in
-	
+
+		(* Create format strings for printing *)
+		let (main_function,_) = StringMap.find "main" function_decls in
+		let builder = L.builder_at_end context (L.entry_block main_function) in
+		(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
+		let str_format_str = L.build_global_stringptr "%s\n" "fmt_string" builder in
+		let int_format_str = L.build_global_stringptr "%d\n" "fmt_int" builder in
+		let float_format_str = L.build_global_stringptr "%f\n" "fmt_float" builder in
+
 (* Method to build body of function *)
 	let build_function_body fdecl =
 	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
 	(* builder is the LLVM instruction builder *)
 	let builder = L.builder_at_end context (L.entry_block the_function) in
 
-	(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
-	let str_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
-	let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
-	let float_format_str = L.build_global_stringptr "%f\n" "fmt" builder in
-
+	
 	(* This is where we push local variables onto the stack and add them to a local HashMap*)
 	let local_vars = 
 		let add_formal m(t, n) p = L.set_value_name n p;
