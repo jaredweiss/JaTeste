@@ -12,11 +12,12 @@ addons:
     - llvm
 
 before_script:
+  - eval $(alias sudo='')
   - opam init -y
   - eval $(opam config env)
   - opam instal depext -y
   - opam install ocamlfind -y
-  - opam depex llvm.3.8 -y
+  - opam depext llvm.3.8 -y
   - opam install llvm.3.8 -y
 
 script:
