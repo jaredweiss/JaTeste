@@ -63,6 +63,7 @@ type func_decl = {
 type struct_decl = {
   sname   : string;
   attributes  : bind list;
+  methods  : func_decl list;
 }
 
 (* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)

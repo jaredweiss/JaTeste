@@ -146,6 +146,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
 	let str_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
 	let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+	let float_format_str = L.build_global_stringptr "%f\n" "fmt" builder in
 
 	(* This is where we push local variables onto the stack and add them to a local HashMap*)
 	let local_vars = 
@@ -192,12 +193,15 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		(match e with 
 		  (S.SString_lit(_)) -> str_format_str
 		| (S.SLit(_)) -> int_format_str
+		| (S.SDouble_lit(_)) -> float_format_str
 		| (S.SId(i)) -> let i_value = find_var i in 
 			let i_type = L.type_of i_value in 
 			let string_i_type = L.string_of_lltype i_type in 
 		(match string_i_type with 
 		    "i32*" -> int_format_str 
 		  | "i8**" -> str_format_str
+		  | "float*" -> float_format_str
+		  | "double*" -> float_format_str
 		  | _ -> raise (Exceptions.InvalidPrintFormat))		
 		| _ -> raise (Exceptions.InvalidPrintFormat) 
 		)
@@ -258,7 +262,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		)e1' e2' "add" builder
 		| A.Primitive(A.Double) ->
 		(match op with 
-		  A.Add -> ignore(print_string "j");L.build_fadd 
+		  A.Add -> L.build_fadd 
 		| A.Sub -> L.build_fsub
 		| A.Mult -> L.build_fmul
 		| A.Equal -> L.build_fcmp L.Fcmp.Oeq
@@ -268,7 +272,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Greater -> L.build_fcmp L.Fcmp.Ogt
 		| A.Geq -> L.build_fcmp L.Fcmp.Oge
 		| _ -> raise (Exceptions.BugCatch "Binop")
-		) e1' e2' "add" builder
+		) e1' e2' "addfloat" builder
 		| A.Primitive(A.Bool) -> 
 		(
 		match op with 

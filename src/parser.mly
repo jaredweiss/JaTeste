@@ -6,7 +6,7 @@
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA SEMI POUND INCLUDE
 %token PLUS MINUS STAR DIVIDE ASSIGN NOT MODULO EXPO AMPERSAND
 %token FUNC
-%token WTEST USING STRUCT DOT POINTER_ACCESS
+%token WTEST USING STRUCT DOT POINTER_ACCESS METHOD
 %token EQ NEQ LT LEQ GT GEQ AND OR TRUE FALSE
 %token INT DOUBLE VOID CHAR STRING BOOL NULL 
 %token INT_PT DOUBLE_PT CHAR_PT STRUCT_PT
@@ -79,6 +79,15 @@ var_decls:
 func_decls:	
 	 fdecl {[$1]}
 	| func_decls fdecl  {$2::$1}
+
+mthd:
+	  METHOD any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
+		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
+		$9; tests = None }}
+
+struc_func_decls:
+	  /* nothing */ { [] }
+	| struc_func_decls mthd { $2::$1 } 
 
 struc_decls:
 	  /*nothing*/ { [] }
@@ -191,8 +200,8 @@ vdecl:
 Rule for defining a struct 
 */
 sdecl:
-	STRUCT ID LBRACE vdecl_list RBRACE SEMI {{
-		sname = $2; attributes = List.rev $4 }}
+	STRUCT ID LBRACE vdecl_list struc_func_decls RBRACE SEMI {{
+		sname = $2; attributes = List.rev $4; methods = List.rev $5 }}
 
 
 func_body: 

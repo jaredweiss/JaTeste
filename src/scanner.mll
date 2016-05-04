@@ -56,6 +56,7 @@ rule token = parse
 	(* Datatypes *)
 	| "void"		{ VOID }
 	| "struct"		{ STRUCT }
+	| "method"		{ METHOD }
 	| "double"		{ DOUBLE }
 	| "int"			{ INT }
 	| "char"		{ CHAR }
