@@ -204,7 +204,7 @@ let check_valid_func_call s =
 (* Helper function that finds index of first matching element in list *)
 let rec index_of_list x l = 
 	match l with
-	  [] -> raise (Exceptions.InvalidStructField)
+	  [] -> raise (Exceptions.BugCatch "index_of_list")
 	| hd::tl -> let (_,y) = hd in if x = y then 0 else 1 + index_of_list x tl
 
 let index_helper s field env = 
@@ -212,17 +212,17 @@ let index_helper s field env =
 		match struct_var with 
 		  A.Struct_typ(struc_name) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
-		try let index = index_of_list field stru.A.attributes in index with | Not_found -> raise (Exceptions.InvalidStructField))
+		try let index = index_of_list field stru.A.attributes in index with | Not_found -> raise (Exceptions.BugCatch "index_helper"))
 		| A.Pointer_typ(A.Struct_typ(struc_name)) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
-		try let index = index_of_list field stru.A.attributes in index with | Not_found -> raise (Exceptions.InvalidStructField))
+		try let index = index_of_list field stru.A.attributes in index with | Not_found -> raise (Exceptions.BugCatch "index_helper"))
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
 
 
 (* Function that returns index of the field in a struct. E.g. given: stuct person {int age; int height;};.... index_of_struct_field *str "height" env will return 1 *)
 let index_of_struct_field stru expr env = 	
 		match stru with
-	  		A.Id(s) -> (match expr with A.Id(s1) -> index_helper s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
+	  		A.Id(s) -> (match expr with A.Id(s1) -> index_helper s s1 env | _ -> raise (Exceptions.BugCatch "index_of_struct")) 
 			| _ -> raise (Exceptions.InvalidStructField)
 
 
@@ -235,7 +235,8 @@ let struct_contains_field s field env =
 		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
 		| A.Pointer_typ(A.Struct_typ(struc_name)) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
-		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
+		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> 
+		try let tmp_fun = (List.find (fun f -> if f.A.fname = field then true else false) stru.A.methods) in tmp_fun.A.typ with | Not_found -> raise (Exceptions.InvalidStructField))
 
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
 
@@ -243,7 +244,10 @@ let struct_contains_field s field env =
 (* Checks that struct contains expr *)
 let struct_contains_expr stru expr env = 
 	match stru with
-	  A.Id(s) -> (match expr with A.Id(s1) -> struct_contains_field s s1 env | _ -> raise (Exceptions.InvalidStructField)) 
+	  A.Id(s) -> (match expr with 
+			   A.Id(s1) -> struct_contains_field s s1 env 
+			|  A.Call(s1, l) -> struct_contains_field s s1 env
+			| _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
 
 let rec type_of_expr env e =
@@ -260,7 +264,12 @@ let rec type_of_expr env e =
 	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
 	| A.Pt_access(e1,e2) -> let tmp_type = type_of_expr env e1 in 
 				(match tmp_type with
-				A.Pointer_typ(A.Struct_typ(_)) -> struct_contains_expr e1 e2 env
+				A.Pointer_typ(A.Struct_typ(_)) -> 
+					(match e2 with 
+				  	  A.Call(_,_) -> struct_contains_expr e1 e2 env
+				  	| A.Id(_) -> struct_contains_expr e1 e2 env
+					| _ -> raise (Exceptions.BugCatch "type_of_expr")
+					)
 				| _ -> raise (Exceptions.BugCatch "type_of_expr")
 				)
 	| A.Dereference(e1) -> let tmp_e = type_of_expr env e1 in 
@@ -291,7 +300,12 @@ let rec expr_sast expr env =
 	| A.Struct_create s -> S.SStruct_create s
 	| A.Free e -> let st = (string_identifier_of_expr e) in S.SFree(st)
 	| A.Struct_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
-	| A.Pt_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index)
+	| A.Pt_access (e1, e2) -> 
+		(match e2 with
+		  A.Id(_) ->  let index = index_of_struct_field e1 e2 env in S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index)
+		| A.Call(ec,le) ->  S.SCall (ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
+		| _ -> raise (Exceptions.BugCatch "expr_sast")
+		)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
 	| A.Array_access (e, i) -> let tmp_string = (string_identifier_of_expr e) in 
 		let tmp_type = find_var env.scope tmp_string in S.SArray_access (tmp_string, i, tmp_type)
@@ -312,7 +326,7 @@ let struct_sast r =
 let add_pt_to_arg s f =
 	let tmp_formals = f.A.formals in
 	let tmp_type = A.Pointer_typ(A.Struct_typ(s.A.sname)) in 
-	let tmp_string = "*p" in
+	let tmp_string = "p" in
 	let new_formal:(A.bind) = (tmp_type, tmp_string) in
 	let formals_with_pt = new_formal :: tmp_formals in
 	let new_func = {A.typ = f.A.typ ; A.fname = f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
