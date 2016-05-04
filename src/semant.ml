@@ -246,7 +246,7 @@ let struct_contains_expr stru expr env =
 	match stru with
 	  A.Id(s) -> (match expr with 
 			   A.Id(s1) -> struct_contains_field s s1 env 
-			|  A.Call(s1, l) -> struct_contains_field s s1 env
+			|  A.Call(s1, _) -> struct_contains_field s s1 env
 			| _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
 
