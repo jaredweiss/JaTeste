@@ -27,4 +27,5 @@ before_script:
   - opam install llvm.3.8 -y
 
 script:
+  - cd src
   - make all
