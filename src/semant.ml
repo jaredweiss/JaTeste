@@ -25,6 +25,7 @@ type environment = {
 	func_name : string option;
 	in_test_func : bool;
 	in_struct_method : bool;
+	struct_name : string option
 }
 
 (* For debugging *)
@@ -240,13 +241,22 @@ let struct_contains_field s field env =
 
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
 
+let struct_contains_method s methd env =
+		let struct_var = find_var env.scope s in 
+		match struct_var with 
+		 A.Pointer_typ(A.Struct_typ(struc_name)) ->
+		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
+		 try let tmp_fun = (List.find (fun f -> if f.A.fname = methd then true else false) stru.A.methods) in tmp_fun.A.typ with | Not_found -> raise (Exceptions.InvalidStructField))
+
+		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
+
 
 (* Checks that struct contains expr *)
 let struct_contains_expr stru expr env = 
 	match stru with
 	  A.Id(s) -> (match expr with 
 			   A.Id(s1) -> struct_contains_field s s1 env 
-			|  A.Call(s1, _) -> struct_contains_field s s1 env
+			|  A.Call(s1, _) -> struct_contains_method s s1 env
 			| _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
 
@@ -296,14 +306,21 @@ let rec expr_sast expr env =
 	| A.Unop (u, e) -> S.SUnop(u, expr_sast e env)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s env, expr_sast e env)
 	| A.Noexpr -> S.SNoexpr
-	| A.Id s -> S.SId (s)
+	| A.Id s ->  (match env.in_struct_method with
+			  true -> 
+				(match env.struct_name with
+				  Some(nm) -> let tmp_id = A.Id(nm) in let tmp_pt_access = A.Pt_access(tmp_id, A.Id(s)) in (expr_sast tmp_pt_access env)
+				| None -> raise (Exceptions.BugCatch "expr_sast")
+				)
+			| false -> S.SId (s)
+		     )
 	| A.Struct_create s -> S.SStruct_create s
 	| A.Free e -> let st = (string_identifier_of_expr e) in S.SFree(st)
 	| A.Struct_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
-	| A.Pt_access (e1, e2) -> 
+	| A.Pt_access (e1, e2) ->  
 		(match e2 with
-		  A.Id(_) ->  let index = index_of_struct_field e1 e2 env in S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index)
-		| A.Call(ec,le) ->  S.SCall (ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
+		  A.Id(_) -> let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index) in  t
+		| A.Call(ec,le) -> S.SCall (ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
 		| _ -> raise (Exceptions.BugCatch "expr_sast")
 		)
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
@@ -545,14 +562,14 @@ let rec check_function_body funct env =
 		| _ -> ()
 	) formals_and_locals;
 	(* Create new enviornment -> symbol table parent is set to previous scope's symbol table *)
-	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name); in_test_func = env.in_test_func ; in_struct_method = false} in
+	let new_env = {scope = {parent = Some(env.scope) ; variables = Hashtbl.create 10}; return_type = Some(funct.A.typ) ; func_name = Some(curr_func_name); in_test_func = env.in_test_func ; in_struct_method = env.in_struct_method ; struct_name = env.struct_name} in
 	(* Add formals + locals to this scope symbol table *)
 	List.iter (fun (t,s) -> (Hashtbl.add new_env.scope.variables s t)) formals_and_locals;
 	let body_with_env = List.map (fun n -> check_stmt n new_env) funct.A.body in
 	(* Compile code for test case iff a function has defined a with test clause *)
 	let sast_func_with_test = 
 		(match funct.A.tests with
-		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env2 = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") ; in_test_func = true ; in_struct_method = false} in
+		Some(t) ->  let func_with_test = convert_test_to_func t.A.using t new_env in let new_env2 = {scope = {parent = None; variables = Hashtbl.create 10}; return_type = Some(A.Primitive(A.Void)) ; func_name = Some(curr_func_name ^ "test") ; in_test_func = true ; in_struct_method = false ; struct_name = None } in
 	Some(check_function_body func_with_test new_env2) 
 		| None -> None
 		)
@@ -585,12 +602,11 @@ let check_includes includes =
 (* Entry point for semantic checking AST. Output is SAST *)
 (******************************************************************)
 let check (includes, globals, functions, structs) =  
-	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false} in
-	let prog_env_in_struct:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = true} in
+	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false ; struct_name = None } in
 	let _ = check_includes includes in
 	let (structs_added, struct_methods) = check_structs structs in
 	let globals_added = check_globals globals prog_env in
 	let functions_with_env = List.map (fun n -> (n, prog_env)) functions in
-	let methods_with_env = List.map (fun n -> (n, prog_env_in_struct)) struct_methods in
+	let methods_with_env = List.map (fun n -> let prog_env_in_struct:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = true ; struct_name = Some(snd (List.hd n.A.formals)) } in (n, prog_env_in_struct)) struct_methods in
 	let sast = check_functions (functions_with_env @ methods_with_env) includes globals_added structs_added in
 	sast
