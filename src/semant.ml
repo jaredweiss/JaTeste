@@ -524,7 +524,20 @@ let rec check_function_body funct env =
 	report_duplicate (fun n -> "duplicate formal arg " ^ n) (List.map snd funct.A.formals);
 	report_duplicate (fun n -> "duplicate local " ^ n) (List.map snd funct.A.vdecls);
 	(* Check no duplicates *)
-	let formals_and_locals = List.append funct.A.formals funct.A.vdecls in
+
+	let in_struc = env.in_struct_method in
+	let formals_and_locals =
+		(match in_struc with
+			 true ->
+			let (struct_arg_typ, _) = List.hd funct.A.formals in
+                         (match struct_arg_typ with
+                           A.Pointer_typ(A.Struct_typ(s)) -> let struc_arg = check_valid_struct     s in List.append (List.append funct.A.formals funct.A.vdecls) struc_arg.A.attributes
+                         | _ -> raise (Exceptions.BugCatch "check function body")
+                         )
+                 | false -> List.append funct.A.formals funct.A.vdecls
+                 )
+         in
+
 	report_duplicate (fun n -> "same name for formal and local var " ^ n) (List.map snd formals_and_locals);
 	(* Check structs are valid *)
 	List.iter (fun (t,_) -> match t with 
