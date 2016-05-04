@@ -1,0 +1,22 @@
+addons:
+  apt:
+    sources:
+    - avsm
+    - llvm-toolchain-precise-3.8
+    packages:
+    - build-essential
+    - software-properties-common
+    - python-software-properties
+    - opam
+    - m4
+    - pkg-config
+    - llvm-3.8
+
+before_script:
+  - opam init -y
+  - eval $(opam config env)
+  - opam install ocamlfind -y
+  - opam install llvm -y
+
+script:
+  - make all
