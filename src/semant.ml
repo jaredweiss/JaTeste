@@ -303,8 +303,23 @@ let rec expr_sast expr env =
 
 (* Convert ast struct to sast struct *)
 let struct_sast r = 
-	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes } in
+	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes} in
 	tmp
+
+
+(* function that adds struct pointer to formal arg *)
+let add_pt_to_arg s f =
+	let tmp_formals = f.A.formals in
+	let tmp_type = A.Pointer_typ(A.Struct_typ(s.A.sname)) in 
+	let new_formal = (tmp_type, "*p") in
+	let formals_with_pt = new_formal :: tmp_formals in
+	formals_with_pt
+
+(* Creates new functions whose first paramters is a pointer to the struct type that the method is associated with *)
+let add_pts_to_args s fl = 
+	let list_of_struct_funcs = List.map (fun n -> add_pt_to_arg s n) fl in	
+	list_of_struct_funcs
+	
 
 (* Struct semantic checker *)
 let check_structs structs = 
@@ -314,7 +329,9 @@ let check_structs structs =
 
 	ignore (List.map (fun n -> (List.iter (check_not_void (fun n -> "Illegal void field" ^ n)) n.A.attributes)) structs);
 	ignore(List.iter (fun n -> Hashtbl.add struct_types n.A.sname n) structs);
-	structs
+	let tmp_funcs = List.map (fun n -> (n, n.A.methods)) structs in
+	let tmp_funcs_with_formals = List.map (fun s -> (add_pts_to_args (fst s) (snd s))) tmp_funcs in
+	(structs, tmp_funcs_with_formals)
 
 (* Globa variables semantic checker *)
 let check_globals globals env = 
@@ -538,7 +555,7 @@ let check_includes includes =
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false} in
 	let _ = check_includes includes in
-	let structs_added = check_structs structs in
+	let (structs_added,_) = check_structs structs in
 	let globals_added = check_globals globals prog_env in
 	let sast = check_functions functions prog_env includes globals_added structs_added in
 	sast
