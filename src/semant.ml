@@ -549,11 +549,13 @@ let rec check_function_body funct env =
 	tmp
 
 (* Entry point to check functions *)
-let check_functions functions env includes globals_add structs_add = 
-	(check_function_names functions); 
-	(check_function_not_print functions); 
-	(check_prog_contains_main functions); 
-	let sast_funcs = (List.map (fun n -> check_function_body n env) functions) in
+let check_functions functions_with_env includes globals_add structs_add = 
+	let function_names = List.map (fun n -> fst n) functions_with_env in 
+	
+	(check_function_names function_names); 
+	(check_function_not_print function_names); 
+	(check_prog_contains_main function_names); 
+	let sast_funcs = (List.map (fun n -> check_function_body (fst n) (snd n)) functions_with_env) in
 	(*let sprogram:(S.sprogram) = program_sast (globals_add, functions, structs_add) in *)
 	let sast = (includes, globals_add, sast_funcs, (List.map struct_sast structs_add )) in
 	sast
@@ -571,8 +573,11 @@ let check_includes includes =
 (******************************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false} in
+	let prog_env_in_struct:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = true} in
 	let _ = check_includes includes in
 	let (structs_added, struct_methods) = check_structs structs in
 	let globals_added = check_globals globals prog_env in
-	let sast = check_functions (functions @ struct_methods) prog_env includes globals_added structs_added in
+	let functions_with_env = List.map (fun n -> (n, prog_env)) functions in
+	let methods_with_env = List.map (fun n -> (n, prog_env_in_struct)) struct_methods in
+	let sast = check_functions (functions_with_env @ methods_with_env) includes globals_added structs_added in
 	sast
