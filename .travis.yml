@@ -5,6 +5,7 @@ addons:
   apt:
     sources:
     - avsm
+    - ubuntu-toolchain-r-test
     - llvm-toolchain-precise
     - llvm-toolchain-precise-3.8
     packages:
