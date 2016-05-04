@@ -1,0 +1,28 @@
+func int main()
+{
+	int tmp;
+	struct rectangle *rec_pt;
+	rec_pt = new struct rectangle;
+	update_rec(rec_pt, 6);
+	tmp = rec_pt->width;
+
+	print(tmp);
+
+	return 0;
+}
+
+func void update_rec(struct rectangle *p, int x)
+{
+	p->width = x;
+} with test {
+	assert(t->width == 10);
+} using {
+	struct rectangle *t;
+	t = new struct rectangle;
+	update_rec(t, 10);
+}
+
+struct rectangle {
+	int width;
+	int height;
+};
