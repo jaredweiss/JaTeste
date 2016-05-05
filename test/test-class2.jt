@@ -4,6 +4,8 @@ func int main()
 	struct house *my_house;
 	int price;
 	int vol;
+	
+	my_house = new struct house;
 
 	my_house->set_price(100);
 	my_house->set_height(88);

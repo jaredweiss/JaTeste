@@ -1,0 +1,64 @@
+func int main()
+{
+	
+	struct rectangle *my_rec;
+	int a;
+	int i;
+	my_rec = new struct rectangle;
+
+	update_width(my_rec, 19);
+
+	a = my_rec->width;
+	print(a);
+	i = 0;
+	while (i < 10) {
+		update_width(my_rec, i);
+		a = my_rec->width;
+		print(a);
+		update_height(my_rec, (i+5));	
+		a = my_rec->height;
+		print(a);
+		i = i + 1;
+	}
+
+	free(my_rec);
+	return 0;
+}
+
+func void update_width(struct rectangle *r, int w)
+{
+
+	r->set_width(w);
+}
+
+func void update_height(struct rectangle *r, int w)
+{
+
+	r->set_height(w);
+}
+struct rectangle {
+
+	int width;
+	int height;
+
+	method void set_height(int x)
+	{
+		height = x;
+	}
+
+	method void set_width(int x)
+	{
+		width = x;
+	}
+
+	method int get_area()
+	{	
+		int a;
+		int b;
+		int c;
+		a = width;
+		b = height;
+		c = a * b;
+		return c;
+	}
+};
