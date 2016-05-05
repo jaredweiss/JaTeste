@@ -18,6 +18,7 @@ src/jateste.native
 
 # Other
 *.aux
+*.toc
 *.log
 *.synctex.gz
 *.swp
