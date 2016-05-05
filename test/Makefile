@@ -31,8 +31,8 @@ compile-tests: test-local-var-fail test-no-main-fail return-fail1 struct-access-
 clean:
 	rm -rf *.ll
 
-test-hello-world:
-	$(call run-test,hello-world)
+#test-hello-world:
+#	$(call run-test,hello-world)
 
 test-global-scope:
 	$(call run-test,global-scope)
