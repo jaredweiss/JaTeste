@@ -443,7 +443,6 @@ let rec check_expr expr env =
 			  A.Pointer_typ(A.Struct_typ(_)) -> 
 			(match e2 with 
 			  A.Call(sc,args) -> ignore(struct_contains_expr e1 e2 env); 
-					     let tmp_string = string_identifier_of_expr e2 in
 					     let tmp_string2 = string_identifier_of_expr e1 in
 					     let tmp_formals = [e1] @ args in
 					     let tmp_struc = find_var env.scope tmp_string2 in
