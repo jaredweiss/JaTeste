@@ -1,3 +1,5 @@
+int global_var;
+
 func int main()
 {
 	int tmp;
