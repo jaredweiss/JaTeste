@@ -29,5 +29,5 @@ before_script:
 
 script:
   - cd src
-  - which lli
+  - which llvm
   - make all
