@@ -1,0 +1,38 @@
+func int main()
+{
+	struct circle *my_circle;
+	int diameter;
+	int i;
+	my_circle = new struct circle;
+	my_circle->set_radius(10);
+
+	diameter = my_circle->get_diameter();
+	print(diameter);
+
+	my_circle->set_radius(10,1);
+
+	return 0;
+}
+
+struct circle {
+	int radius;
+	int diameter;
+	
+	method void set_radius(int c)
+	{
+		radius = c;
+		diameter = radius * 2;
+	}
+
+	method int get_radius()
+	{
+		return radius;
+	}	
+
+	method int get_diameter()
+	{
+		return diameter;
+	}
+
+
+};
