@@ -440,7 +440,22 @@ let rec check_expr expr env =
 	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
 	| A.Pt_access(e1,e2) -> let e1' = check_expr e1 env in
 			(match e1' with
-			  A.Pointer_typ(A.Struct_typ(_)) -> struct_contains_expr e1 e2 env
+			  A.Pointer_typ(A.Struct_typ(_)) -> 
+			(match e2 with 
+			  A.Call(sc,args) -> ignore(struct_contains_expr e1 e2 env); 
+					     let tmp_string2 = string_identifier_of_expr e1 in
+					     let tmp_formals = [e1] @ args in
+					     let tmp_struc = find_var env.scope tmp_string2 in
+					     let tmp_struc_string = 
+					     (match tmp_struc with
+					          A.Pointer_typ(A.Struct_typ(sst)) -> sst
+						|  _ -> raise (Exceptions.BugCatch "Deference") 
+					     ) in
+					     let tmp_func_name = tmp_struc_string ^ sc in
+					     let tmp_call = A.Call(tmp_func_name, tmp_formals) in 	
+					     check_expr tmp_call env
+			| _ ->  struct_contains_expr e1 e2 env
+			)
 			| A.Pointer_typ(A.Primitive(p)) -> (let e2' = check_expr e2 env in (check_assign (A.Primitive(p)) e2') (Exceptions.InvalidPointerDereference))
 			| _ -> raise (Exceptions.BugCatch "hey")
 			)

@@ -26,10 +26,10 @@ all-tests: runtime-tests compile-tests
 	@echo ""
 	@echo "\033[0;32m=========== All Tests Passed! ============\033[0m"
 
-runtime-tests: test-hello-world test-global-scope test-func1 test-func2 test-func3 test-pointer1 test-while1 test-for1 test-malloc1 test-free1 test-testcase1 test-testcase2 test-testcase3 test-array1 test-lib1 test-gcd1 test-struct-access1 test-bool1 test-bool2 test-arraypt1 test-linkedlist1 test-linkedlist2 test-class1 test-class2 test-class3 test-testcase4
+runtime-tests: test-hello-world test-global-scope test-func1 test-func2 test-func3 test-pointer1 test-while1 test-for1 test-malloc1 test-free1 test-testcase1 test-testcase2 test-testcase3 test-array1 test-lib1 test-gcd1 test-struct-access1 test-bool1 test-bool2 test-arraypt1 test-linkedlist1 test-linkedlist2 test-class1 test-class2 test-class3 test-testcase4 test-struct-malloc1
 	@echo "\033[0;32m========= Runtime Tests Passed! ==========\033[0m"
 
-compile-tests: test-local-var-fail test-no-main-fail return-fail1 struct-access-fail1 invalid-assignment-fail1 class1-var-fail1 
+compile-tests: test-local-var-fail test-no-main-fail return-fail1 struct-access-fail1 invalid-assignment-fail1 class1-var-fail1 class2-method-args-fail
 	@echo "\033[0;32m======= Compilation Tests Passed! ========\033[0m"
 
 .PHONY: clean
@@ -78,6 +78,10 @@ test-testcase3:
 
 test-testcase4:
 	$(call run-test-disabled,test-testcase4)
+
+test-struct-malloc1:
+	$(call run-test,test-struct-malloc1)
+
 
 
 test-gcd1:
@@ -139,6 +143,10 @@ invalid-assignment-fail1:
 
 class1-var-fail1:
 	$(call test-compile-fail,class1-var-fail1)
+
+class2-method-args-fail:
+	$(call test-compile-fail,class2-method-args-fail)
+
 
 
 
