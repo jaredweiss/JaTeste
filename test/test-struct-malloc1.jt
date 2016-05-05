@@ -1,10 +1,14 @@
 func int main()
 {
-	
+
 	struct rectangle *my_rec;
+	struct house *my_house;
+	struct house my_house2;
 	int a;
 	int i;
+	char my_char;
 	my_rec = new struct rectangle;
+	my_house = new struct house;
 
 	update_width(my_rec, 19);
 
@@ -21,8 +25,48 @@ func int main()
 		i = i + 1;
 	}
 
+		update_num(&a);
+	print(a);
+
+	if (a <= 9) {
+		print("noo");
+	} else if (a >= 11) {
+		print("nooo");
+	} else {
+		print("coool");
+	}
+
+	update_house_a(my_house);	
+
+	if (my_house->a == 'y') {
+		print("nice");
+	} else {
+		print("not nice");
+	}
+
+	
+	my_house2.a = 'e';
+
+	my_char = my_house2.a;
+
+	if (my_house2.a != 'f') {
+		print("hey");
+	}
+
 	free(my_rec);
+	free(my_house);
+
 	return 0;
+}
+
+func void update_num(int *i)
+{
+	*i = 10;
+}
+
+func void update_house_a(struct house *h)
+{
+	h->a = 'y';
 }
 
 func void update_width(struct rectangle *r, int w)
@@ -62,3 +106,9 @@ struct rectangle {
 		return c;
 	}
 };
+
+struct house {
+	char a;
+	char b;
+};
+
