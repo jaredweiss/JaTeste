@@ -24,6 +24,7 @@ endef
 
 all-tests: runtime-tests compile-tests
 	@echo ""
+	@echo $(lli --version)
 	@echo "\033[0;32m=========== All Tests Passed! ============\033[0m"
 
 runtime-tests: test-hello-world test-global-scope test-func1 test-func2 test-func3 test-pointer1 test-while1 test-for1 test-malloc1 test-free1 test-testcase1 test-testcase2 test-testcase3 test-array1 test-lib1 test-gcd1 test-struct-access1 test-bool1 test-bool2 test-arraypt1 test-linkedlist1 test-linkedlist2 test-class1 test-class2 test-class3 test-testcase4 test-struct-malloc1
