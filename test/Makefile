@@ -32,7 +32,6 @@ clean:
 	rm -rf *.ll
 
 test-hello-world:
-	#$(call run-test,hello-world)
 	echo "test-hello-world currently disabled"
 
 test-global-scope:
