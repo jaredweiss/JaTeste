@@ -1,0 +1,29 @@
+func int main()
+{
+	double d1;
+	double d2;
+	double d3;
+
+	d1 = -10.1;
+	d2 = 7.89;
+	d3 = d1 + d2;
+
+	if (d1 == -10.1 ) {
+		print("passed");
+	}
+
+	if (d3 == -2.21) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+	d1 = -9.14;
+	d2 = -9.14;
+
+	if (d1 == d2) {
+		print(d1);
+	}
+
+	return 0;
+}

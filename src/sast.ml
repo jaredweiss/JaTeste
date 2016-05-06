@@ -8,7 +8,7 @@ type sexpr =
   | SChar_lit of char
   | SDouble_lit of float
   | SBinop   of sexpr * op * sexpr * typ
-  | SUnop    of uop * sexpr
+  | SUnop    of uop * sexpr * typ
   | SAssign  of sexpr * sexpr
   | SNoexpr
   | SId of string
