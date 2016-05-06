@@ -1,0 +1,22 @@
+
+func int main()
+{
+	int a;
+	int b;
+	int c;
+	int d;
+	int e;
+	int sum;
+
+	a = -23;
+	b = 15;
+	c = -3;
+	d = -9;
+	e = 8;
+
+	sum = a + b + c + d + e;
+
+	print(sum);
+
+	return 0;
+}
