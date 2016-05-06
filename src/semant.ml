@@ -70,7 +70,7 @@ let rec string_identifier_of_expr expr =
 	| A.Call(s,_) -> s
 	| _ -> raise (Exceptions.BugCatch "string_identifier_of_expr")
 
-
+(* Used for generating test prints *)
 let rec string_of_expr e env =
 	match e with 
 	  A.Lit(i) -> string_of_int i
@@ -234,18 +234,20 @@ let struct_contains_field s field env =
 		match struct_var with 
 		  A.Struct_typ(struc_name) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
-		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
+		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with 
+				| Not_found -> raise (Exceptions.InvalidStructField))
 		| A.Pointer_typ(A.Struct_typ(struc_name)) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
-		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> 
-		try let tmp_fun = (List.find (fun f -> if f.A.fname = field then true else false) stru.A.methods) in tmp_fun.A.typ with | Not_found -> raise (Exceptions.InvalidStructField))
+		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with 
+		| Not_found ->  try let tmp_fun = (List.find (fun f -> if f.A.fname = field then true else false) stru.A.methods) in  tmp_fun.A.typ with 
+				| Not_found -> raise (Exceptions.InvalidStructField))
 
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
 
 let struct_contains_method s methd env =
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
-		 A.Pointer_typ(A.Struct_typ(struc_name)) ->
+		 A.Pointer_typ(A.Struct_typ(struc_name)) | A.Struct_typ(struc_name) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		 try let tmp_fun = (List.find (fun f -> if f.A.fname = methd then true else false) stru.A.methods) in tmp_fun.A.typ with | Not_found -> raise (Exceptions.InvalidStructField))
 
@@ -265,6 +267,7 @@ let struct_field_is_local str fiel env =
 	try (let _ = struct_contains_field str fiel env in false) 
 	with | Exceptions.InvalidStructField -> true
 
+(* Returns type of expression - used for checking for type mismatches *)
 let rec type_of_expr env e =
 	match e with
 	  A.Lit(_) -> A.Primitive(A.Int)
@@ -307,7 +310,8 @@ let rec expr_sast expr env =
 	| A.String_lit s -> S.SString_lit s	
 	| A.Char_lit c -> S.SChar_lit c
 	| A.Double_lit d -> S.SDouble_lit d
-	| A.Binop (e1, op, e2) -> let tmp_type = type_of_expr env e1 in S.SBinop (expr_sast e1 env, op, expr_sast e2 env, tmp_type)
+	| A.Binop (e1, op, e2) -> let tmp_type = type_of_expr env e1 in 
+			S.SBinop (expr_sast e1 env, op, expr_sast e2 env, tmp_type)
 	| A.Unop (u, e) -> S.SUnop(u, expr_sast e env)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s env, expr_sast e env)
 	| A.Noexpr -> S.SNoexpr
@@ -317,7 +321,9 @@ let rec expr_sast expr env =
 				  Some(nm) -> let local_struct_field = struct_field_is_local nm s env in 
 				(match local_struct_field with
 				  true -> S.SId (s)
-				| false -> let tmp_id = A.Id(nm) in let tmp_pt_access = A.Pt_access(tmp_id, A.Id(s)) in (expr_sast tmp_pt_access env)
+				| false -> let tmp_id = A.Id(nm) in 
+				let tmp_pt_access = A.Pt_access(tmp_id, A.Id(s)) in 
+				(expr_sast tmp_pt_access env)
 				)
 				| None -> raise (Exceptions.BugCatch "expr_sast")
 				)
@@ -325,7 +331,17 @@ let rec expr_sast expr env =
 		     )
 	| A.Struct_create s -> S.SStruct_create s
 	| A.Free e -> let st = (string_identifier_of_expr e) in S.SFree(st)
-	| A.Struct_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
+	| A.Struct_access (e1, e2) -> 			
+			(match e2 with
+			  A.Id(_) ->  let index = index_of_struct_field e1 e2 env in 
+				    S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
+			| A.Call(ec, le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
+				(match struct_decl with
+				A.Struct_typ(struct_type_string) -> let tmp_unop = A.Unop(A.Addr, e1) in S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([tmp_unop]@le)))
+				| _ -> raise (Exceptions.BugCatch "expr_sast")
+				)
+			| _ -> raise (Exceptions.BugCatch "expr_sast")
+			)
 	| A.Pt_access (e1, e2) ->  
 		(match e2 with
 		  A.Id(_) -> let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index) in  t
@@ -436,8 +452,25 @@ let rec check_expr expr env =
 				check_assign left_side_type right_side_type Exceptions.IllegalAssignment)
 	| A.Noexpr -> A.Primitive(A.Void)
 	| A.Id(s) -> type_of_identifier s env 
-	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Pointer_typ(A.Struct_typ(tmp_struct.A.sname))) with | Not_found -> raise (Exceptions.InvalidStruct s))
-	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
+	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Pointer_typ(A.Struct_typ(tmp_struct.A.sname))) with 
+			| Not_found -> raise (Exceptions.InvalidStruct s))
+	| A.Struct_access(e1,e2) -> let e1' = check_expr e1 env in
+				(match e1' with 
+				  A.Struct_typ(st) -> 
+				(match e2 with 
+			  		A.Call(sc,args) -> ignore(struct_contains_expr e1 e2 env); 
+					     let tmp_expr = A.Unop(A.Addr, e1) in 
+					     let tmp_formals = [tmp_expr] @ args in
+					     let tmp_struc_string = st in
+					     let tmp_func_name = tmp_struc_string ^ sc in
+					     let tmp_call = A.Call(tmp_func_name, tmp_formals) in 	
+					     check_expr tmp_call env
+					| A.Id(_) ->  struct_contains_expr e1 e2 env
+					| _ ->  raise (Exceptions.BugCatch "check_expr")
+				)
+				| _ -> raise (Exceptions.BugCatch "check_expr")
+				)
+		
 	| A.Pt_access(e1,e2) -> let e1' = check_expr e1 env in
 			(match e1' with
 			  A.Pointer_typ(A.Struct_typ(_)) -> 
@@ -454,10 +487,11 @@ let rec check_expr expr env =
 					     let tmp_func_name = tmp_struc_string ^ sc in
 					     let tmp_call = A.Call(tmp_func_name, tmp_formals) in 	
 					     check_expr tmp_call env
-			| _ ->  struct_contains_expr e1 e2 env
+			| A.Id(_) ->  struct_contains_expr e1 e2 env
+			| _ ->  raise (Exceptions.BugCatch "check_expr")
 			)
 			| A.Pointer_typ(A.Primitive(p)) -> (let e2' = check_expr e2 env in (check_assign (A.Primitive(p)) e2') (Exceptions.InvalidPointerDereference))
-			| _ -> raise (Exceptions.BugCatch "hey")
+			| _ -> raise (Exceptions.BugCatch "check_expr")
 			)
 	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in (
 			 match pointer_type with 
@@ -576,7 +610,8 @@ let rec check_function_body funct env =
 			 true ->
 			let (struct_arg_typ, _) = List.hd funct.A.formals in
                          (match struct_arg_typ with
-                           A.Pointer_typ(A.Struct_typ(s)) -> let struc_arg = check_valid_struct     s in List.append (List.append funct.A.formals funct.A.vdecls) struc_arg.A.attributes
+                           A.Pointer_typ(A.Struct_typ(s)) -> let struc_arg = check_valid_struct s in 
+			List.append (List.append funct.A.formals funct.A.vdecls) struc_arg.A.attributes
                          | _ -> raise (Exceptions.BugCatch "check function body")
                          )
                  | false -> List.append funct.A.formals funct.A.vdecls
@@ -626,15 +661,15 @@ let check_includes includes =
 	()
 	
 
-(******************************************************************)
+(*********************************************************)
 (* Entry point for semantic checking AST. Output is SAST *)
-(******************************************************************)
+(*********************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false ; struct_name = None } in
 	let _ = check_includes includes in
 	let (structs_added, struct_methods) = check_structs structs in
 	let globals_added = check_globals globals prog_env in
 	let functions_with_env = List.map (fun n -> (n, prog_env)) functions in
-	let methods_with_env = List.map (fun n -> let prog_env_in_struct:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = true ; struct_name = Some(snd (List.hd n.A.formals)) } in (n, prog_env_in_struct)) struct_methods in
+	let methods_with_env = List.map (fun n -> let prog_env_in_struct:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = true ; struct_name = Some(snd (List.hd n.A.formals)) }  in  (n, prog_env_in_struct)) struct_methods in
 	let sast = check_functions (functions_with_env @ methods_with_env) includes globals_added structs_added in
 	sast
