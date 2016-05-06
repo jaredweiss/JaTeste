@@ -103,10 +103,10 @@ test-arraypt1:
 
 # LinkedList library tests
 test-linkedlist1:
-	$(call run-test,test-linkedlist1)
+	$(call run-test-disabled,test-linkedlist1)
 
 test-linkedlist2:
-	$(call run-test,test-linkedlist2)
+	$(call run-test-disabled,test-linkedlist2)
 
 # Object-oriented tests
 test-class1:
