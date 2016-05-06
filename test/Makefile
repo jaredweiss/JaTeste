@@ -87,7 +87,7 @@ test-array1:
 	$(call run-test,test-array1)
 
 test-lib1:
-	$(call run-test,test-lib1)
+	$(call run-test-disabled,test-lib1)
 
 test-struct-access1:
 	$(call run-test,test-struct-access1)
