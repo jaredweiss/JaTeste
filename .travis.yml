@@ -25,8 +25,8 @@ before_script:
   - eval $(opam config env)
   - opam install ocamlfind -y
   - opam install llvm.3.8 -y
-  - rm -rf /usr/bin/lli
-  - ln -s /usr/lib/llvm-3.8/bin/lli /usr/bin/lli
+  - export PATH=/usr/lib/llvm-3.8/bin:$PATH
+  - which lli
 
 script:
   - echo $PATH 
