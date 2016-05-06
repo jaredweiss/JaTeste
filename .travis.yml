@@ -2,9 +2,6 @@ branches:
   only: 
     - master
 
-cache:
-  apt: true
-
 addons:
   apt:
     sources:
@@ -26,9 +23,7 @@ before_script:
   - opam install ocamlfind -y
   - opam install llvm.3.8 -y
   - export PATH=/usr/lib/llvm-3.8/bin:$PATH
-  - which lli
 
 script:
-  - echo $PATH 
   - cd src
   - make all

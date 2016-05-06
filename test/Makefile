@@ -12,7 +12,7 @@ define run-test
 endef
 
 define run-test-disabled
-@echo "\033[0;31mWarning --$1 is disabled!\033[0m"
+@echo "\033[0;31mWarning -- $1 is disabled!\033[0m"
 endef
 
 define test-compile-fail
