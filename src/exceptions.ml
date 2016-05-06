@@ -21,6 +21,8 @@ exception InvalidFree of string
 exception InvalidPointerDereference
 exception NotBoolExpr
 exception InvalidArrayAccess
+exception InvalidLhsOfExpr
+exception InvalidNegativeType
 
 (* Print exceptions *)
 exception InvalidPrintCall
@@ -28,7 +30,6 @@ exception InvalidPrintFormat
 
 (* Statement exceptions*)
 exception InvalidReturnType of string
-exception InvalidLhsOfExpr
 
 (* Bug catcher *)
 exception BugCatch of string

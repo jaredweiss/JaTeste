@@ -253,6 +253,7 @@ expr:
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
 	| AMPERSAND expr	{ Unop(Addr, $2) }
+	| MINUS expr		{ Unop(Neg, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_access($1, $3)}
 	| expr POINTER_ACCESS expr 	{ Pt_access($1, $3)}
