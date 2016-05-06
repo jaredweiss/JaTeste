@@ -37,95 +37,90 @@ clean:
 	rm -rf *.ll
 
 test-hello-world:
-	$(call run-test-disabled,global-scope)
+	$(call run-test,global-scope)
 
 test-global-scope:
-	$(call run-test-disabled,global-scope)
+	$(call run-test,global-scope)
 
 test-func1:
-	$(call run-test-disabled,test-func1)
+	$(call run-test,test-func1)
 
 test-func2:
-	$(call run-test-disabled,test-func2)
+	$(call run-test,test-func2)
 
 test-func3:
-	$(call run-test-disabled,test-func3)
-
+	$(call run-test,test-func3)
 
 test-pointer1:
-	$(call run-test-disabled,test-pointer1)
+	$(call run-test,test-pointer1)
 
 test-while1:
-	$(call run-test-disabled,test-while1)
+	$(call run-test,test-while1)
 
 test-for1:
-	$(call run-test-disabled,test-for1)
+	$(call run-test,test-for1)
 
 test-malloc1:
-	$(call run-test-disabled,test-malloc1)
+	$(call run-test,test-malloc1)
 
 test-free1:
-	$(call run-test-disabled,test-free1)
+	$(call run-test,test-free1)
 
 test-testcase1:
-	$(call run-test-disabled,test-testcase1)
+	$(call run-test,test-testcase1)
 
 test-testcase2:
-	$(call run-test-disabled,test-testcase2)
+	$(call run-test,test-testcase2)
 
 test-testcase3:
-	$(call run-test-disabled,test-testcase3)
+	$(call run-test,test-testcase3)
 
 test-testcase4:
-	$(call run-test-disabled,test-testcase4)
+	$(call run-test,test-testcase4)
 
 test-struct-malloc1:
 	$(call run-test,test-struct-malloc1)
 
-
-
 test-gcd1:
-	$(call run-test-disabled,test-gcd1)
+	$(call run-test,test-gcd1)
 
 test-array1:
-	$(call run-test-disabled,test-array1)
+	$(call run-test,test-array1)
 
 test-lib1:
-	$(call run-test-disabled,test-lib1)
+	$(call run-test,test-lib1)
 
 test-struct-access1:
-	$(call run-test-disabled,test-struct-access1)
+	$(call run-test,test-struct-access1)
 
 test-bool1:
-	$(call run-test-disabled,test-bool1)
+	$(call run-test,test-bool1)
 
 test-bool2:
-	$(call run-test-disabled,test-bool2)
+	$(call run-test,test-bool2)
 
 test-arraypt1:
-	$(call run-test-disabled,test-arraypt1)
+	$(call run-test,test-arraypt1)
 
 # LinkedList library tests
 test-linkedlist1:
-	$(call run-test-disabled,test-linkedlist1)
+	$(call run-test,test-linkedlist1)
 
 test-linkedlist2:
-	$(call run-test-disabled,test-linkedlist2)
+	$(call run-test,test-linkedlist2)
 
 # Object-oriented tests
 test-class1:
-	$(call run-test-disabled,test-class1)
+	$(call run-test,test-class1)
 
 test-class2:
-	$(call run-test-disabled,test-class2)
+	$(call run-test,test-class2)
 
 test-class3:
-	$(call run-test-disabled,test-class3)
-
+	$(call run-test,test-class3)
 
 
 # Tests that should fail
-
 test-local-var-fail:
 	$(call test-compile-fail,local-var-fail)
 
