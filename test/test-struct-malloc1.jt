@@ -7,10 +7,19 @@ func int main()
 	int a;
 	int i;
 	char my_char;
+	char my_char2;
 	my_rec = new struct rectangle;
 	my_house = new struct house;
 
 	update_width(my_rec, 19);
+
+	my_house2.set_a('r');
+
+	my_char2 = my_house2.a;
+
+	if (my_char2 == 'r') {
+		print("is r");	
+	}
 
 	a = my_rec->width;
 	print(a);
@@ -110,5 +119,10 @@ struct rectangle {
 struct house {
 	char a;
 	char b;
+
+	method void set_a(char c)
+	{
+		a = c;
+	}
 };
 
