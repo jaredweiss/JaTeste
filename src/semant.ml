@@ -312,7 +312,7 @@ let rec expr_sast expr env =
 	| A.Double_lit d -> S.SDouble_lit d
 	| A.Binop (e1, op, e2) -> let tmp_type = type_of_expr env e1 in 
 			S.SBinop (expr_sast e1 env, op, expr_sast e2 env, tmp_type)
-	| A.Unop (u, e) -> S.SUnop(u, expr_sast e env)
+	| A.Unop (u, e) -> let tmp_type = type_of_expr env e in S.SUnop(u, expr_sast e env, tmp_type)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s env, expr_sast e env)
 	| A.Noexpr -> S.SNoexpr
 	| A.Id s ->  (match env.in_struct_method with

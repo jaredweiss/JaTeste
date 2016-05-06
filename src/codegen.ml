@@ -219,7 +219,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SChar_lit (_) -> raise Exceptions.InvalidLhsOfExpr
  	| S.SId(s) -> find_var s
 	| S.SBinop(_,_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
- 	| S.SUnop(_,e) -> addr_of_expr e builder
+ 	| S.SUnop(_,e,_) -> addr_of_expr e builder
 	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in 
 			let deref = L.build_struct_gep tmp_value index "tmp" builder in deref
 	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in 
@@ -293,9 +293,14 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			)e1' "add" builder
 		| _ -> raise (Exceptions.BugCatch "Binop")) 		 
 
-	| S.SUnop(u,e) -> 
+	| S.SUnop(u,e, t) -> 
 			(match u with
-				  A.Neg -> let e1 = expr builder e in L.build_neg e1 "neg" builder
+				  A.Neg -> let e1 = expr builder e in 
+				(match t with
+				  A.Primitive(A.Int) ->  L.build_neg e1 "neg" builder
+				| A.Primitive(A.Double) -> L.build_fneg e1 "neg" builder 
+				| _ -> raise (Exceptions.BugCatch "expr builder")
+				)
 				| A.Not -> let e1 = expr builder e in L.build_not e1 "not" builder
 				| A.Addr ->let iden = string_of_expr e in 
 					   let lvalue = find_var iden in lvalue
