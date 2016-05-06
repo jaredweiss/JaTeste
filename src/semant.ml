@@ -70,7 +70,7 @@ let rec string_identifier_of_expr expr =
 	| A.Call(s,_) -> s
 	| _ -> raise (Exceptions.BugCatch "string_identifier_of_expr")
 
-
+(* Used for generating test prints *)
 let rec string_of_expr e env =
 	match e with 
 	  A.Lit(i) -> string_of_int i
@@ -267,6 +267,7 @@ let struct_field_is_local str fiel env =
 	try (let _ = struct_contains_field str fiel env in false) 
 	with | Exceptions.InvalidStructField -> true
 
+(* Returns type of expression - used for checking for type mismatches *)
 let rec type_of_expr env e =
 	match e with
 	  A.Lit(_) -> A.Primitive(A.Int)
@@ -660,9 +661,9 @@ let check_includes includes =
 	()
 	
 
-(******************************************************************)
+(*********************************************************)
 (* Entry point for semantic checking AST. Output is SAST *)
-(******************************************************************)
+(*********************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false ; struct_name = None } in
 	let _ = check_includes includes in
