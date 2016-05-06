@@ -29,5 +29,5 @@ before_script:
 
 script:
   - cd src
-  - which llvm
+  - ls /usr/lib/ | grep 'llvm'
   - make all
