@@ -295,7 +295,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 
 	| S.SUnop(u,e) -> 
 			(match u with
-				  A.Neg -> let e1 = expr builder e in L.build_not e1 "not" builder
+				  A.Neg -> let e1 = expr builder e in L.build_neg e1 "neg" builder
 				| A.Not -> let e1 = expr builder e in L.build_not e1 "not" builder
 				| A.Addr ->let iden = string_of_expr e in 
 					   let lvalue = find_var iden in lvalue

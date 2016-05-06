@@ -372,7 +372,7 @@ let struct_sast r =
 let add_pt_to_arg s f =
 	let tmp_formals = f.A.formals in
 	let tmp_type = A.Pointer_typ(A.Struct_typ(s.A.sname)) in 
-	let tmp_string = "p" in
+	let tmp_string = "pt_hack" in
 	let new_formal:(A.bind) = (tmp_type, tmp_string) in
 	let formals_with_pt = new_formal :: tmp_formals in
 	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
@@ -443,10 +443,18 @@ let rec check_expr expr env =
 		) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in
 			(match uop with
-				  A.Not -> (match expr_type with A.Primitive(A.Bool) -> expr_type | _ -> raise Exceptions.NotBoolExpr) 
-				| A.Neg -> expr_type
-				| A.Addr -> A.Pointer_typ(expr_type)
-			)
+				  A.Not -> (match expr_type with 
+						A.Primitive(A.Bool) -> expr_type 
+						| _ -> raise Exceptions.NotBoolExpr
+					   ) 
+				| A.Neg -> (match expr_type with 
+					     A.Primitive(_) -> expr_type 
+					   | _ -> raise Exceptions.InvalidNegativeType
+					   ) 
+				| A.Addr -> (match e with 
+					     A.Id(_) -> A.Pointer_typ(expr_type)
+					   | _ -> raise Exceptions.InvalidNegativeType
+					   )			)
 	| A.Assign(var,e) -> (let right_side_type = check_expr e env in 
 			let left_side_type  = check_expr var env in
 				check_assign left_side_type right_side_type Exceptions.IllegalAssignment)
