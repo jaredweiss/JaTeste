@@ -21,13 +21,13 @@ addons:
     - llvm
 
 before_script:
-  - eval $(alias sudo='')
   - opam init -y
   - eval $(opam config env)
   - opam install ocamlfind -y
   - opam install llvm.3.8 -y
+  - ln -s /usr/lib/llvm-3.8/bin/lli /usr/bin/lli
 
 script:
+  - echo $PATH 
   - cd src
-  - ls /usr/lib/ | grep 'llvm'
   - make all
