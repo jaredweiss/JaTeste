@@ -9,6 +9,8 @@ func int main()
 	double d2;
 	double d3;
 	double d4;
+	
+	bool my_bool;
 
 	a = 10;
 	b = 11;
@@ -20,6 +22,8 @@ func int main()
 	d3 = 0.7;
 	d4 = 19.19;
 
+	my_bool = true;
+
 	if ((a == c) && (d1 < d4)) {
 		print("passed");
 	}
@@ -28,7 +32,7 @@ func int main()
 		print("passed");
 	}
 
-	if ((d1 != d2) && (a <= c) && (d1 < d4)) {
+	if ((d1 != d2) && (a <= c) && (d1 < d4) && (my_bool == true)) {
 		print("passed");
 	}
 
