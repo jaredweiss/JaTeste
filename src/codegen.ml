@@ -175,23 +175,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		with Not_found -> raise (Failure ("undeclared variable " ^ n))
 		in
 
-		(*
-		 let type_of_expr e =
-		 let tmp_type = L.type_of e in
-		 let tmp_string = L.string_of_lltype tmp_type in ignore(print_string tmp_string);
-		match tmp_string  with 
-	  	  "i32*" -> A.Primitive(A.Int)
-	  	| "i32" -> A.Primitive(A.Int)
-	  	| "i8" -> A.Primitive(A.Char)
-	  	| "i8*" -> A.Primitive(A.Char)
-	  	| "i1" -> A.Primitive(A.Bool)
-		| "i1*" -> A.Primitive(A.Bool)
-		| "double"  -> A.Primitive(A.Double) 
-		| "double*"  -> A.Primitive(A.Double) 
-		| _ -> raise (Exceptions.BugCatch ("type_of_expr"))
-		in 
-		*)
-
 	(* Format to print given arguments in print(...) *)
 	let rec print_format e =
 		(match e with 
@@ -203,6 +186,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			let string_i_type = L.string_of_lltype i_type in 
 		(match string_i_type with 
 		    "i32*" -> int_format_str 
+		  | "i1*" -> int_format_str 
 		  | "i8**" -> str_format_str
 		  | "float*" -> float_format_str
 		  | "double*" -> float_format_str
@@ -214,6 +198,8 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			   A.Primitive(A.Int) -> int_format_str
 			 | A.Primitive(A.Double) -> float_format_str
 			 | A.Primitive(A.String) -> str_format_str
+			 | A.Primitive(A.Char) -> int_format_str
+			 | A.Primitive(A.Bool) -> int_format_str
 			 | _ -> raise (Exceptions.BugCatch "print format") 
 			)
 		| _ -> raise (Exceptions.InvalidPrintFormat) 
