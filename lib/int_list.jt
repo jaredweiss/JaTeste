@@ -29,6 +29,39 @@ func void int_list_free_list(struct int_list *header)
 	/* TODO */
 }
 
+func void int_list_delete(struct int_list *header, int elem)
+{
+
+	struct int_list *tmp;
+	struct int_list *prev;
+	struct int_list *curr;
+	int cont;
+
+	cont = 1;
+	curr = header;
+	if (curr->next == NULL(struct int_list*)) {
+		cont = 0;
+	} else {
+		prev = curr;
+		curr = curr->next;
+	}
+	while ((cont == 1)) {
+		if(curr->num == elem) {
+			tmp = curr;
+			prev->next = curr->next;	
+			free(tmp);
+			cont = 0;
+		} else {
+			prev = curr;
+			curr = curr->next;
+			if (curr == NULL(struct int_list*)) {
+				cont = 0;
+			}
+		}
+	}
+
+}
+
 func bool int_list_contains(struct int_list *header, int i)
 {
 	bool has_int;
