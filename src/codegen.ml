@@ -414,7 +414,7 @@ let func_builder f b =
 	)
 
 	(**********************************************************)
-	(* Entry point for translating Ast.program to LLVM module *)
+	(* Entry point for translating Sast.program to LLVM module *)
 	(**********************************************************)
 let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
