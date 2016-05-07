@@ -175,23 +175,6 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		with Not_found -> raise (Failure ("undeclared variable " ^ n))
 		in
 
-		(*
-		 let type_of_expr e =
-		 let tmp_type = L.type_of e in
-		 let tmp_string = L.string_of_lltype tmp_type in ignore(print_string tmp_string);
-		match tmp_string  with 
-	  	  "i32*" -> A.Primitive(A.Int)
-	  	| "i32" -> A.Primitive(A.Int)
-	  	| "i8" -> A.Primitive(A.Char)
-	  	| "i8*" -> A.Primitive(A.Char)
-	  	| "i1" -> A.Primitive(A.Bool)
-		| "i1*" -> A.Primitive(A.Bool)
-		| "double"  -> A.Primitive(A.Double) 
-		| "double*"  -> A.Primitive(A.Double) 
-		| _ -> raise (Exceptions.BugCatch ("type_of_expr"))
-		in 
-		*)
-
 	(* Format to print given arguments in print(...) *)
 	let rec print_format e =
 		(match e with 
@@ -203,17 +186,25 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			let string_i_type = L.string_of_lltype i_type in 
 		(match string_i_type with 
 		    "i32*" -> int_format_str 
+		  | "i1*" -> int_format_str 
 		  | "i8**" -> str_format_str
 		  | "float*" -> float_format_str
 		  | "double*" -> float_format_str
 		  | _ -> raise (Exceptions.InvalidPrintFormat))		
 		| S.SBinop(l,_,_,_) -> print_format l
+		| S.SUnop(op,e,_) -> 
+			(match op with
+				A.Neg -> print_format e
+				| _ -> raise (Exceptions.BugCatch "print format")
+			)
 		| S.SCall(f,_) ->let (_, fdecl) = StringMap.find f function_decls in 
 			let tmp_typ = fdecl.S.styp in 
 			(match tmp_typ with
 			   A.Primitive(A.Int) -> int_format_str
 			 | A.Primitive(A.Double) -> float_format_str
 			 | A.Primitive(A.String) -> str_format_str
+			 | A.Primitive(A.Char) -> int_format_str
+			 | A.Primitive(A.Bool) -> int_format_str
 			 | _ -> raise (Exceptions.BugCatch "print format") 
 			)
 		| _ -> raise (Exceptions.InvalidPrintFormat) 
@@ -410,8 +401,9 @@ the_module
 let test_main functions = 
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
 	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
-	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
-	let print_stmt = S.SExpr(S.SCall("print",[S.SString_lit("Tests:")])) in 
+	let print_stars = S.SExpr(S.SCall("print", [S.SString_lit("*************")])) in 
+	let sast_calls = List.fold_left (fun l n -> l @ [print_stars] @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
+	let print_stmt = S.SExpr(S.SCall("print",[S.SString_lit("TEST RESULTS!")])) in 
 	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt::sast_calls; S.stests= None;  } in tmp_main
 
 

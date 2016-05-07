@@ -53,10 +53,17 @@ let rec find_var (scope : symbol_table) var =
 let type_of_identifier var env = 
 	find_var env.scope var
 
-(* left side of Binop *)
+(* left side of Binop. Returns an expression *)
 let left_side_of_binop e =
 	(match e with 
 	  A.Binop(ls,_,_) -> ls
+	| _ -> raise (Exceptions.BugCatch "left side of binop")
+	)
+
+(* left side of Binop. Returns an expression *)
+let right_side_of_binop e =
+	(match e with 
+	  A.Binop(_,_,rs) -> rs
 	| _ -> raise (Exceptions.BugCatch "left side of binop")
 	)
 
@@ -569,8 +576,12 @@ let rec check_stmt stmt env =
 	| A.Assert(e) -> ignore(check_in_test env); ignore(check_is_bool e env); 
 			let str_expr = string_of_expr e env in  
 			let lhs = (expr_sast (left_side_of_binop e) env) in
+			let rhs = (expr_sast (right_side_of_binop e) env) in
 			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed!")])) in 
-			let else_stmt = S.SBlock([S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed!")]))]@[S.SExpr(S.SCall("print", [S.SString_lit("LHS evaluated to: ")]))]@[S.SExpr(S.SCall("print", [lhs]))]) in S.SIf (expr_sast e env, then_stmt, else_stmt)
+			let else_stmt = S.SBlock([S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed!")]))]
+			@[S.SExpr(S.SCall("print", [S.SString_lit("LHS evaluated to: ")]))]
+			@[S.SExpr(S.SCall("print", [lhs]))]
+			@[S.SExpr(S.SCall("print", [S.SString_lit("RHS evaluated to: ")]))]			   @[S.SExpr(S.SCall("print", [rhs]))]) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
 (* Converts 'using' code from ast to sast *)
 let with_using_sast r env = 
