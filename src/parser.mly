@@ -83,7 +83,7 @@ func_decls:
 mthd:
 	  METHOD any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = None }}
+		$9; tests = None ; struc_method = false }}
 
 struc_func_decls:
 	  /* nothing */ { [] }
@@ -142,13 +142,13 @@ Rules for function syntax
 fdecl:
 	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = None }}
+		$9; tests = None ; struc_method = false}}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }})  }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }}) ; struc_method = false  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) ; struc_method = false }}
 
 /* 
 "with test" rule 

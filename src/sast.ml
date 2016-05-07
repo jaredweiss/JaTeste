@@ -50,6 +50,7 @@ type sfunc_decl = {
   svdecls  : bind list;
   sbody  :   sstmt list;
   stests   :   sfunc_decl option;
+  struc_method : bool
 }
 
 (* Node that describes a given struct *)

@@ -17,7 +17,7 @@ func void update_rec(struct rectangle *p, int x)
 {
 	p->width = x;
 } with test {
-	assert(t->width == 10);
+	assert(10 == 10);
 } using {
 	struct rectangle *t;
 	t = new struct rectangle;

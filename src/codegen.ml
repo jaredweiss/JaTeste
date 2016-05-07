@@ -404,12 +404,12 @@ let test_main functions =
 	let print_stars = S.SExpr(S.SCall("print", [S.SString_lit("*************")])) in 
 	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]@ [print_stars] ) [] names_of_test_calls in
 	let print_stmt = [S.SExpr(S.SCall("print",[S.SString_lit("TEST RESULTS!")]))]@[print_stars] in 
-	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt@sast_calls; S.stests= None;  } in tmp_main
+	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt@sast_calls; S.stests = None; struc_method = false } in tmp_main
 
 
 let func_builder f b = 
 	(match b with 
-	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> if n.S.sfname = "main" then (l) else (l@[n]))) [] f in (tests @ [(test_main f)]) 
+	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> if n.S.struc_method = false then (l) else (l@[n]))) [] f in (tests @ [(test_main f)]) 
 	| false -> f
 	)
 

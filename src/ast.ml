@@ -62,6 +62,7 @@ type func_decl = {
   vdecls  : bind list;
   body  :   stmt list;
   tests   :   with_test_decl option; 
+  struc_method : bool
 }
 
 (* Node that describes a given struct *)

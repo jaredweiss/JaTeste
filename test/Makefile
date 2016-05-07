@@ -6,7 +6,7 @@
 
 define run-test =
 @echo "Testing '$1.jt'"
-@../src/jateste.native $1.jt > /dev/null
+@../src/jateste.native -t $1.jt > /dev/null
 @lli $1.ll | diff --brief $1.out -
 @echo " \033[0;32m ---->  \033[0mTest passed!"
 endef
