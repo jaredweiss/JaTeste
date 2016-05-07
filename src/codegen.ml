@@ -1,4 +1,4 @@
-(* Code generation code. Converts a SAST into LLVM code*)
+(* Code generation code. Converts a Sast into LLVM code*)
 
 module L = Llvm
 module A = Ast
@@ -67,7 +67,7 @@ let string_of_expr e =
 
 (* Function that builds LLVM struct *)
 let define_struct_body s =
-	let struct_t = Hashtbl.find struct_types s.S.ssname in
+	let struct_t = try Hashtbl.find struct_types s.S.ssname with | Not_found -> raise (Exceptions.BugCatch "defin_struct") in
 	let attribute_types = List.map (fun (t, _) -> t) s.S.sattributes in
 	let attributes = List.map ltype_of_typ attribute_types in		
 	let attributes_array = Array.of_list attributes in 
@@ -138,7 +138,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
     		List.fold_left function_decl StringMap.empty functions in
 
 		(* Create format strings for printing *)
-		let (main_function,_) = StringMap.find "main" function_decls in
+		let (main_function,_) = try StringMap.find "main" function_decls with | Not_found -> raise (Exceptions.BugCatch "function decls") in
 		let builder = L.builder_at_end context (L.entry_block main_function) in
 		(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
 		let str_format_str = L.build_global_stringptr "%s\n" "fmt_string" builder in
@@ -147,7 +147,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 
 (* Method to build body of function *)
 	let build_function_body fdecl =
-	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
+	let (the_function, _) = try StringMap.find fdecl.S.sfname function_decls with | Not_found -> raise (Exceptions.BugCatch "build function body") in
 	(* builder is the LLVM instruction builder *)
 	let builder = L.builder_at_end context (L.entry_block the_function) in
 
@@ -175,38 +175,52 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		with Not_found -> raise (Failure ("undeclared variable " ^ n))
 		in
 
-	(* Format to print given arguments in print(...) *)
-	let rec print_format e =
-		(match e with 
-		  (S.SString_lit(_)) -> str_format_str
-		| (S.SLit(_)) -> int_format_str
-		| (S.SDouble_lit(_)) -> float_format_str
-		| (S.SId(i)) -> let i_value = find_var i in 
-			let i_type = L.type_of i_value in 
-			let string_i_type = L.string_of_lltype i_type in 
-		(match string_i_type with 
-		    "i32*" -> int_format_str 
-		  | "i1*" -> int_format_str 
-		  | "i8**" -> str_format_str
-		  | "float*" -> float_format_str
-		  | "double*" -> float_format_str
-		  | _ -> raise (Exceptions.InvalidPrintFormat))		
-		| S.SBinop(l,_,_,_) -> print_format l
-		| S.SUnop(op,e,_) -> 
-			(match op with
-				A.Neg -> print_format e
-				| _ -> raise (Exceptions.BugCatch "print format")
-			)
-		| S.SCall(f,_) ->let (_, fdecl) = StringMap.find f function_decls in 
-			let tmp_typ = fdecl.S.styp in 
-			(match tmp_typ with
-			   A.Primitive(A.Int) -> int_format_str
+	let print_format_typ t =
+			(match t with 
+			  A.Primitive(A.Int) -> int_format_str
 			 | A.Primitive(A.Double) -> float_format_str
 			 | A.Primitive(A.String) -> str_format_str
 			 | A.Primitive(A.Char) -> int_format_str
 			 | A.Primitive(A.Bool) -> int_format_str
 			 | _ -> raise (Exceptions.BugCatch "print format") 
 			)
+			in
+
+	(* Format to print given arguments in print(...) *)
+	let rec print_format e =
+		(match e with 
+		  (S.SString_lit(_)) -> str_format_str
+		| (S.SLit(_)) -> int_format_str
+		| (S.SDouble_lit(_)) -> float_format_str
+		| S.SBinop(l,_,_,_) -> print_format l
+		| S.SUnop(op,e,_) -> 
+			(match op with
+				A.Neg -> print_format e
+				| _ -> raise (Exceptions.BugCatch "print format")
+			)
+		| S.SAssign(_,_) -> raise (Exceptions.InvalidPrintFormat) 
+		| S.SNoexpr -> raise (Exceptions.InvalidPrintFormat) 
+		| (S.SId(i)) -> let i_value = find_var i in 
+			let i_type = L.type_of i_value in 
+			let string_i_type = L.string_of_lltype i_type in 
+			(match string_i_type with 
+		    "i32*" -> int_format_str 
+		  | "i1*" -> int_format_str 
+		  | "i8**" -> str_format_str
+		  | "float*" -> float_format_str
+		  | "double*" -> float_format_str
+		  | _ -> raise (Exceptions.InvalidPrintFormat)
+			)		
+		| S.SStruct_access(_,_,_,t) -> print_format_typ t
+		| S.SPt_access(_,_,_,t) -> print_format_typ t
+		| S.SArray_create(_,_) -> raise (Exceptions.InvalidPrintFormat) 
+		| S.SArray_access(_,_,t) -> print_format_typ t
+		| S.SDereference(_,t) -> print_format_typ t
+		| S.SFree(_) -> raise (Exceptions.InvalidPrintFormat) 
+		| S.SCall(f,_) ->let (_, fdecl) = try StringMap.find f function_decls with | Not_found -> raise (Exceptions.BugCatch "print format") in 
+			let tmp_typ = fdecl.S.styp in print_format_typ tmp_typ	
+		| S.SBoolLit(_) -> int_format_str
+		| S.SNull(_) -> raise (Exceptions.InvalidPrintFormat) 
 		| _ -> raise (Exceptions.InvalidPrintFormat) 
 		)
 		in
@@ -220,12 +234,12 @@ let printf_func = L.declare_function "printf" printf_t the_module in
  	| S.SId(s) -> find_var s
 	| S.SBinop(_,_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
  	| S.SUnop(_,e,_) -> addr_of_expr e builder
-	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in 
+	| S.SStruct_access(s,_,index,_) -> let tmp_value = find_var s in 
 			let deref = L.build_struct_gep tmp_value index "tmp" builder in deref
-	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in 
+	| S.SPt_access(s,_,index,_) -> let tmp_value = find_var s in 
 			let load_tmp = L.build_load tmp_value "tmp" builder in 
 			let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
-	| S.SDereference(s) -> let tmp_value = find_var s in 
+	| S.SDereference(s,_) -> let tmp_value = find_var s in 
 			let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
 
 	| S.SArray_access(ar,index, t) -> let tmp_value = find_var ar in 
@@ -316,10 +330,10 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId (s) -> L.build_load (find_var s) s builder
 	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) "tmp" builder
-	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in 
+	| S.SStruct_access(s,_,index,_) -> let tmp_value = find_var s in 
 			let deref = L.build_struct_gep tmp_value index "tmp" builder in 
 			let loaded_value = L.build_load deref "dd" builder in loaded_value
-	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in 
+	| S.SPt_access(s,_,index,_) -> let tmp_value = find_var s in 
 			let load_tmp = L.build_load tmp_value "tmp" builder in 
 			let deref = L.build_struct_gep load_tmp index "tmp" builder in 
 			let tmp_value = L.build_load deref "dd" builder in tmp_value
@@ -332,13 +346,13 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Array_typ(_) -> let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in 
 			let final_value = L.build_load deref "arrayvalue" builder in final_value 
 		| _ -> raise Exceptions.InvalidArrayAccess)
-	| S.SDereference(s) -> let tmp_value = find_var s in 
+	| S.SDereference(s,_) -> let tmp_value = find_var s in 
 			let load_tmp = L.build_load tmp_value "tmp" builder in 
 			let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in 			  let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
 
 	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
 	| S.SCall("print", [e]) | S.SCall("print_int", [e])-> L.build_call printf_func [|(print_format e); (expr builder e) |] "printresult" builder
-	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
+	| S.SCall(f, args) -> let (def_f, fdecl) = try StringMap.find f function_decls with | Not_found -> raise (Exceptions.BugCatch "dddd") in
 			      let actuals = List.rev (List.map (expr builder) (List.rev args)) in 				let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	| S.SBoolLit(b) -> L.const_int i1_t b
 	| S.SNull(t) -> L.const_null (ltype_of_typ t)
@@ -402,20 +416,20 @@ let test_main functions =
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
 	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
 	let print_stars = S.SExpr(S.SCall("print", [S.SString_lit("*************")])) in 
-	let sast_calls = List.fold_left (fun l n -> l @ [print_stars] @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
-	let print_stmt = S.SExpr(S.SCall("print",[S.SString_lit("TEST RESULTS!")])) in 
-	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt::sast_calls; S.stests= None;  } in tmp_main
+	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]@ [print_stars] ) [] names_of_test_calls in
+	let print_stmt = [S.SExpr(S.SCall("print",[S.SString_lit("TEST RESULTS!")]))]@[print_stars] in 
+	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt@sast_calls; S.stests = None; struc_method = false } in tmp_main
 
 
 let func_builder f b = 
 	(match b with 
-	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> l)) [] f in (tests @ [(test_main f)]) 
+	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> if n.S.struc_method = false then (l) else (l@[n]))) [] f in (tests @ [(test_main f)]) 
 	| false -> f
 	)
 
-	(**********************************************************)
-	(* Entry point for translating Ast.program to LLVM module *)
-	(**********************************************************)
+(***********************************************************)
+(* Entry point for translating Sast.program to LLVM module *)
+(***********************************************************)
 let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in

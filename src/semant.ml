@@ -10,7 +10,7 @@ type variable_decls = A.bind;;
 let struct_types:(string, A.struct_decl) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
 
-let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None }
+let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None ; A.struc_method = false }
 
 (* Symbol table used for checking scope *)
 type symbol_table = {
@@ -348,7 +348,8 @@ let rec expr_sast expr env =
 	| A.Struct_access (e1, e2) -> 			
 			(match e2 with
 			  A.Id(_) ->  let index = index_of_struct_field e1 e2 env in 
-				    S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
+					let tmp_type = (type_of_expr env (A.Struct_access(e1,e2))) in 
+				    S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index, tmp_type)
 			| A.Call(ec, le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
 				(match struct_decl with
 				A.Struct_typ(struct_type_string) -> let tmp_unop = A.Unop(A.Addr, e1) in S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([tmp_unop]@le)))
@@ -358,7 +359,7 @@ let rec expr_sast expr env =
 			)
 	| A.Pt_access (e1, e2) ->  
 		(match e2 with
-		  A.Id(_) -> let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index) in  t
+		  A.Id(_) ->let tmp_type =  (type_of_expr env (A.Pt_access(e1,e2))) in let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index, tmp_type) in  t
 		| A.Call(ec,le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
 			(match struct_decl with
 			A.Pointer_typ(A.Struct_typ(struct_type_string)) -> S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
@@ -369,7 +370,7 @@ let rec expr_sast expr env =
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
 	| A.Array_access (e, i) -> let tmp_string = (string_identifier_of_expr e) in 
 		let tmp_type = find_var env.scope tmp_string in S.SArray_access (tmp_string, i, tmp_type)
-	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
+	| A.Dereference(e) -> let tmp_type = (type_of_expr env (A.Dereference(e))) in S.SDereference(string_identifier_of_expr e, tmp_type) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
 	| A.Null(t) -> S.SNull t
@@ -389,7 +390,7 @@ let add_pt_to_arg s f =
 	let tmp_string = "pt_hack" in
 	let new_formal:(A.bind) = (tmp_type, tmp_string) in
 	let formals_with_pt = new_formal :: tmp_formals in
-	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
+	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests ; A.struc_method = true} in 
 	new_func
 
 (* Creates new functions whose first paramters is a pointer to the struct type that the method is associated with *)
@@ -600,7 +601,7 @@ let convert_test_to_func using_decl test_decl env =
 	let concat_stmts = using_decl.A.stmts @ test_asserts  in
 	(match env.func_name with
 	  Some(fn) ->let new_func_name = fn ^ "test" in  
-		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
+		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None ; A.struc_method = false} in new_func
 
 	|  None -> raise (Exceptions.BugCatch "convert_test_to_func")
 )
@@ -665,7 +666,7 @@ let rec check_function_body funct env =
 		)
 	in	
 		
-	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test)} in
+	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test) ; struc_method = funct.A.struc_method} in
 	tmp
 
 (* Entry point to check functions *)
@@ -688,9 +689,9 @@ let check_includes includes =
 	()
 	
 
-(*********************************************************)
-(* Entry point for semantic checking AST. Output is SAST *)
-(*********************************************************)
+(*******************************************************************)
+(* Entry point for semantic checking. Input is Ast, output is Sast *)
+(*******************************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false ; struct_name = None } in
 	let _ = check_includes includes in
