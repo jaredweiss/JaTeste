@@ -67,7 +67,7 @@ let string_of_expr e =
 
 (* Function that builds LLVM struct *)
 let define_struct_body s =
-	let struct_t = Hashtbl.find struct_types s.S.ssname in
+	let struct_t = try Hashtbl.find struct_types s.S.ssname with | Not_found -> raise (Exceptions.BugCatch "defin_struct") in
 	let attribute_types = List.map (fun (t, _) -> t) s.S.sattributes in
 	let attributes = List.map ltype_of_typ attribute_types in		
 	let attributes_array = Array.of_list attributes in 
@@ -138,7 +138,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
     		List.fold_left function_decl StringMap.empty functions in
 
 		(* Create format strings for printing *)
-		let (main_function,_) = StringMap.find "main" function_decls in
+		let (main_function,_) = try StringMap.find "main" function_decls with | Not_found -> raise (Exceptions.BugCatch "function decls") in
 		let builder = L.builder_at_end context (L.entry_block main_function) in
 		(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
 		let str_format_str = L.build_global_stringptr "%s\n" "fmt_string" builder in
@@ -147,7 +147,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 
 (* Method to build body of function *)
 	let build_function_body fdecl =
-	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
+	let (the_function, _) = try StringMap.find fdecl.S.sfname function_decls with | Not_found -> raise (Exceptions.BugCatch "build function body") in
 	(* builder is the LLVM instruction builder *)
 	let builder = L.builder_at_end context (L.entry_block the_function) in
 
@@ -197,7 +197,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 				A.Neg -> print_format e
 				| _ -> raise (Exceptions.BugCatch "print format")
 			)
-		| S.SCall(f,_) ->let (_, fdecl) = StringMap.find f function_decls in 
+		| S.SCall(f,_) ->let (_, fdecl) = try StringMap.find f function_decls with | Not_found -> raise (Exceptions.BugCatch "print format") in 
 			let tmp_typ = fdecl.S.styp in 
 			(match tmp_typ with
 			   A.Primitive(A.Int) -> int_format_str
@@ -338,7 +338,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 
 	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
 	| S.SCall("print", [e]) | S.SCall("print_int", [e])-> L.build_call printf_func [|(print_format e); (expr builder e) |] "printresult" builder
-	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
+	| S.SCall(f, args) -> let (def_f, fdecl) = try StringMap.find f function_decls with | Not_found -> raise (Exceptions.BugCatch "dddd") in
 			      let actuals = List.rev (List.map (expr builder) (List.rev args)) in 				let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	| S.SBoolLit(b) -> L.const_int i1_t b
 	| S.SNull(t) -> L.const_null (ltype_of_typ t)
@@ -409,7 +409,7 @@ let test_main functions =
 
 let func_builder f b = 
 	(match b with 
-	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> l)) [] f in (tests @ [(test_main f)]) 
+	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> if n.S.sfname = "main" then (l) else (l@[n]))) [] f in (tests @ [(test_main f)]) 
 	| false -> f
 	)
 
