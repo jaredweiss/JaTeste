@@ -348,7 +348,8 @@ let rec expr_sast expr env =
 	| A.Struct_access (e1, e2) -> 			
 			(match e2 with
 			  A.Id(_) ->  let index = index_of_struct_field e1 e2 env in 
-				    S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
+					let tmp_type = (type_of_expr env (A.Struct_access(e1,e2))) in 
+				    S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index, tmp_type)
 			| A.Call(ec, le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
 				(match struct_decl with
 				A.Struct_typ(struct_type_string) -> let tmp_unop = A.Unop(A.Addr, e1) in S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([tmp_unop]@le)))
@@ -358,7 +359,7 @@ let rec expr_sast expr env =
 			)
 	| A.Pt_access (e1, e2) ->  
 		(match e2 with
-		  A.Id(_) -> let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index) in  t
+		  A.Id(_) ->let tmp_type =  (type_of_expr env (A.Pt_access(e1,e2))) in let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index, tmp_type) in  t
 		| A.Call(ec,le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
 			(match struct_decl with
 			A.Pointer_typ(A.Struct_typ(struct_type_string)) -> S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
@@ -369,7 +370,7 @@ let rec expr_sast expr env =
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
 	| A.Array_access (e, i) -> let tmp_string = (string_identifier_of_expr e) in 
 		let tmp_type = find_var env.scope tmp_string in S.SArray_access (tmp_string, i, tmp_type)
-	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
+	| A.Dereference(e) -> let tmp_type = (type_of_expr env (A.Dereference(e))) in S.SDereference(string_identifier_of_expr e, tmp_type) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
 	| A.Null(t) -> S.SNull t

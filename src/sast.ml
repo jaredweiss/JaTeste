@@ -13,11 +13,11 @@ type sexpr =
   | SNoexpr
   | SId of string
   | SStruct_create of string
-  | SStruct_access of string * string * int
-  | SPt_access of string * string * int
+  | SStruct_access of string * string * int * typ
+  | SPt_access of string * string * int * typ
   | SArray_create of int * prim
   | SArray_access of string * int * typ
-  | SDereference of string
+  | SDereference of string * typ
   | SFree of string
   | SCall of string * sexpr list
   | SBoolLit of int
