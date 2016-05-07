@@ -423,8 +423,8 @@ let rec check_expr expr env =
 		  A.Primitive(A.Int) | A.Primitive(A.Double) | A.Primitive(A.Char)  -> 
 		(match op with
 		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
-		| A.Equal | A.Neq when e1' = e2' -> ignore("got equal");A.Primitive(A.Int)
-		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.Equal | A.Neq when e1' = e2' -> A.Primitive(A.Bool)
+		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> A.Primitive(A.Bool)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
 		| A.Primitive(A.Bool) -> 		
@@ -436,7 +436,7 @@ let rec check_expr expr env =
 		| A.Pointer_typ(_) -> let e1' = (check_expr e1 env) in 
 			let e2' = (check_expr e1 env)  in  
 		(match op with
-		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> e1'
+		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> A.Primitive(A.Bool)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 

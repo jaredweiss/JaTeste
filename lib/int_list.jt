@@ -45,7 +45,7 @@ func void int_list_delete(struct int_list *header, int elem)
 		prev = curr;
 		curr = curr->next;
 	}
-	while ((cont == 1)) {
+	while ((cont == 1) && (curr != NULL(struct int_list*))) {
 		if(curr->num == elem) {
 			tmp = curr;
 			prev->next = curr->next;	

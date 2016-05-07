@@ -263,7 +263,9 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Leq -> L.build_icmp L.Icmp.Sle
 		| A.Greater -> L.build_icmp L.Icmp.Sgt
 		| A.Geq -> L.build_icmp L.Icmp.Sge
-		| _ -> raise (Exceptions.BugCatch "Binop")		
+		| A.And -> L.build_and
+		| A.Or -> L.build_or
+		| _ -> raise (Exceptions.BugCatch "Prim Binop")		
 		)e1' e2' "add" builder
 		| A.Primitive(A.Double) ->
 		(match op with 
@@ -277,7 +279,9 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Leq -> L.build_fcmp L.Fcmp.Ole
 		| A.Greater -> L.build_fcmp L.Fcmp.Ogt
 		| A.Geq -> L.build_fcmp L.Fcmp.Oge
-		| _ -> raise (Exceptions.BugCatch "Binop")
+		| A.And -> L.build_and
+		| A.Or -> L.build_or
+		| _ -> raise (Exceptions.BugCatch "Double Binop")
 		) e1' e2' "addfloat" builder
 		| A.Primitive(A.Bool) -> 
 		(
