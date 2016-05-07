@@ -1,4 +1,4 @@
-(* Code generation code. Converts a SAST into LLVM code*)
+(* Code generation code. Converts a Sast into LLVM code*)
 
 module L = Llvm
 module A = Ast
@@ -413,9 +413,9 @@ let func_builder f b =
 	| false -> f
 	)
 
-	(**********************************************************)
-	(* Entry point for translating Sast.program to LLVM module *)
-	(**********************************************************)
+(***********************************************************)
+(* Entry point for translating Sast.program to LLVM module *)
+(***********************************************************)
 let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in

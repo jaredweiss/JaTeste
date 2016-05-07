@@ -688,9 +688,9 @@ let check_includes includes =
 	()
 	
 
-(*********************************************************)
-(* Entry point for semantic checking AST. Output is SAST *)
-(*********************************************************)
+(*******************************************************************)
+(* Entry point for semantic checking. Input is Ast, output is Sast *)
+(*******************************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false ; struct_name = None } in
 	let _ = check_includes includes in
