@@ -7,6 +7,22 @@ func struct int_list* int_list_initialize()
 	return header;
 }
 
+func int int_list_length(struct int_list* header)
+{
+	int counter;
+	struct int_list* curr;
+	
+	counter = 0;
+	curr = header->next;
+
+	while (curr != NULL(struct int_list *)) {
+		curr = curr->next;
+		counter = counter + 1;
+	}
+
+	return counter;
+}
+
 func void int_list_insert(struct int_list* header, int i)
 {
 	struct int_list *tmp;
@@ -26,7 +42,17 @@ func void int_list_insert(struct int_list* header, int i)
 
 func void int_list_free_list(struct int_list *header)
 {
-	/* TODO */
+	struct int_list *curr;
+	struct int_list *tmp;
+	
+	curr = header;
+	while (curr != NULL(struct int_list*)) {
+
+		tmp = curr;
+		curr = curr->next;
+		free(tmp);
+	}
+	header->next = NULL(struct int_list*);
 }
 
 func void int_list_delete(struct int_list *header, int elem)
