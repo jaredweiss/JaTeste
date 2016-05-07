@@ -53,6 +53,13 @@ let rec find_var (scope : symbol_table) var =
 let type_of_identifier var env = 
 	find_var env.scope var
 
+(* left side of Binop *)
+let left_side_of_binop e =
+	(match e with 
+	  A.Binop(ls,_,_) -> ls
+	| _ -> raise (Exceptions.BugCatch "left side of binop")
+	)
+
 (* Returns the type of the arrays elements. E.g. int[10] arr... type_of_array arr would return A.Int *)
 let type_of_array arr _ =
 	match arr with
@@ -87,10 +94,10 @@ let rec string_of_expr e env =
 		| A.Div -> "/"
 		| A.Equal -> "=="
 		| A.Neq -> "!="
-		| A.Less -> "<="
-		| A.Leq -> "<"
-		| A.Greater -> ">="
-		| A.Geq -> ">"
+		| A.Less -> "<"
+		| A.Leq -> "=<"
+		| A.Greater -> ">"
+		| A.Geq -> ">="
 		| A.And -> "&&"
 		| A.Or -> "||"
 		| A.Mod  -> "%"
@@ -561,8 +568,9 @@ let rec check_stmt stmt env =
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
 	| A.Assert(e) -> ignore(check_in_test env); ignore(check_is_bool e env); 
 			let str_expr = string_of_expr e env in  
-			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed")])) in 
-			let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
+			let lhs = (expr_sast (left_side_of_binop e) env) in
+			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed!")])) in 
+			let else_stmt = S.SBlock([S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed!")]))]@[S.SExpr(S.SCall("print", [S.SString_lit("LHS evaluated to: ")]))]@[S.SExpr(S.SCall("print", [lhs]))]) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
 (* Converts 'using' code from ast to sast *)
 let with_using_sast r env = 

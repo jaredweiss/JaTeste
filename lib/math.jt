@@ -1,4 +1,6 @@
-#include_jtlib <io.jt>
+/* Math library for ints */
+
+/* adds @x and @y */
 func int add(int x, int y)
 {
 	return x + y;
@@ -17,3 +19,22 @@ func int max(int a, int b)
 		return b;
 	}
 }
+
+func int multiply(int x, int y)
+{
+	return x * y;
+}
+
+/* returns the gcd of @a, @b */
+func int gcd(int a, int b)
+{
+	while (a != b) {
+		if (a > b) {
+			a = a - b;
+		} else {
+			b = b - a;
+		}
+	}
+	return a;
+}
+
