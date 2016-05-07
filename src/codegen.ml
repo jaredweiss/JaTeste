@@ -401,7 +401,7 @@ the_module
 let test_main functions = 
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
 	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
-	let print_stars = S.SExpr(S.SCall("print", [S.SString_lit("***********")])) in 
+	let print_stars = S.SExpr(S.SCall("print", [S.SString_lit("*************")])) in 
 	let sast_calls = List.fold_left (fun l n -> l @ [print_stars] @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
 	let print_stmt = S.SExpr(S.SCall("print",[S.SString_lit("TEST RESULTS!")])) in 
 	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt::sast_calls; S.stests= None;  } in tmp_main
