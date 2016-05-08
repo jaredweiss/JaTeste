@@ -1,0 +1,15 @@
+int main()
+{
+	return 0;
+}
+
+struct garden {
+	int trees;
+	int plants;
+
+	func int set_trees(int a)
+	{
+		tree = a;
+	}
+
+};

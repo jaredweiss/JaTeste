@@ -26,6 +26,7 @@ func int main()
 
 struct house {
 	int price;
+	char c;
 
 	method void set_price(int x)
 	{
@@ -34,7 +35,7 @@ struct house {
 
 	method int get_price()
 	{
-		return price;
+		return c;
 	}
 
 

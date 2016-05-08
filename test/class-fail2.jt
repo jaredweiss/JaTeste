@@ -14,11 +14,13 @@ func int main()
 	my_condo->set_price(59);
 
 	a = my_house->get_price();
-	b = my_condo->get_price();
+	b = my_condo->geat_price();
 	
 	c = a - b;
 	
 	print(c);
+
+
 
 	return 0;
 }
@@ -46,7 +48,6 @@ struct condo {
 	method void set_price(int x)
 	{
 		price = x;
-		return 0;
 	}	
 
 	method int get_price()

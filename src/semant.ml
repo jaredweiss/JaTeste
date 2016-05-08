@@ -514,7 +514,7 @@ let rec check_expr expr env =
 			| _ ->  raise (Exceptions.BugCatch "check_expr")
 			)
 			| A.Pointer_typ(A.Primitive(p)) -> (let e2' = check_expr e2 env in (check_assign (A.Primitive(p)) e2') (Exceptions.InvalidPointerDereference))
-			| _ -> raise (Exceptions.BugCatch "check_expr")
+			| _ -> raise (Exceptions.InvalidPointerAccess)
 			)
 	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in (
 			 match pointer_type with 

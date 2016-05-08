@@ -1,0 +1,12 @@
+func int main()
+{
+	int a;
+	string s;
+
+	a = 10;
+	s =  "cool";
+
+	a = a + s;	
+
+	return 0;
+}

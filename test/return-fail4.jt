@@ -1,0 +1,12 @@
+func int main()
+{
+
+	return 0;
+}
+
+func int do_something(int a, int b, int c, int d)
+{
+	int i;
+	return a + b + c + d;
+	i = i + 1;
+}
