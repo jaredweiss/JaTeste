@@ -17,6 +17,16 @@ func int main()
 	return 0;
 }
 
+func void do_nothing()
+{
+
+
+} with test {
+
+} using {
+
+}
+
 struct house {
 	int price;
 	int age;

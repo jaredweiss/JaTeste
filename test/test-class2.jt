@@ -20,6 +20,17 @@ func int main()
 	return 0;
 }
 
+func void update_price(struct house *h, int a)
+{
+	h->set_price(a);
+} with test {
+	assert(my_house->price == 100);
+} using {
+	struct house *my_house;
+	my_house = new struct house;
+	update_price(my_house, 100);
+}
+
 struct house {
 	int price;
 	int height;
