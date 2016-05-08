@@ -81,9 +81,11 @@ test-testcase2:
 
 test-testcase3:
 	$(call run-test,test-testcase3)
+	$(call run-test-with-case,test-testcase3)
 
 test-testcase4:
 	$(call run-test,test-testcase4)
+	$(call run-test-with-case,test-testcase4)
 
 test-struct-malloc1:
 	$(call run-test,test-struct-malloc1)
