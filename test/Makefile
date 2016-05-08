@@ -11,6 +11,13 @@ define run-test =
 @echo " \033[0;32m ---->  \033[0mTest passed!"
 endef
 
+define run-test-with-case =
+@echo "Testing '$1.jt'"
+@../src/jateste.native -t $1.jt > /dev/null
+@lli $1-test.ll | diff --brief $1-test.out -
+@echo " \033[0;32m ---->  \033[0mTest passed!"
+endef
+
 all-tests: test-hello-world test-global-scope test-func1 test-func2 test-func3 test-pointer1 test-while1 test-for1 test-malloc1 test-free1 test-testcase1 test-testcase2 test-testcase3 test-array1 test-lib1 test-gcd1 test-struct-access1 test-bool1 test-bool2 test-bool3 test-arraypt1 test-linkedlist1 test-linkedlist2 test-linkedlist-delete1 test-linkedlist-free1 test-class1 test-class2 test-class3 test-testcase4 test-struct-malloc1 test-negative1 test-double1 test-double2 test-mod1
 	@echo "\033[0;32m========= All Tests Passed! ==========\033[0m"
 define test-compile-fail=
@@ -66,15 +73,19 @@ test-free1:
 
 test-testcase1:
 	$(call run-test,test-testcase1)
+	$(call run-test-with-case,test-testcase1)
 
 test-testcase2:
 	$(call run-test,test-testcase2)
+	$(call run-test-with-case,test-testcase2)
 
 test-testcase3:
 	$(call run-test,test-testcase3)
+	$(call run-test-with-case,test-testcase3)
 
 test-testcase4:
 	$(call run-test,test-testcase4)
+	$(call run-test-with-case,test-testcase4)
 
 test-struct-malloc1:
 	$(call run-test,test-struct-malloc1)

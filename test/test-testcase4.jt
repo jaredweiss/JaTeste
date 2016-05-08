@@ -17,14 +17,29 @@ func void update_rec(struct rectangle *p, int x)
 {
 	p->width = x;
 } with test {
-	assert(t->width == 10);
+	assert(t->width == 30);
+	assert(t->height == 4239);
 } using {
 	struct rectangle *t;
 	t = new struct rectangle;
 	update_rec(t, 10);
+	t->multiply_width(3);
+	t->height = 471;
+	t->multiply_height(9);
 }
 
 struct rectangle {
 	int width;
 	int height;
+
+	method void multiply_width(int a)
+	{
+		width = width * a;
+	}
+
+	method void multiply_height(int a)
+	{
+		height = height * a;
+	}		
+
 };

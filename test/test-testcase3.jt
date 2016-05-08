@@ -23,11 +23,45 @@ func int max(int x, int y)
 	}
 	return y;
 } with test {
-	 assert((max(a,b) == 10));
+	assert((max(a,b) == 10));
+	assert(my_house->get_zipcode() == 93108);	
+	assert(my_house->get_price() == 100000000);	
+	assert(my_house->get_zipcode() == 83108);	
 } using {
 	int a;
 	int b;
+	struct house *my_house;
+	my_house = new struct house;
 	a = 10;
 	b = 9;
+	my_house->set_zipcode(93108);
+	my_house->set_price(100000000); 
 }
+
+struct house {
+
+	int price;
+	int zipcode;
+
+	method void set_zipcode(int a) 	
+	{
+		zipcode = a;
+	}
+
+	method void set_price(int a) 	
+	{
+		price = a;
+	}
+
+	method int get_zipcode()
+	{
+		return zipcode;
+	}
+
+	method int get_price()
+	{
+		return price;
+	}
+
+};
 

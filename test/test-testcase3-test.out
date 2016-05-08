@@ -1,0 +1,12 @@
+TEST RESULTS!
+*************
+max results:
+max(a,b) == 10 passed!
+my_house->get_zipcode() == 93108 passed!
+my_house->get_price() == 100000000 passed!
+my_house->get_zipcode() == 83108 failed!
+LHS evaluated to: 
+93108
+RHS evaluated to: 
+83108
+*************
