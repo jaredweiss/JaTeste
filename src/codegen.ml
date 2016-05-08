@@ -36,6 +36,10 @@ let rec index_of_list x l =
  		| hd::tl -> let (_,y) = hd in if x = y then 0 else 1 + index_of_list x tl
 
 
+let cut_string s l = let len = String.length s in 
+		if l >= len then raise (Exceptions.BugCatch "cut_string")
+			    else let string_len = len - l in String.sub s 0 string_len
+
 (* Code to declare struct *)
 let declare_struct s =
 	let struct_t = L.named_struct_type context s.S.ssname in
@@ -416,7 +420,7 @@ let test_main functions =
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
 	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
 	let print_stars = S.SExpr(S.SCall("print", [S.SString_lit("*************")])) in 
-	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]@ [print_stars] ) [] names_of_test_calls in
+	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit((cut_string n 4) ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]@ [print_stars] ) [] names_of_test_calls in
 	let print_stmt = [S.SExpr(S.SCall("print",[S.SString_lit("TEST RESULTS!")]))]@[print_stars] in 
 	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt@sast_calls; S.stests = None; struc_method = false } in tmp_main
 

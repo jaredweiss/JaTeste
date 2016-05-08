@@ -18,6 +18,21 @@ func int main()
 }
 
 
+func void square_set_width(struct square *s, int a)
+{
+	int i;
+	
+	for (i = 0; i < 100; i = i + 1) {
+
+	}
+
+	s->set_width(a);
+} with test {
+
+} using {
+
+}
+
 struct square {
 	int height;
 	int width;

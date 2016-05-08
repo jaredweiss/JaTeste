@@ -88,6 +88,28 @@ func void update_height(struct rectangle *r, int w)
 {
 
 	r->set_height(w);
+} with test {
+	assert(my_square->height == d);
+} using {
+	int a;
+	int b;
+	int c;
+	int d;
+	int e;
+	int f;
+	int g;
+	struct rectangle *my_square;
+	
+	my_square = new struct rectangle;
+	
+	d = 10;
+	update_height(my_square, d);	
+
+	while ( a < 10 ) {
+		update_height(my_square, a);
+		a = a + 1;
+	}
+
 }
 struct rectangle {
 
