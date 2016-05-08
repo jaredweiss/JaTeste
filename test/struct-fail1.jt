@@ -1,0 +1,17 @@
+func int main()
+{
+
+
+}
+
+struct ahouse {
+	int price;
+
+	method int get_price()
+	{
+		return price;
+	}
+	
+	int zipcode;
+	
+};

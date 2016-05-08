@@ -1,0 +1,3 @@
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidReturnType("Can't have any code after return statement")
