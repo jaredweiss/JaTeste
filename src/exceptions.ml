@@ -5,23 +5,28 @@ exception InvalidHeaderFile of string
 
 (* Struct exceptions*)
 exception InvalidStruct of string
+exception InvalidStructField
+exception InvalidStructMethodCall
+
+(* Array exceptions*)
+exception InvalidArrayVariable
+exception InvalidArrayAccess
+exception InvalidArrayType
 
 (* Variable exceptions*)
 exception UndeclaredVariable of string
 
-(*Expression exceptions *)
+(* Expression exceptions *)
 exception InvalidExpr of string
 exception InvalidBooleanExpression 
 exception IllegalAssignment
 exception InvalidFunctionCall of string
 exception InvalidArgumentsToFunction of string
-exception InvalidArrayVariable
-exception InvalidStructField
 exception InvalidFree of string
 exception InvalidPointerDereference
+exception InvalidDereference
 exception InvalidPointerAccess
 exception NotBoolExpr
-exception InvalidArrayAccess
 exception InvalidLhsOfExpr
 exception InvalidNegativeType
 

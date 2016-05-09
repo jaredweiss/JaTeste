@@ -139,7 +139,7 @@ let rec string_of_expr e env =
 			  A.Int -> "int"
 			| A.Double ->"double"
 			| A.Char -> "char"
-			| _ -> raise (Exceptions.BugCatch "string_of_expr")
+			| _ -> raise (Exceptions.InvalidArrayType)
 			) in let str_ar_ac = String.concat "" [new_; " "; str_prim; lb; str_int; rb] in str_ar_ac   
   	| A.Array_access(e,i) -> let lb = "[" in
 			let rb = "]" in
@@ -505,22 +505,23 @@ let rec check_expr expr env =
 					     let tmp_struc_string = 
 					     (match tmp_struc with
 					          A.Pointer_typ(A.Struct_typ(sst)) -> sst
-						|  _ -> raise (Exceptions.BugCatch "Deference") 
+						|  _ -> raise (Exceptions.InvalidStructMethodCall) 
 					     ) in
 					     let tmp_func_name = tmp_struc_string ^ sc in
 					     let tmp_call = A.Call(tmp_func_name, tmp_formals) in 	
 					     check_expr tmp_call env
 			| A.Id(_) ->  struct_contains_expr e1 e2 env
-			| _ ->  raise (Exceptions.BugCatch "check_expr")
+			| _ ->  raise (Exceptions.InvalidPointerAccess)
 			)
 			| A.Pointer_typ(A.Primitive(p)) -> (let e2' = check_expr e2 env in (check_assign (A.Primitive(p)) e2') (Exceptions.InvalidPointerDereference))
 			| _ -> raise (Exceptions.InvalidPointerAccess)
 			)
-	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in (
+	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in 
+			(
 			 match pointer_type with 
 			   A.Pointer_typ(pt) -> pt
-			 | _ -> raise (Exceptions.BugCatch "Deference") 
-						)
+			 | _ -> raise (Exceptions.InvalidDereference) 
+			)
 				
 	| A.Array_create(size,prim_type) -> A.Pointer_typ(A.Array_typ(prim_type, size))
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
