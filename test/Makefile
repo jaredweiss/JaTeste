@@ -33,7 +33,7 @@ all-tests: runtime-tests compile-tests
 runtime-tests: test-hello-world test-global-scope test-func1 test-func2 
 	@echo "\033[0;32m========= Runtime Tests Passed! ==========\033[0m"
 
-compile-tests: test-local-var-fail test-no-main-fail return-fail1 return-fail2 return-fail3 return-fail4 struct-access-fail1 invalid-assignment-fail1 class1-var-fail1 class2-method-args-fail class-fail1 class-fail2 header-fail1 add-fail1 struct-fail1 struct-fail2 pointer-fail1.jt dereference-fail1 method-fail1
+compile-tests: test-local-var-fail test-no-main-fail return-fail1 return-fail2 return-fail3 return-fail4 struct-access-fail1 invalid-assignment-fail1 class1-var-fail1 class2-method-args-fail class-fail1 class-fail2 header-fail1 add-fail1 struct-fail1 struct-fail2 pointer-fail1.jt pointer-fail2.jt dereference-fail1 method-fail1 var-fail1
 	@echo "\033[0;32m======= Compilation Tests Passed! ========\033[0m"
 
 .PHONY: clean
@@ -207,10 +207,18 @@ struct-fail2:
 pointer-fail1:
 	$(call test-compile-fail,pointer-fail1)
 
+pointer-fail2:
+	$(call test-compile-fail,pointer-fail2)
+
+
 dereference-fail1:
 	$(call test-compile-fail,dereference-fail1)
 
 method-fail1:
 	$(call test-compile-fail,method-fail1)
+
+var-fail1:
+	$(call test-compile-fail,var-fail1)
+
 
 
