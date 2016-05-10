@@ -121,6 +121,34 @@ func void int_list_print(struct int_list *header)
 	}
 }
 
+func int int_list_get(struct int_list *header, int i)
+{
+	struct int_list *tmp;
+	int len;
+	int tmp_val;
+	int curr_num;
+	int counter;
+	tmp = header;
+	curr_num = 0;
+	tmp = tmp->next;
+	len = int_list_length(header);
+	if (i >= len) {
+		return -1;
+	}
+
+	while (tmp != NULL(struct int_list*)) {
+		tmp_val = tmp->num;
+		if (curr_num == i) {
+			return tmp_val;
+		}	
+
+		curr_num = curr_num + 1;
+		tmp = tmp->next;
+	}
+	
+	return 0;
+}
+
 
 struct int_list {
 	int num;
