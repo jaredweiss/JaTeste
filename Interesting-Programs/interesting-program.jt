@@ -62,6 +62,38 @@ func int main()
 	return 0;
 }
 
+func int my_multiply(int a, int b)
+{
+	return a * b;
+} with test {
+	assert((my_multiply(a, d)) == -90);
+	assert((my_multiply(c, d)) == -27);
+	assert((my_multiply(d, d)) == 81);
+	assert((my_multiply(a, b)) == 150);
+	assert((my_multiply(tmp, e)) == 495);
+} using {
+	int a;
+	int b;
+	int c;
+	int d;
+	int e;
+	int f;
+	int i;
+	int tmp;
+
+	tmp = 0;
+	a = 10;
+	b = 15;
+	c = 3;
+	for (i = 0; i < 10; i = i + 1) {
+		tmp = tmp + i;	
+	}
+	print(tmp);
+	d = -9;
+	e = 11;
+	f = -3;	
+}
+
 func int my_gcd(int a, int b)
 {
         while (a != b) {
