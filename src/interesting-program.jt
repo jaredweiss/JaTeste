@@ -15,16 +15,12 @@ func int main()
 	int_list_insert(header, 12);
 	
 	a = int_list_get(header, 0);
-	print(a);
-
 	a = int_list_get(header, 1);
-	print(a);
 
 	a = int_list_get(header, 2);
-	print(a);
+	/* print(a); */
 
 	a = my_sum(header);
-	print(a);
 
 	int_list_free_list(header);
 	return 0;
