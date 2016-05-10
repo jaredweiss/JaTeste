@@ -356,7 +356,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 
 	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
 	| S.SCall("print", [e]) | S.SCall("print_int", [e])-> L.build_call printf_func [|(print_format e); (expr builder e) |] "printresult" builder
-	| S.SCall(f, args) -> let (def_f, fdecl) = try StringMap.find f function_decls with | Not_found -> raise (Exceptions.BugCatch "dddd") in
+	| S.SCall(f, args) -> let (def_f, fdecl) = try StringMap.find f function_decls with | Not_found -> raise (Exceptions.BugCatch f) in
 			      let actuals = List.rev (List.map (expr builder) (List.rev args)) in 				let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	| S.SBoolLit(b) -> L.const_int i1_t b
 	| S.SNull(t) -> L.const_null (ltype_of_typ t)
