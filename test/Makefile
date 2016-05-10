@@ -140,10 +140,10 @@ test-linkedlist2:
 	$(call run-test-disabled,test-linkedlist2)
 
 test-linkedlist-delete1:
-	$(call run-test,test-linkedlist-delete1)
+	$(call run-test-disabled,test-linkedlist-delete1)
 
 test-linkedlist-free1:
-	$(call run-test,test-linkedlist-free1)
+	$(call run-test-disabled,test-linkedlist-free1)
 
 
 
