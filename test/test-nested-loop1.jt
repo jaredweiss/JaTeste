@@ -1,0 +1,25 @@
+func int main()
+{
+
+	int i;
+	int j;
+	for (i = 0; i < 10; i = i + 1) {
+		print(i);
+		for (j = 0; j < 5; j = j + 1) {
+			print(j);
+		}	
+	}
+	return 0;
+}
+
+struct phone {
+	int price;
+	int model;
+	int year;
+	bool iphone;
+
+	method void set_iphone(bool b)
+	{
+		iphone = b;
+	}
+};
