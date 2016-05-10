@@ -12,6 +12,8 @@ To build JaTesté you'll need the following:
 - OCAML (and ocamlfind)
 - LLVM 3.8
 
+JaTesté is primarily built and developed using Ubuntu 12.04
+
 For a complete guide on on builing JaTeste from souce [read this](https://github.com/jaredweiss/JaTeste/wiki/Building-JaTeste-from-source)
 
 Workflow overview for contributing to JaTesté
