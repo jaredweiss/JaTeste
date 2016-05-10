@@ -6,8 +6,10 @@ type bind = typ * string
 
 type dir_location = Curr | Standard
 
+(* include files node *)
 type header = dir_location * string
 
+(* Jateste expressions *)
 type expr =
     Lit     of int
   | String_lit of string
@@ -30,6 +32,7 @@ type expr =
   | Null of typ
   | Dubs 
 
+(* Jateste statements *)
 type stmt =
     Block of stmt list   
   | Expr of expr
@@ -39,11 +42,13 @@ type stmt =
   | Return of expr
   | Assert of expr
 
+(* Node that describes the envoirnment for with_test_decl node *)
 type with_using_decl = {
   uvdecls : bind list;
   stmts : stmt list;
 }
 
+(* Node the describes test cases *)
 type with_test_decl = {
   asserts : stmt list;
   using : with_using_decl; 
@@ -57,6 +62,8 @@ type func_decl = {
   vdecls  : bind list;
   body  :   stmt list;
   tests   :   with_test_decl option; 
+  struc_method : bool;
+  includes_func : bool;
 }
 
 (* Node that describes a given struct *)
@@ -66,5 +73,5 @@ type struct_decl = {
   methods  : func_decl list;
 }
 
-(* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
+(* Root of tree. Our program is made up four things 1) list of header/include files 2) list of global variables 3) list of function definitions 4) list of struct definitions *)
 type program = header list * bind list * func_decl list * struct_decl list

@@ -1,0 +1,17 @@
+func int main()
+{
+
+	return 0;
+}
+
+struct phone {
+	int price;
+	int model;
+	int year;
+	bool iphone;
+
+	method void set_iphone(bool b)
+	{
+		phone = b;
+	}
+};

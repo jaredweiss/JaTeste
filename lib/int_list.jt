@@ -7,6 +7,22 @@ func struct int_list* int_list_initialize()
 	return header;
 }
 
+func int int_list_length(struct int_list* header)
+{
+	int counter;
+	struct int_list* curr;
+	
+	counter = 0;
+	curr = header->next;
+
+	while (curr != NULL(struct int_list *)) {
+		curr = curr->next;
+		counter = counter + 1;
+	}
+
+	return counter;
+}
+
 func void int_list_insert(struct int_list* header, int i)
 {
 	struct int_list *tmp;
@@ -26,7 +42,50 @@ func void int_list_insert(struct int_list* header, int i)
 
 func void int_list_free_list(struct int_list *header)
 {
-	/* TODO */
+	struct int_list *curr;
+	struct int_list *tmp;
+	
+	curr = header;
+	while (curr != NULL(struct int_list*)) {
+
+		tmp = curr;
+		curr = curr->next;
+		free(tmp);
+	}
+	header->next = NULL(struct int_list*);
+}
+
+func void int_list_delete(struct int_list *header, int elem)
+{
+
+	struct int_list *tmp;
+	struct int_list *prev;
+	struct int_list *curr;
+	int cont;
+
+	cont = 1;
+	curr = header;
+	if (curr->next == NULL(struct int_list*)) {
+		cont = 0;
+	} else {
+		prev = curr;
+		curr = curr->next;
+	}
+	while ((cont == 1) && (curr != NULL(struct int_list*))) {
+		if(curr->num == elem) {
+			tmp = curr;
+			prev->next = curr->next;	
+			free(tmp);
+			cont = 0;
+		} else {
+			prev = curr;
+			curr = curr->next;
+			if (curr == NULL(struct int_list*)) {
+				cont = 0;
+			}
+		}
+	}
+
 }
 
 func bool int_list_contains(struct int_list *header, int i)
@@ -60,6 +119,34 @@ func void int_list_print(struct int_list *header)
 		print(i);	
 		tmp = tmp->next;
 	}
+}
+
+func int int_list_get(struct int_list *header, int i)
+{
+	struct int_list *tmp;
+	int len;
+	int tmp_val;
+	int curr_num;
+	int counter;
+	tmp = header;
+	curr_num = 0;
+	tmp = tmp->next;
+	len = int_list_length(header);
+	if (i >= len) {
+		return -1;
+	}
+
+	while (tmp != NULL(struct int_list*)) {
+		tmp_val = tmp->num;
+		if (curr_num == i) {
+			return tmp_val;
+		}	
+
+		curr_num = curr_num + 1;
+		tmp = tmp->next;
+	}
+	
+	return 0;
 }
 
 

@@ -13,6 +13,16 @@ func int main()
 func int add(int x, int y)
 {
 	return x + y;
+} with test {
+	assert(add(5,5) == sum);
+	assert(add(a,b) == sum);
+} using {
+	int sum;
+	int a;
+	int b;
+	a = 9;
+	b = 1;
+	sum = 10;	
 }
 
 

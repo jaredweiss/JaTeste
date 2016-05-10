@@ -1,0 +1,230 @@
+/* This is an example of an interesting JaTeste program */
+#include_jtlib <int_list.jt>
+#include_jtlib <math.jt>
+#include_jtlib "double_math.jt"
+
+func int main()
+{
+	struct int_list *header;
+	struct car *my_car;
+	int mpy;
+	int a;
+	int b;
+	double d1;
+	double d2;
+
+	/* List stuff */
+	header = int_list_initialize();
+	int_list_insert(header, 2);
+	int_list_insert(header, 10);
+	int_list_insert(header, 3);
+	int_list_insert(header, 9);
+	int_list_insert(header, 78);
+	int_list_insert(header, 123);
+	int_list_insert(header, 12);
+	
+	a = int_list_get(header, 3);
+	b = int_list_get(header, 4);
+	print("Printing list");
+	int_list_print(header);	
+
+	int_list_free_list(header);
+
+	/* Car stuff now */
+	print("Car printing here");
+	my_car = new struct car;
+	my_car->set_curr_year(2016);
+	my_car->set_year(2001);
+	my_car->set_miles(30500);
+	mpy = my_car->miles_per_year();
+	print(mpy);
+	free(my_car);
+	
+	/* Math library stuff */
+	print("Using Math library here");
+	a = add(-4,19);	
+	print(a);
+	a = divide(78,2);	
+	print(a);
+	a = gcd(25,20);
+	print(a);
+
+	/* Used include file from local dir here */
+	d1 = 23.0;
+	d2 = 3.0;
+	d1 = d_divide(d1, d2);
+	print(d1);
+	d1 = 5.15;
+	d2 = 0.33;
+	d1 = d_multiply(d1, d2);
+	print(d1);
+	
+	return 0;
+}
+
+func int my_multiply(int a, int b)
+{
+	return a * b;
+} with test {
+	assert((my_multiply(a, d)) == -90);
+	assert((my_multiply(c, d)) == -27);
+	assert((my_multiply(d, d)) == 81);
+	assert((my_multiply(a, b)) == 150);
+	assert((my_multiply(tmp, e)) == 495);
+} using {
+	int a;
+	int b;
+	int c;
+	int d;
+	int e;
+	int f;
+	int i;
+	int tmp;
+
+	tmp = 0;
+	a = 10;
+	b = 15;
+	c = 3;
+	for (i = 0; i < 10; i = i + 1) {
+		tmp = tmp + i;	
+	}
+	print(tmp);
+	d = -9;
+	e = 11;
+	f = -3;	
+}
+
+func int my_gcd(int a, int b)
+{
+        while (a != b) {
+                if (a > b) {
+                        a = a - b;
+                } else {
+                        b = b - a;
+                }
+        }
+        return a + 1;
+} with test {
+	assert(my_gcd(a,b) == 3);
+	assert(my_gcd(78,9) == 3);
+} using {
+	int a;
+	int b;
+	a = 15;
+	b = 9;
+}
+
+func int my_sum(struct int_list *l)
+{
+	int len;
+	int sum;
+	int i;
+	sum = 0;
+	len = int_list_length(l);
+	for (i = 0; i < len; i = i + 1) {
+		sum = sum + int_list_get(l,i);
+	}
+	
+	return sum;
+} with test {
+	assert(sum_zips == 132605);
+	assert(sum_prices == 124447);
+} using {
+	struct int_list *header_zips;
+	struct int_list *header_prices;
+	int sum_zips;
+	int sum_prices;
+	int i;
+	int tmp;
+	struct house *house1;
+	struct house *house2;
+	struct house *house3;
+	struct house *house4;
+
+	header_zips = int_list_initialize();
+	header_prices = int_list_initialize();
+	
+	house1 = new struct house;
+	house2 = new struct house;
+	house3 = new struct house;
+	house4 = new struct house;
+	
+	house1->set_price(525);
+	house2->set_price(7000);
+	house3->set_price(125078);
+	house4->set_price(2);
+
+	int_list_insert(header_zips, house1->price);
+	int_list_insert(header_zips, house2->price);
+	int_list_insert(header_zips, house3->price);
+	int_list_insert(header_zips, house4->price);
+	sum_zips = my_sum(header_zips);
+	
+	house1->set_zipcode(93108);
+	house2->set_zipcode(10027);
+	house3->set_zipcode(11211);
+	house4->set_zipcode(10101);
+
+	int_list_insert(header_prices, house1->zipcode);
+	int_list_insert(header_prices, house2->zipcode);
+	int_list_insert(header_prices, house3->zipcode);
+	int_list_insert(header_prices, house4->zipcode);
+	sum_prices = my_sum(header_prices);
+}
+
+struct house {
+	int price;
+	int zipcode;
+	string name;
+
+	method void set_price(int a)
+	{
+		price = a;
+	}
+
+	method void set_zipcode(int a)
+	{
+		zipcode = a;
+	}
+
+	method void set_name(string s)	
+	{
+		name = s;
+	}
+
+};
+
+struct car {
+	int year;
+	int current_year;
+	string model;
+	int miles;
+
+	method void set_curr_year(int a)
+	{
+		current_year = a;
+	}
+
+	method int miles_per_year()
+	{
+		int tmp;
+		tmp = current_year - year;
+		tmp = miles / tmp;
+		return tmp;	
+	}
+
+	method void set_model(string s)
+	{
+		model = s;
+	}
+
+	method void set_year(int a)
+	{
+		year = a;
+	}
+
+	method void set_miles(int a)
+	{
+		miles = a;
+	}
+};	

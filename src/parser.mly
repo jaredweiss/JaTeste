@@ -83,7 +83,7 @@ func_decls:
 mthd:
 	  METHOD any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = None }}
+		$9; tests = None ; struc_method = false ; includes_func = false }}
 
 struc_func_decls:
 	  /* nothing */ { [] }
@@ -142,13 +142,13 @@ Rules for function syntax
 fdecl:
 	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = None }}
+		$9; tests = None ; struc_method = false ; includes_func = false}}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }})  }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }}) ; struc_method = false ; includes_func = false  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) ; struc_method = false ; includes_func = false }}
 
 /* 
 "with test" rule 
@@ -253,6 +253,7 @@ expr:
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
 	| AMPERSAND expr	{ Unop(Addr, $2) }
+	| MINUS expr		{ Unop(Neg, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_access($1, $3)}
 	| expr POINTER_ACCESS expr 	{ Pt_access($1, $3)}

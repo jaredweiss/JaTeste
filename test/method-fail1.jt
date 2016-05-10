@@ -1,0 +1,20 @@
+func int main()
+{
+	struct car *my_car;
+
+	my_car->0;
+
+	return 0;
+}
+
+
+struct car {
+	int price;
+	int year;
+	string model;
+
+	method void set_model(string s)
+	{
+		model = s;
+	}
+};

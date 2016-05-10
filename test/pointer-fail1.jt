@@ -1,0 +1,13 @@
+func int main()
+{
+	struct house my_house;
+	int a;
+	a = my_house->price;
+
+	return 0;
+}
+
+struct house {
+	int price;
+	int zipcode;
+};

@@ -6,13 +6,20 @@
 
 define run-test
 @echo "Testing '$1.jt'"
-@../src/jateste.native $1.jt > /dev/null
+@../src/jateste.native -t $1.jt > /dev/null
 @lli $1.ll | diff --brief $1.out -
 @echo " \033[0;32m ---->  \033[0mTest passed!"
 endef
 
 define run-test-disabled
 @echo "\033[0;31mWarning -- $1 is disabled!\033[0m"
+endef
+
+define run-test-with-case
+@echo "Testing '$1.jt'"
+@../src/jateste.native -t $1.jt > /dev/null
+@lli $1-test.ll | diff --brief $1-test.out -
+@echo " \033[0;32m ---->  \033[0mTest passed!"
 endef
 
 define test-compile-fail
@@ -25,10 +32,10 @@ all-tests: runtime-tests compile-tests
 	@echo ""
 	@echo "\033[0;32m=========== All Tests Passed! ============\033[0m"
 
-runtime-tests: test-hello-world test-global-scope test-func1 test-func2 test-func3 test-pointer1 test-while1 test-for1 test-malloc1 test-free1 test-testcase1 test-testcase2 test-testcase3 test-array1 test-lib1 test-gcd1 test-struct-access1 test-bool1 test-bool2 test-arraypt1 test-linkedlist1 test-linkedlist2 test-class1 test-class2 test-class3 test-testcase4 test-struct-malloc1
+runtime-tests: test-hello-world test-global-scope test-func1 test-func2 test-func3 test-pointer1 test-while1 test-for1 test-malloc1 test-free1 test-testcase1 test-testcase2 test-testcase3 test-array1 test-lib1 test-gcd1 test-struct-access1 test-bool1 test-bool2 test-bool3 test-arraypt1 test-linkedlist1 test-linkedlist2 test-linkedlist-delete1 test-linkedlist-free1 test-class1 test-class2 test-class3 test-testcase4 test-struct-malloc1 test-negative1 test-double1 test-double2 test-mod1 test-nested-loop1 
 	@echo "\033[0;32m========= Runtime Tests Passed! ==========\033[0m"
 
-compile-tests: test-local-var-fail test-no-main-fail return-fail1 struct-access-fail1 invalid-assignment-fail1 class1-var-fail1 class2-method-args-fail
+compile-tests: test-local-var-fail test-no-main-fail return-fail1 return-fail2 return-fail3 return-fail4 struct-access-fail1 invalid-assignment-fail1 class1-var-fail1 class2-method-args-fail class-fail1 class-fail2 header-fail1 add-fail1 struct-fail1 struct-fail2 pointer-fail1.jt pointer-fail2.jt dereference-fail1 method-fail1 var-fail1 var-fail2
 	@echo "\033[0;32m======= Compilation Tests Passed! ========\033[0m"
 
 .PHONY: clean
@@ -67,15 +74,19 @@ test-free1:
 
 test-testcase1:
 	$(call run-test,test-testcase1)
+	$(call run-test-with-case,test-testcase1)
 
 test-testcase2:
 	$(call run-test,test-testcase2)
+	$(call run-test-with-case,test-testcase2)
 
 test-testcase3:
 	$(call run-test,test-testcase3)
+	$(call run-test-with-case,test-testcase3)
 
 test-testcase4:
 	$(call run-test,test-testcase4)
+	$(call run-test-with-case,test-testcase4)
 
 test-struct-malloc1:
 	$(call run-test,test-struct-malloc1)
@@ -98,8 +109,28 @@ test-bool1:
 test-bool2:
 	$(call run-test,test-bool2)
 
+test-bool3:
+	$(call run-test,test-bool3)
+
 test-arraypt1:
 	$(call run-test,test-arraypt1)
+
+test-negative1:
+	$(call run-test,test-negative1)
+
+test-double1:
+	$(call run-test,test-double1)
+
+test-double2:
+	$(call run-test,test-double2)
+
+test-mod1:
+	$(call run-test,test-mod1)
+
+test-nested-loop1:
+	$(call run-test,test-nested-loop1)
+
+
 
 # LinkedList library tests
 test-linkedlist1:
@@ -107,6 +138,14 @@ test-linkedlist1:
 
 test-linkedlist2:
 	$(call run-test-disabled,test-linkedlist2)
+
+test-linkedlist-delete1:
+	$(call run-test,test-linkedlist-delete1)
+
+test-linkedlist-free1:
+	$(call run-test,test-linkedlist-free1)
+
+
 
 # Object-oriented tests
 test-class1:
@@ -129,6 +168,15 @@ test-no-main-fail:
 return-fail1:
 	$(call test-compile-fail,return-fail1)
 
+return-fail2:
+	$(call test-compile-fail,return-fail2)
+
+return-fail3:
+	$(call test-compile-fail,return-fail3)
+
+return-fail4:
+	$(call test-compile-fail,return-fail4)
+
 struct-access-fail1:
 	$(call test-compile-fail,struct-access-fail1)
 
@@ -141,6 +189,41 @@ class1-var-fail1:
 class2-method-args-fail:
 	$(call test-compile-fail,class2-method-args-fail)
 
+class-fail1:
+	$(call test-compile-fail,class-fail1)
+
+class-fail2:
+	$(call test-compile-fail,class-fail2)
+
+header-fail1:
+	$(call test-compile-fail,header-fail1)
+
+add-fail1:
+	$(call test-compile-fail,add-fail1)
+
+struct-fail1:
+	$(call test-compile-fail,struct-fail1)
+
+struct-fail2:
+	$(call test-compile-fail,struct-fail2)
+
+pointer-fail1:
+	$(call test-compile-fail,pointer-fail1)
+
+pointer-fail2:
+	$(call test-compile-fail,pointer-fail2)
+
+dereference-fail1:
+	$(call test-compile-fail,dereference-fail1)
+
+method-fail1:
+	$(call test-compile-fail,method-fail1)
+
+var-fail1:
+	$(call test-compile-fail,var-fail1)
+
+var-fail2:
+	$(call test-compile-fail,var-fail2)
 
 
 

@@ -1,0 +1,58 @@
+func int main()
+{
+
+	struct house *my_house;
+	struct condo *my_condo;
+	int a;
+	int b;
+	int c;
+
+	my_house = new struct house;
+	my_condo = new struct condo;
+
+	my_house->set_price(100);
+	my_condo->set_price(59);
+
+	a = my_house->get_price();
+	b = my_condo->geat_price();
+	
+	c = a - b;
+	
+	print(c);
+
+
+
+	return 0;
+}
+
+
+struct house {
+	int price;
+
+	method void set_price(int x)
+	{
+		price = x;
+	}	
+
+	method int get_price()
+	{
+		return price;
+	}
+
+
+};
+
+struct condo {
+	int price;
+
+	method void set_price(int x)
+	{
+		price = x;
+	}	
+
+	method int get_price()
+	{
+		return price;
+	}
+
+};

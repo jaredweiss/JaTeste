@@ -1,0 +1,33 @@
+func int main()
+{
+	int a;
+	int b;
+	int c;
+	int d;
+	int e;
+	int mod;
+	
+
+	a = 15;
+	b = 7;
+	c = 23;
+	d = 5;
+	e = 100;
+
+	mod = a % b;
+	print(mod);
+	mod = c % d;
+	print(mod);
+	mod = e % 10;
+	print(mod);
+	mod = d % b;
+	print(mod);
+	mod = b % d;
+	print(mod);
+
+	return 0;
+}
+
+	
+
+	

@@ -3,6 +3,7 @@ module A = Ast
 module S = Sast
 
 
+(* Location of Jateste's standard library *)
 let standard_library_path = "/home/plt/JaTeste/lib/"
 let current_dir_path = "./"
 
@@ -59,7 +60,8 @@ let process_headers ast:(A.program) =
 		let ic = 
 		try open_in file with _ -> raise (Exceptions.InvalidHeaderFile file) in
 		let (_,_,funcs,strs) = parse ic in
-		let new_ast:(A.program) = (incl, globals, current_func_list @ funcs, structs @ strs) in
+		let tmp_funcs = List.map (fun n -> let tmp = {A.typ = n.A.typ ; A.fname = n.A.fname ; A.formals = n.A.formals ; A.vdecls = n.A.vdecls ; A.body = n.A.body ; A.tests = n.A.tests ; A.struc_method = false ; A.includes_func = true } in tmp) funcs in
+		let new_ast:(A.program) = (incl, globals, current_func_list @ tmp_funcs, structs @ strs) in
 		new_ast 	
 	in
 	let modified_ast:(A.program) = List.fold_left gen_header_code ast includes in 
@@ -87,11 +89,17 @@ let get_ast input_raw =
 	let ast = parse input_raw in
 	ast
 
-		
-		 
-(******************************)
-(* Entry pointer for Compiler *)
-(******************************)
+(*************************************************************************************)
+(* Entry pointer for compiler. Input is a .jt text file, output is LLVM code in a .ll file. *)
+(* 
+file.jt text file -> 
+scanner.mll: convert raw text to tokens according to regexes -> 
+parser.mly: creates Ast according to CFG defined in parser.mly -> 
+semant.ml: checks the semantics of the program (e.g. type checking), and converts the Ast into an Sast -> 
+codege.ml: takes Sast as input and creates LLVM code in a .ll file ->
+file.ll file 
+*)
+(*************************************************************************************)
 let _ =
 	(* Read in command line args *)
 	let arguments = Sys.argv in
@@ -103,6 +111,7 @@ let _ =
 	(* Create a file to put test executable in *)
 	let test_exec_name = test_executable_filename arguments.((Array.length Sys.argv -1)) in
 	
+	(* Determine what the compiler should do, then do it *)
 	let _ = (match action with 
 	  Scan -> let _  = scan source_file in ()
  	| Parse -> let _ = parse source_file in ()

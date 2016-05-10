@@ -10,7 +10,7 @@ type variable_decls = A.bind;;
 let struct_types:(string, A.struct_decl) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
 
-let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None }
+let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None ; A.struc_method = false ; includes_func = false }
 
 (* Symbol table used for checking scope *)
 type symbol_table = {
@@ -53,6 +53,20 @@ let rec find_var (scope : symbol_table) var =
 let type_of_identifier var env = 
 	find_var env.scope var
 
+(* left side of Binop. Returns an expression *)
+let left_side_of_binop e =
+	(match e with 
+	  A.Binop(ls,_,_) -> ls
+	| _ -> raise (Exceptions.BugCatch "left side of binop")
+	)
+
+(* left side of Binop. Returns an expression *)
+let right_side_of_binop e =
+	(match e with 
+	  A.Binop(_,_,rs) -> rs
+	| _ -> raise (Exceptions.BugCatch "left side of binop")
+	)
+
 (* Returns the type of the arrays elements. E.g. int[10] arr... type_of_array arr would return A.Int *)
 let type_of_array arr _ =
 	match arr with
@@ -87,10 +101,10 @@ let rec string_of_expr e env =
 		| A.Div -> "/"
 		| A.Equal -> "=="
 		| A.Neq -> "!="
-		| A.Less -> "<="
-		| A.Leq -> "<"
-		| A.Greater -> ">="
-		| A.Geq -> ">"
+		| A.Less -> "<"
+		| A.Leq -> "=<"
+		| A.Greater -> ">"
+		| A.Geq -> ">="
 		| A.And -> "&&"
 		| A.Or -> "||"
 		| A.Mod  -> "%"
@@ -125,7 +139,7 @@ let rec string_of_expr e env =
 			  A.Int -> "int"
 			| A.Double ->"double"
 			| A.Char -> "char"
-			| _ -> raise (Exceptions.BugCatch "string_of_expr")
+			| _ -> raise (Exceptions.InvalidArrayType)
 			) in let str_ar_ac = String.concat "" [new_; " "; str_prim; lb; str_int; rb] in str_ar_ac   
   	| A.Array_access(e,i) -> let lb = "[" in
 			let rb = "]" in
@@ -312,7 +326,7 @@ let rec expr_sast expr env =
 	| A.Double_lit d -> S.SDouble_lit d
 	| A.Binop (e1, op, e2) -> let tmp_type = type_of_expr env e1 in 
 			S.SBinop (expr_sast e1 env, op, expr_sast e2 env, tmp_type)
-	| A.Unop (u, e) -> S.SUnop(u, expr_sast e env)
+	| A.Unop (u, e) -> let tmp_type = type_of_expr env e in S.SUnop(u, expr_sast e env, tmp_type)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s env, expr_sast e env)
 	| A.Noexpr -> S.SNoexpr
 	| A.Id s ->  (match env.in_struct_method with
@@ -334,7 +348,8 @@ let rec expr_sast expr env =
 	| A.Struct_access (e1, e2) -> 			
 			(match e2 with
 			  A.Id(_) ->  let index = index_of_struct_field e1 e2 env in 
-				    S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
+					let tmp_type = (type_of_expr env (A.Struct_access(e1,e2))) in 
+				    S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index, tmp_type)
 			| A.Call(ec, le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
 				(match struct_decl with
 				A.Struct_typ(struct_type_string) -> let tmp_unop = A.Unop(A.Addr, e1) in S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([tmp_unop]@le)))
@@ -344,7 +359,7 @@ let rec expr_sast expr env =
 			)
 	| A.Pt_access (e1, e2) ->  
 		(match e2 with
-		  A.Id(_) -> let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index) in  t
+		  A.Id(_) ->let tmp_type =  (type_of_expr env (A.Pt_access(e1,e2))) in let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index, tmp_type) in  t
 		| A.Call(ec,le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
 			(match struct_decl with
 			A.Pointer_typ(A.Struct_typ(struct_type_string)) -> S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
@@ -355,7 +370,7 @@ let rec expr_sast expr env =
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
 	| A.Array_access (e, i) -> let tmp_string = (string_identifier_of_expr e) in 
 		let tmp_type = find_var env.scope tmp_string in S.SArray_access (tmp_string, i, tmp_type)
-	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
+	| A.Dereference(e) -> let tmp_type = (type_of_expr env (A.Dereference(e))) in S.SDereference(string_identifier_of_expr e, tmp_type) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
 	| A.Null(t) -> S.SNull t
@@ -372,10 +387,10 @@ let struct_sast r =
 let add_pt_to_arg s f =
 	let tmp_formals = f.A.formals in
 	let tmp_type = A.Pointer_typ(A.Struct_typ(s.A.sname)) in 
-	let tmp_string = "p" in
+	let tmp_string = "pt_hack" in
 	let new_formal:(A.bind) = (tmp_type, tmp_string) in
 	let formals_with_pt = new_formal :: tmp_formals in
-	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
+	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests ; A.struc_method = true ; A.includes_func = f.A.includes_func} in 
 	new_func
 
 (* Creates new functions whose first paramters is a pointer to the struct type that the method is associated with *)
@@ -423,8 +438,8 @@ let rec check_expr expr env =
 		  A.Primitive(A.Int) | A.Primitive(A.Double) | A.Primitive(A.Char)  -> 
 		(match op with
 		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
-		| A.Equal | A.Neq when e1' = e2' -> ignore("got equal");A.Primitive(A.Int)
-		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.Equal | A.Neq when e1' = e2' -> A.Primitive(A.Bool)
+		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> A.Primitive(A.Bool)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
 		| A.Primitive(A.Bool) -> 		
@@ -436,17 +451,25 @@ let rec check_expr expr env =
 		| A.Pointer_typ(_) -> let e1' = (check_expr e1 env) in 
 			let e2' = (check_expr e1 env)  in  
 		(match op with
-		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> e1'
+		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> A.Primitive(A.Bool)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in
 			(match uop with
-				  A.Not -> (match expr_type with A.Primitive(A.Bool) -> expr_type | _ -> raise Exceptions.NotBoolExpr) 
-				| A.Neg -> expr_type
-				| A.Addr -> A.Pointer_typ(expr_type)
-			)
+				  A.Not -> (match expr_type with 
+						A.Primitive(A.Bool) -> expr_type 
+						| _ -> raise Exceptions.NotBoolExpr
+					   ) 
+				| A.Neg -> (match expr_type with 
+					     A.Primitive(_) -> expr_type 
+					   | _ -> raise Exceptions.InvalidNegativeType
+					   ) 
+				| A.Addr -> (match e with 
+					     A.Id(_) -> A.Pointer_typ(expr_type)
+					   | _ -> raise Exceptions.InvalidNegativeType
+					   )			)
 	| A.Assign(var,e) -> (let right_side_type = check_expr e env in 
 			let left_side_type  = check_expr var env in
 				check_assign left_side_type right_side_type Exceptions.IllegalAssignment)
@@ -482,22 +505,23 @@ let rec check_expr expr env =
 					     let tmp_struc_string = 
 					     (match tmp_struc with
 					          A.Pointer_typ(A.Struct_typ(sst)) -> sst
-						|  _ -> raise (Exceptions.BugCatch "Deference") 
+						|  _ -> raise (Exceptions.InvalidStructMethodCall) 
 					     ) in
 					     let tmp_func_name = tmp_struc_string ^ sc in
 					     let tmp_call = A.Call(tmp_func_name, tmp_formals) in 	
 					     check_expr tmp_call env
 			| A.Id(_) ->  struct_contains_expr e1 e2 env
-			| _ ->  raise (Exceptions.BugCatch "check_expr")
+			| _ ->  raise (Exceptions.InvalidPointerAccess)
 			)
 			| A.Pointer_typ(A.Primitive(p)) -> (let e2' = check_expr e2 env in (check_assign (A.Primitive(p)) e2') (Exceptions.InvalidPointerDereference))
-			| _ -> raise (Exceptions.BugCatch "check_expr")
+			| _ -> raise (Exceptions.InvalidPointerAccess)
 			)
-	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in (
+	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in 
+			(
 			 match pointer_type with 
 			   A.Pointer_typ(pt) -> pt
-			 | _ -> raise (Exceptions.BugCatch "Deference") 
-						)
+			 | _ -> raise (Exceptions.InvalidDereference) 
+			)
 				
 	| A.Array_create(size,prim_type) -> A.Pointer_typ(A.Array_typ(prim_type, size))
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
@@ -553,8 +577,13 @@ let rec check_stmt stmt env =
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
 	| A.Assert(e) -> ignore(check_in_test env); ignore(check_is_bool e env); 
 			let str_expr = string_of_expr e env in  
-			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed")])) in 
-			let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
+			let lhs = (expr_sast (left_side_of_binop e) env) in
+			let rhs = (expr_sast (right_side_of_binop e) env) in
+			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed!")])) in 
+			let else_stmt = S.SBlock([S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed!")]))]
+			@[S.SExpr(S.SCall("print", [S.SString_lit("LHS evaluated to: ")]))]
+			@[S.SExpr(S.SCall("print", [lhs]))]
+			@[S.SExpr(S.SCall("print", [S.SString_lit("RHS evaluated to: ")]))]			   @[S.SExpr(S.SCall("print", [rhs]))]) in S.SIf (expr_sast e env, then_stmt, else_stmt)
 
 (* Converts 'using' code from ast to sast *)
 let with_using_sast r env = 
@@ -573,7 +602,7 @@ let convert_test_to_func using_decl test_decl env =
 	let concat_stmts = using_decl.A.stmts @ test_asserts  in
 	(match env.func_name with
 	  Some(fn) ->let new_func_name = fn ^ "test" in  
-		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
+		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None ; A.struc_method = false ; includes_func = false } in new_func
 
 	|  None -> raise (Exceptions.BugCatch "convert_test_to_func")
 )
@@ -638,7 +667,7 @@ let rec check_function_body funct env =
 		)
 	in	
 		
-	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test)} in
+	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test) ; S.sstruc_method = funct.A.struc_method ; S.sincludes_func = funct.A.includes_func } in
 	tmp
 
 (* Entry point to check functions *)
@@ -661,9 +690,9 @@ let check_includes includes =
 	()
 	
 
-(*********************************************************)
-(* Entry point for semantic checking AST. Output is SAST *)
-(*********************************************************)
+(*******************************************************************)
+(* Entry point for semantic checking. Input is Ast, output is Sast *)
+(*******************************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false ; struct_name = None } in
 	let _ = check_includes includes in

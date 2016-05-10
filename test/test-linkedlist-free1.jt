@@ -1,0 +1,26 @@
+#include_jtlib <int_list.jt>
+
+func int main()
+{
+
+	struct int_list *header;
+	int len;
+
+	header = int_list_initialize();
+
+	int_list_insert(header,5);
+	int_list_insert(header,9);
+	int_list_insert(header,1);
+	int_list_insert(header,18);
+	int_list_insert(header,4738);
+	int_list_insert(header,17);
+	int_list_insert(header,5);
+
+	len = int_list_length(header);
+	print(len);
+	int_list_free_list(header);
+	len = int_list_length(header);	
+	print(len);
+
+	return 0;
+}

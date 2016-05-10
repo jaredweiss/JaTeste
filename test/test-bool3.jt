@@ -1,0 +1,47 @@
+func int main()
+{
+	int a;
+	int b;
+	int c;
+	int d;
+
+	double d1;
+	double d2;
+	double d3;
+	double d4;
+	
+	bool my_bool;
+
+	a = 10;
+	b = 11;
+	c = 10;
+	d = 20;
+	
+	d1 = 19.18;
+	d2 = 0.7;
+	d3 = 0.7;
+	d4 = 19.19;
+
+	my_bool = true;
+
+	if ((a == c) && (d1 < d4)) {
+		print("passed");
+	}
+
+	if ((a < c) || (d2 == d3)) {
+		print("passed");
+	}
+
+	if ((d1 != d2) && (a <= c) && (d1 < d4) && (my_bool == true)) {
+		print("passed");
+	}
+
+	b = 10;
+	d = 10;
+
+	if (((a != b) && (c == d)) || (d2 == d3)) {
+		print("passed");
+	}
+	
+	return 0;
+}

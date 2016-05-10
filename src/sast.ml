@@ -8,16 +8,16 @@ type sexpr =
   | SChar_lit of char
   | SDouble_lit of float
   | SBinop   of sexpr * op * sexpr * typ
-  | SUnop    of uop * sexpr
+  | SUnop    of uop * sexpr * typ
   | SAssign  of sexpr * sexpr
   | SNoexpr
   | SId of string
   | SStruct_create of string
-  | SStruct_access of string * string * int
-  | SPt_access of string * string * int
+  | SStruct_access of string * string * int * typ
+  | SPt_access of string * string * int * typ
   | SArray_create of int * prim
   | SArray_access of string * int * typ
-  | SDereference of string
+  | SDereference of string * typ
   | SFree of string
   | SCall of string * sexpr list
   | SBoolLit of int
@@ -50,6 +50,8 @@ type sfunc_decl = {
   svdecls  : bind list;
   sbody  :   sstmt list;
   stests   :   sfunc_decl option;
+  sstruc_method : bool;
+  sincludes_func : bool;
 }
 
 (* Node that describes a given struct *)
