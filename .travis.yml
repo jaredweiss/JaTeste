@@ -2,6 +2,9 @@ branches:
   only: 
     - master
 
+cache:
+  apt: true
+
 addons:
   apt:
     sources:
