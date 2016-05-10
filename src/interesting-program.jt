@@ -1,6 +1,6 @@
 /* This is an example of an interesting JaTeste program */
-
 #include_jtlib <int_list.jt>
+#include_jtlib <math.jt>
 
 func int main()
 {
@@ -10,7 +10,7 @@ func int main()
 	int a;
 	int b;
 
-	/* list stuff */
+	/* List stuff */
 	header = int_list_initialize();
 	int_list_insert(header, 2);
 	int_list_insert(header, 10);
@@ -22,10 +22,13 @@ func int main()
 	
 	a = int_list_get(header, 3);
 	b = int_list_get(header, 4);
+	print("Printing list");
+	int_list_print(header);	
 
 	int_list_free_list(header);
 
 	/* Car stuff now */
+	print("Car printing here");
 	my_car = new struct car;
 	my_car->set_curr_year(2016);
 	my_car->set_year(2001);
@@ -33,6 +36,16 @@ func int main()
 	mpy = my_car->miles_per_year();
 	print(mpy);
 	free(my_car);
+	
+	/* Math library stuff */
+	print("Using Math library here");
+	a = add(-4,19);	
+	print(a);
+	a = divide(78,2);	
+	print(a);
+	a = gcd(25,20);
+	print(a);
+
 
 	return 0;
 }

@@ -25,6 +25,11 @@ func int multiply(int x, int y)
 	return x * y;
 }
 
+func int divide(int x, int y)
+{
+	return x / y;
+}
+
 /* returns the gcd of @a, @b */
 func int gcd(int a, int b)
 {
