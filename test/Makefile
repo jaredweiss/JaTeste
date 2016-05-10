@@ -98,7 +98,11 @@ test-array1:
 	$(call run-test,test-array1)
 
 test-lib1:
+ifndef BUILD_ON_TRAVIS
+	$(call run-test,test-lib1)
+else
 	$(call run-test-disabled,test-lib1)
+endif
 
 test-struct-access1:
 	$(call run-test,test-struct-access1)
@@ -134,17 +138,33 @@ test-nested-loop1:
 
 # LinkedList library tests
 test-linkedlist1:
+ifndef BUILD_ON_TRAVIS
+	$(call run-test,test-linkedlist1)
+else
 	$(call run-test-disabled,test-linkedlist1)
+endif
 
 test-linkedlist2:
+ifndef BUILD_ON_TRAVIS
+	$(call run-test,test-linkedlist2)
+else
 	$(call run-test-disabled,test-linkedlist2)
 
+endif
+
 test-linkedlist-delete1:
+ifndef BUILD_ON_TRAVIS
+	$(call run-test,test-linkedlist-delete1)
+else
 	$(call run-test-disabled,test-linkedlist-delete1)
+endif
 
 test-linkedlist-free1:
+ifndef BUILD_ON_TRAVIS
+	$(call run-test,test-linkedlist-free1)
+else
 	$(call run-test-disabled,test-linkedlist-free1)
-
+endif
 
 
 # Object-oriented tests
