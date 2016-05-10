@@ -71,7 +71,7 @@ func int my_sum(struct int_list *l)
 	return sum;
 } with test {
 	assert(sum_zips == 132605);
-	assert(sum_prices == 1244470);
+	assert(sum_prices == 124447);
 } using {
 	struct int_list *header_zips;
 	struct int_list *header_prices;
