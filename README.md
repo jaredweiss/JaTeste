@@ -1,4 +1,4 @@
-# JaTesté 
+# JaTesté [![Build Status](https://travis-ci.org/jaredweiss/JaTeste.svg?branch=master)](https://travis-ci.org/jaredweiss/JaTeste)
 
 JaTesté is a language that makes test-driven development a lot simpler. It's kind of like C, but with the added security of having a well-defined format for writing tests. We started working on JaTesté as a project for our compilers class at Columbia and now the semester is over, we're proud to share it with the world!
 
