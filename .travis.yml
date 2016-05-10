@@ -1,7 +1,3 @@
-branches:
-  only: 
-    - master
-
 addons:
   apt:
     sources:
