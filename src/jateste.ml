@@ -60,7 +60,7 @@ let process_headers ast:(A.program) =
 		let ic = 
 		try open_in file with _ -> raise (Exceptions.InvalidHeaderFile file) in
 		let (_,_,funcs,strs) = parse ic in
-		let tmp_funcs = List.map (fun n -> let tmp = {A.typ = n.A.typ ; A.fname = n.A.fname ; A.formals = n.A.formals ; A.vdecls = n.A.vdecls ; A.body = n.A.body ; A.tests = n.A.tests ; A.struc_method = true } in tmp) funcs in
+		let tmp_funcs = List.map (fun n -> let tmp = {A.typ = n.A.typ ; A.fname = n.A.fname ; A.formals = n.A.formals ; A.vdecls = n.A.vdecls ; A.body = n.A.body ; A.tests = n.A.tests ; A.struc_method = false ; A.includes_func = true } in tmp) funcs in
 		let new_ast:(A.program) = (incl, globals, current_func_list @ tmp_funcs, structs @ strs) in
 		new_ast 	
 	in

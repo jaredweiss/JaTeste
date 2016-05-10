@@ -274,6 +274,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		  A.Add -> L.build_add 
 		| A.Sub -> L.build_sub
 		| A.Mult -> L.build_mul
+		| A.Div -> L.build_sdiv
 		| A.Mod -> L.build_srem
 		| A.Equal -> L.build_icmp L.Icmp.Eq
 		| A.Neq -> L.build_icmp L.Icmp.Ne
@@ -290,6 +291,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		  A.Add -> L.build_fadd 
 		| A.Sub -> L.build_fsub
 		| A.Mult -> L.build_fmul
+		| A.Div -> L.build_fdiv
 		| A.Mod -> L.build_frem
 		| A.Equal -> L.build_fcmp L.Fcmp.Oeq
 		| A.Neq -> L.build_fcmp L.Fcmp.One
@@ -422,12 +424,12 @@ let test_main functions =
 	let print_stars = S.SExpr(S.SCall("print", [S.SString_lit("*************")])) in 
 	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit((cut_string n 4) ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]@ [print_stars] ) [] names_of_test_calls in
 	let print_stmt = [S.SExpr(S.SCall("print",[S.SString_lit("TEST RESULTS!")]))]@[print_stars] in 
-	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt@sast_calls; S.stests = None; struc_method = false } in tmp_main
+	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt@sast_calls; S.stests = None; S.sstruc_method = false ; S.sincludes_func = false } in tmp_main
 
 
 let func_builder f b = 
 	(match b with 
-	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> if n.S.struc_method = false then (l) else (l@[n]))) [] f in (tests @ [(test_main f)]) 
+	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> if (n.S.sstruc_method = false && n.S.sincludes_func = false) then (l) else (l@[n]))) [] f in (tests @ [(test_main f)]) 
 	| false -> f
 	)
 

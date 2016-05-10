@@ -10,7 +10,7 @@ type variable_decls = A.bind;;
 let struct_types:(string, A.struct_decl) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
 
-let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None ; A.struc_method = false }
+let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None ; A.struc_method = false ; includes_func = false }
 
 (* Symbol table used for checking scope *)
 type symbol_table = {
@@ -390,7 +390,7 @@ let add_pt_to_arg s f =
 	let tmp_string = "pt_hack" in
 	let new_formal:(A.bind) = (tmp_type, tmp_string) in
 	let formals_with_pt = new_formal :: tmp_formals in
-	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests ; A.struc_method = true} in 
+	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests ; A.struc_method = true ; A.includes_func = f.A.includes_func} in 
 	new_func
 
 (* Creates new functions whose first paramters is a pointer to the struct type that the method is associated with *)
@@ -602,7 +602,7 @@ let convert_test_to_func using_decl test_decl env =
 	let concat_stmts = using_decl.A.stmts @ test_asserts  in
 	(match env.func_name with
 	  Some(fn) ->let new_func_name = fn ^ "test" in  
-		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None ; A.struc_method = false} in new_func
+		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None ; A.struc_method = false ; includes_func = false } in new_func
 
 	|  None -> raise (Exceptions.BugCatch "convert_test_to_func")
 )
@@ -667,7 +667,7 @@ let rec check_function_body funct env =
 		)
 	in	
 		
-	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test) ; struc_method = funct.A.struc_method} in
+	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test) ; S.sstruc_method = funct.A.struc_method ; S.sincludes_func = funct.A.includes_func } in
 	tmp
 
 (* Entry point to check functions *)
