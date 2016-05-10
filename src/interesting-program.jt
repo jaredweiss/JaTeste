@@ -1,0 +1,94 @@
+#include_jtlib <int_list.jt>
+
+func int main()
+{
+	struct int_list *header;
+	int a;
+
+	header = int_list_initialize();
+	int_list_insert(header, 2);
+	int_list_insert(header, 10);
+	int_list_insert(header, 3);
+	int_list_insert(header, 9);
+	int_list_insert(header, 78);
+	int_list_insert(header, 123);
+	int_list_insert(header, 12);
+	
+	a = int_list_get(header, 0);
+	print(a);
+
+	a = int_list_get(header, 1);
+	print(a);
+
+	a = int_list_get(header, 2);
+	print(a);
+
+	a = my_sum(header);
+	print(a);
+
+	int_list_free_list(header);
+	return 0;
+}
+
+func int my_sum(struct int_list *l)
+{
+	int len;
+	int sum;
+	int i;
+	sum = 0;
+	len = int_list_length(l);
+	for (i = 0; i < len; i = i + 1) {
+		sum = sum + int_list_get(l,i);
+	}
+	
+	return sum;
+} with test {
+	assert(sum == 132605);
+} using {
+	struct int_list *header;
+	int sum;
+	struct house *house1;
+	struct house *house2;
+	struct house *house3;
+	struct house *house4;
+
+	header = int_list_initialize();
+	
+	house1 = new struct house;
+	house2 = new struct house;
+	house3 = new struct house;
+	house4 = new struct house;
+	
+	house1->set_price(525);
+	house2->set_price(7000);
+	house3->set_price(125078);
+	house4->set_price(2);
+
+	int_list_insert(header, house1->price);
+	int_list_insert(header, house2->price);
+	int_list_insert(header, house3->price);
+	int_list_insert(header, house4->price);
+	sum = my_sum(header);
+}
+
+struct house {
+	int price;
+	int zipcode;
+	string name;
+
+	method void set_price(int a)
+	{
+		price = a;
+	}
+
+	method void set_zipcode(int a)
+	{
+		zipcode = a;
+	}
+
+	method void set_name(string s)	
+	{
+		name = s;
+	}
+
+};
