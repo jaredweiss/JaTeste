@@ -27,11 +27,11 @@ test:
 
 .PHONY: install
 install: jateste.native
-	@mkdir -p $HOME/lib/JaTeste
-	@cp -r ../lib $HOME/lib/JaTeste
-	@export JATESTE_LIB=$HOME/lib/JaTeste
-	@echo "Installed JaTeste std lib at $HOME/lib/JaTeste..."
-	@echo "Use JATESTE_LIB env-var to specify a different std lib location"
+	mkdir -p $(HOME)/lib/JaTeste
+	cp -r ../lib $(HOME)/lib/JaTeste
+	export JATESTE_LIB=$(HOME)/lib/JaTeste
+	echo "Installed JaTeste std lib at $(HOME)/lib/JaTeste..."
+	echo "Use JATESTE_LIB env-var to specify a different std lib location"
 
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
