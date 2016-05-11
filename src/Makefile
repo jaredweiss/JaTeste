@@ -25,6 +25,12 @@ test:
 	@echo "\033[0;32m========= Running All Tests! ==========\033[0m"
 	@$(MAKE) -C ../test/
 
+.PHONY: install
+install: jateste.native
+	cp jateste.native /usr/local/bin/jateste.native
+	cp -r ../lib /usr/local/lib/JaTeste
+
+
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 
 OBJS = sast.cmx ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx jateste.cmx exceptions.cmx

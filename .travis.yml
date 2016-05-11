@@ -26,4 +26,6 @@ before_script:
 
 script:
   - cd src
-  - make all
+  - make
+  - make install
+  - make test
