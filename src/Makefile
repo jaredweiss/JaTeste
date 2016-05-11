@@ -27,9 +27,7 @@ test:
 
 .PHONY: install
 install: jateste.native
-	echo $(PWD)
-	cp -f jateste.native /usr/bin/jateste.native
-	cp -f -r ../lib /usr/lib/JaTeste
+	cp -f -r ../lib /usr/local/lib/JaTeste
 
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
