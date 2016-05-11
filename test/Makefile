@@ -99,9 +99,9 @@ test-array1:
 
 test-lib1:
 ifneq ($(wildcard /usr/local/lib/JaTeste/.),)
-		$(call run-test,test-lib1) \
+		$(call run-test,test-lib1)
 else
-		$(call run-test-disabled,test-lib1) \
+		$(call run-test-disabled,test-lib1)
 endif
 
 test-struct-access1:
@@ -243,7 +243,3 @@ var-fail1:
 
 var-fail2:
 	$(call test-compile-fail,var-fail2)
-
-
-
-

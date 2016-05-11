@@ -29,8 +29,8 @@ test:
 install: jateste.native
 	mkdir -p /usr/local/bin
 	mkdir -p /usr/local/lib
-	cp jateste.native /usr/local/bin/jateste.native
-	cp -r ../lib /usr/local/lib/JaTeste
+	cp -f jateste.native /usr/local/bin/jateste.native
+	cp -f -r ../lib /usr/local/lib/JaTeste
 
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
