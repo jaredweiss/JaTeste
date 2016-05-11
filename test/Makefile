@@ -101,7 +101,7 @@ test-lib1:
 ifndef JATESTE_LIB
 	$(call run-test,test-lib1)
 else
-	ifneq ($(wildcard /usr/local/lib/JaTeste/.))
+	ifneq $(wildcard /usr/local/lib/JaTeste/.)
 		$(call run-test,test-test-lib1)
 	else
 		$(call run-test-disabled,test-lib1)
@@ -145,7 +145,7 @@ test-linkedlist1:
 ifndef JATESTE_LIB
 	$(call run-test,test-linkedlist1)
 else
-	ifneq ($(wildcard /usr/local/lib/JaTeste/.))
+	ifneq $(wildcard /usr/local/lib/JaTeste/.)
 		$(call run-test,test-linkedlist1)
 	else
 		$(call run-test-disabled,test-linkedlist1)
@@ -156,7 +156,7 @@ test-linkedlist2:
 ifndef JATESTE_LIB
 	$(call run-test,test-linkedlist2)
 else 
-	ifneq ($(wildcard /usr/local/lib/JaTeste/.))
+	ifneq $(wildcard /usr/local/lib/JaTeste/.)
 		$(call run-test,test-linkedlist2)
 	else
 		$(call run-test-disabled,test-linkedlist2)
@@ -167,7 +167,7 @@ test-linkedlist-delete1:
 ifndef JATESTE_LIB
 	$(call run-test,test-linkedlist-delete1)
 else 
-	ifneq ($(wildcard /usr/local/lib/JaTeste/.))
+	ifneq $(wildcard /usr/local/lib/JaTeste/.)
 		$(call run-test,test-linkedlist-delete1)
 	else
 		$(call run-test-disabled,test-linkedlist-delete1)
@@ -178,7 +178,7 @@ test-linkedlist-free1:
 ifndef JATESTE_LIB
 	$(call run-test,test-linkedlist-free1)
 else 
-	ifneq ($(wildcard /usr/local/lib/JaTeste/.))
+	ifneq $(wildcard /usr/local/lib/JaTeste/.)
 		$(call run-test,test-linkedlist-free1)
 	else
 		$(call run-test-disabled,test-linkedlist-free1)
