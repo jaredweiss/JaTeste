@@ -1533,14 +1533,12 @@ If the file to include is in the standard library, use:
 \section{Test Plan}
 
 \subsection{Test Suite Log}
-We wrote tests for every feature in the compiler. There are several small tests that we used to test individual elements such as structs, function calls, loops, etc. We included tests that were expected to pass, as well as tests that were expected to fail\\
+We wrote tests for every feature in the compiler. There are several small tests that we used to test individual elements such as structs, function calls, loops, ethnicc. We included tests that were expected to pass, as well as tests that were expected to fail\\
 \\
 Test Suite Log:\\
-========= Running All Tests! ========== \\
-make[1]: Entering directory '/home/plt/JaTeste/test' \\
-Makefile:23: warning: overriding recipe for target 'all-tests' \\
-Makefile:15: warning: ignoring old recipe for target 'all-tests' \\
-Testing 'hello-world.jt' \\
+========= Running All Tests! ==========\\
+make[1]: Entering directory '/home/plt/JaTeste/test'\\
+Testing 'global-scope.jt'\\
   ----$>$  Test passed!\\
 Testing 'global-scope.jt'\\
   ----$>$  Test passed!\\
@@ -1548,20 +1546,6 @@ Testing 'test-func1.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-func2.jt'\\
   ----$>$  Test passed!\\
-========= Runtime Tests Passed! ==========\\
-Testing 'local-var-fail.jt', should fail to compile...\\
-  ----$>$  Test passed!\\
-Testing 'no-main-fail.jt', should fail to compile...\\
-  ----$>$  Test passed!\\
-Testing 'return-fail1.jt', should fail to compile...\\
-  ----$>$  Test passed!\\
-Testing 'struct-access-fail1.jt', should fail to compile...\\
-  ----$>$  Test passed!\\
-Testing 'invalid-assignment-fail1.jt', should fail to compile...\\
-  ----$>$  Test passed!\\
-  Testing 'class1-var-fail1.jt', should fail to compile...\\
-  ----$>$  Test passed! \\
-======= Compilation Tests Passed! ========\\
 Testing 'test-func3.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-pointer1.jt'\\
@@ -1576,7 +1560,13 @@ Testing 'test-free1.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-testcase1.jt'\\
   ----$>$  Test passed!\\
+Testing 'test-testcase1.jt'\\
+  ----$>$  Test passed!\\
 Testing 'test-testcase2.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-testcase2.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-testcase3.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-testcase3.jt'\\
   ----$>$  Test passed!\\
@@ -1592,11 +1582,17 @@ Testing 'test-bool1.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-bool2.jt'\\
   ----$>$  Test passed!\\
+Testing 'test-bool3.jt'\\
+  ----$>$  Test passed!\\
 Testing 'test-arraypt1.jt'\\
   ----$>$  Test passed!\\
-  Testing 'test-linkedlist1.jt'\\
+Testing 'test-linkedlist1.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-linkedlist2.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-linkedlist-delete1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-linkedlist-free1.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-class1.jt'\\
   ----$>$  Test passed!\\
@@ -1604,13 +1600,73 @@ Testing 'test-class2.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-class3.jt'\\
   ----$>$  Test passed!\\
+Testing 'test-testcase4.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-testcase4.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-struct-malloc1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-negative1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-double1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-double2.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-mod1.jt'\\
+  ----$>$  Test passed!\\
+Testing 'test-nested-loop1.jt'\\
+  ----$>$  Test passed!\\
+========= Runtime Tests Passed! ==========\\
+Testing 'local-var-fail.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'no-main-fail.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'return-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'return-fail2.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'return-fail3.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'return-fail4.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'struct-access-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'invalid-assignment-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'class1-var-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'class2-method-args-fail.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'class-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'class-fail2.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'header-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'add-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'struct-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'struct-fail2.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'dereference-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'method-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'var-fail1.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+Testing 'var-fail2.jt', should fail to compile...\\
+  ----$>$  Test passed!\\
+======= Compilation Tests Passed! ========\\
 =========== All Tests Passed! ============\\
+make[1]: Leaving directory '/home/plt/JaTeste/test'\\
+
 
 \newpage
 
 
 \subsection{Test Automation}
-We had 34 tests in our test suite. In order to run all of the tests and see if they pass, run \textbf{make all} or \textbf{make test} in the src directory. This diffs the outputs of the tests with the files that we created that include expected outputs. If there are differences, it marks the test as a failure, otherwise it prints "Test passed!" as can be seen in the Test Suit Log
+We had 126 tests in our test suite. In order to run all of the tests and see if they pass, run \textbf{make all} or \textbf{make test} in the src directory. This diffs the outputs of the tests with the files that we created that include expected outputs. If there are differences, it marks the test as a failure, otherwise it prints "Test passed!" as can be seen in the Test Suite Log
 
 \newpage
 
