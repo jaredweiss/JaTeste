@@ -26,7 +26,7 @@ test:
 	@$(MAKE) -C ../test/
 
 .PHONY: install-user
-install: jateste.native
+install-user: jateste.native
 	@mkdir -p $(HOME)/lib/JaTeste
 	@cp -r ../lib $(HOME)/lib/JaTeste
 	@echo "Installed JaTeste std lib at $(HOME)/lib/JaTeste..."
