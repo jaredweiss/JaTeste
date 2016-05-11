@@ -249,6 +249,11 @@ struct car {
 		miles = a;
 	}
 
+	method int get_year()
+	{
+		return year;
+	}
+
 	method bool is_old()
 	{
 		if (year > 1990) {
