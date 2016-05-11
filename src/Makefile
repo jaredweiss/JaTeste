@@ -27,7 +27,7 @@ test:
 
 .PHONY: install
 install: jateste.native
-	echo $PWD
+	echo $(PWD)
 	cp -f jateste.native /usr/bin/jateste.native
 	cp -f -r ../lib /usr/lib/JaTeste
 
