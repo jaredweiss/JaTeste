@@ -1,5 +1,5 @@
 \documentclass{article} 
-\usepackage{url, graphicx}
+\usepackage{url,graphicx}
 \usepackage[margin=1in]{geometry}
 \usepackage{textcomp}
 \usepackage{algpseudocode}
@@ -80,11 +80,24 @@
 
 \date{\today}
 
-
 \begin{document}
 
 \maketitle
+\includegraphics[width=\textwidth]{search_dog.jpg}
+
+\begin{center}
+{\huge \textbf{JaTest\'{e}}: build software so secure you may actually make America Great Again.}
+\end{center}
 \newpage
+
+%\begin{figure}
+%    \maketitle
+%    \centering
+%    \includegraphics[width=\textwidth]{search_dog.jpg}
+%    \caption{JaTest\'{e}: arguably the safest, most secure programming language on the market.}
+%    \label{fig:my_label}
+%\end{figure}
+%\newpage
 
 \tableofcontents
 \newpage
@@ -92,55 +105,122 @@
 \section{Introduction}
 
 \subsection{Motivation}
-The goal of JaTest\'{e} is to design a language that promotes good coding practices - mainly as it relates to testing.  JaTest\'{e} will allow the user to explicitly define test cases for any function that is written in order to compile and execute code.  This will ensure that no code goes untested and will increase the overall quality of programmer code written in our language. By directly embedding test cases into source code, we remove the hassle associated with manually creating new test files.
+The goal of JaTest\'{e} is to design a language that promotes good coding practices - mainly as it relates to testing.  JaTest\'{e} will allow the programmer to easily define test cases, for any function, directly into his or her source code. This will ensure that no code goes untested and will increase the overall quality of programmer code written in our language. By directly embedding test cases into source code, we remove the hassle associated with manually creating test files.
 
 \subsection {Language Description}
-JaTest\'{e} is an imperative, C-like language, with a few object oriented features added, that makes it easy to add test cases to ones code. The syntax is very similar to C, but with the added capability of associating functions with ``structs", similarly to how methods are implemented in objects, like in Java. Test cases are easily appended to user-defined functions, by appending the keyword ``with test" onto the end of a function. The compiler subsequently outputs two seperate files: 1) a regular executable 2) an executable test file that runs all user defined tests.
+JaTest\'{e} is an imperative, C-like language, with a few object oriented features added, that makes it easy to add test cases to ones code. The syntax is very similar to C, but with the added capability of associating functions with ``structs", similarly to how methods are implemented in objects in Java. Test cases are easily appended to user-defined functions, by appending the keyword ``with test" onto the end of a function. The compiler subsequently outputs two separate files: 1) a regular executable 2) an executable test file that runs all user defined tests.
 
-\subsection{Running the JaTeste Compiler}
-The JaTest\'{e} compiler generates (1) an executable file, and if the ``-t'' command line argument is supplied, (2) an executable test file with all the relevant test cases. This relieves the programmer from having to create test files from scratch. All code is compiled into LLVM, a portable assembly-like language. To run the compiled LLVM code, we use `lli", an LLVM interpreter. 
-\par
-For regular executable, the compiler completely disregards the test cases and thus produces an executable as if the tests had never been written. This enables the programmer to produce a regular executable without the overhead of the test cases when he or she desires. 
-\par
-For the test file, the compiler turns the test cases into functions, and precedes to run each function from a completely brand new ``main" method. ``main" essentially runs through each function, each of which runs the user-defined tests. Furthermore, the compiler adds ``printf" calls to each test letting the user known whether a given test passed or failed.
-\par
-When inside the src folder, type ``make all" to generate the jateste executable. To run type ./jateste.native [optional -options] $<$source\_file.jt$>$\\
-\\
-The optional -options are:
-\begin{itemize}
-\item{No arguments}
-If run without arguments, the compiler ignores the test cases and creates a regular executable, source\_file.ll, as if the test cases were never there to begin with. 
-\item{"-t" Compile with test}
-This results in the compiler creating two LLVM files: 1) a regular executable named ``source\_file.ll" 2) a test file named ``source\_file-test.ll"
-\item{"-l" Scan only}
-This results in the compiler simply scanning the source code.
-\item{"-p" Parse only}
-This results in the compiler simply parsing the source code.
-\item{"-se" SAST}
-This results in the compiler running the semantic checker on the source code and then stopping.
-\item{"-ast" AST}
-This also results in the compiler running the semantic checker on the source code and then stopping.
-\end{itemize}
-
+\subsection{Related Work}
+The JaTest\'{e} syntax is very much inspired by C and Java, two of the most popular programming languages in use today. Nonetheless, JaTest\'{e}'s syntax is relatively simple, as so anyone with basic, imperative programming language experience should be able to pick it up quickly.
 
 \newpage
 
 \section{Short Tutorial}
-\subsection{JaTest\'{e} Overview}
-Any given JaTest\'{e} program can be broken down into three segments: 
+\subsection{Environment}
+The compiler was developed and tested on an Ubuntu 15.10 virtual machine. We ran the Linux image through VirtualBox, but any standard hypervisor should suffice.
+\par
+The compiler translates JaTest\'{e} source code into LLVM, a portable assembly-like language. You need to download LLVM from \url{http://llvm.org/releases/download.html} in order to run LLVM code.
+\par
+The compiler is written completely in OCaml. The OCaml compiler can be downloaded from \url{http://caml.inria.fr/download.en.html}
+
+\subsection{Using the JaTeste Compiler}
+From any given JaTest\'{e} source file, the compiler generates (1) an executable file, and if the ``-t'' command line argument is supplied, (2) an executable test file with all the relevant user-defined test cases. This relieves the programmer from having to manually create test files from scratch. All code is compiled into LLVM, a portable assembly-like language. To run the compiled LLVM code, we use `lli", an LLVM interpreter. 
+\par
+For (1) the regular executable, the compiler completely disregards the tests and thus produces an executable as if the test cases had never been written. This enables the programmer to produce a regular executable without the overhead of the test cases when he or she desires. Thus, while a JaTest\'{e} program can be embedded with an unlimited number of test cases, the programmer can always generate a standard runnable program without the test case code.
+\par
+For the test file, the compiler turns each test case into it's own function, and subsequently runs each of these functions from a brand new, compiler generated ``main" function. ``main" simply runs through each of these compiler-generated functions, each of which runs the user-defined tests. Furthermore, the compiler adds ``print" calls to each test letting the user know whether a given test passed or failed.
+\par
+When inside the src folder, type ``make all" to generate the Jateste executable. To run type ./jateste.native [optional -options] $<$source\_file.jt$>$\\
+\\
+The possible arguments are:
+\begin{itemize}
+\item{No arguments}
+If run without arguments, the compiler ignores the test cases and creates a regular executable, source\_file.ll, as if the test cases were never there to begin with. 
+\item{"-t" Compile with test}
+This results in the compiler creating two LLVM files: 1) a regular executable named ``source\_file.ll" as above, and 2) a test file named ``source\_file-test.ll". Both of these are LLVM executables. 
+\item{"-l" Scan only}
+This results in the compiler simply scanning the source code. This is mainly used for debugging purposes.
+\item{"-p" Parse only}
+This results in the compiler simply parsing the source code. Also mainly used for debugging purposes.
+\item{"-se" SAST}
+This results in the compiler running the semantic checker on the source code and then stopping. Also mainly used for debugging purposes.
+\item{"-ast" AST}
+This also results in the compiler running the semantic checker on the source code and then stopping. Also mainly used for debugging purposes.
+\end{itemize}
+A maximum of one command line argument at a time can be supplied when running the compiler. 
+
+\subsection{JaTest\'{e} Program Structure}
+Any given JaTest\'{e} program can be broken down into four segments: 
 \begin{enumerate}
-\item global variable declarations. Global variable declarations are exactly like in C. 
-\item function definitions. Function definitions are similar to C, except the keyword ``func" is needed before the return type. Furthermore, all variable declarations must be done at the beginning of each function. Any function with return type other than void, must use the keyword ``return" to return the given value; code cannot be written after a return statement. Functions can optionllay be appended with:\\
-with test \{ $\ldots$ \} using \{ $\ldots $ \}.\\
-The tests to run are put inside the with test \{ $\ldots$ \}. using \{ $\ldots $ \} is used to set up the environment in the test cases. For example, a test may want to use variables; using \{ $\ldots $ \} is where such a variable would be defined. Examples below should illustrate this.
-\item struct definitions. Structs are also similar to C, except the programmer can define methods within the struct. All struct fields must be delared before the struct's methods. The syntax for struct methods is exactly like any regular function, except the keywork method is used instead of func.
+\item List of includes. JaTest\'{e} programs can include other JaTest\'{e} source code files. This list should go at the top of the source code file.
+\item global variable declarations. Global variable declarations are exactly like in C and immediately follow included headers. 
+\item function definitions. Function definitions are similar to C, except the keyword ``func" is needed before the return type. Furthermore, all variable declarations must be done at the beginning of each function. A ``main" function is required for all JaTest\'{e} programs; this is where execution starts when a program is run. Included JaTest\'{e} headers shouldn't have a ``main" function, however.
+\item struct definitions. Structs are also similar to C, except the programmer can define methods within the struct. All struct fields must be declared before the struct's methods. The syntax for struct methods is exactly like any regular function, except the keyword ``method" is used instead of ``func".
 \end{enumerate}
-Each of these segments must be used in order. So, global variables, if used, must be declared before function definitions. And function definitions must come before struct definitions.
+
+Each of these segments must be used in the order given above.  
+
+\subsection{Programming Language Paradigm}
+\subsubsection{Imperative Paradigm}
+JaTest\'{e} is a pretty standard imperative programming language that has light object-oriented features. Since JaTest\'{e} is not functional, functions can have side-effects. Anyone familiar with C, C++, or Java should have any especially easy time understanding JaTest\'{e}. 
+\subsubsection{Pass-by-value}
+JaTest\'{e} is a pass-by-value programming language. Nonetheless, there is strong support for pointers which gives the programmer the ability to pass by reference. \& is used to get the address of a variable.  *$<$type$>$ is used to declare a variable as a pointer type. * can subsequently be used to deference a pointer.
+\subsubsection{Typing}
+All variables must be declared along with their respective type before they are used. JaTest\'{e} has relatively strict typing checking - values of different types cannot be cast to each other. Note, void pointers are not allowed; that is, pointers must define what data type they are pointing to.
+\subsubsection{Memory Layout}
+Global variables are stored in the data section, local variables are allocated on the stack, arrays and structs can be allocated on the stack with the ``new" keyword, and code is stored in the text segment of the program. When external JaTest\'{e} headers are included, the respective code is simply appended to the source code file. Thus, the memory layout of a given JaTest\'{e} program is pretty standard. 
+
+\subsection{Basics}
+\subsubsection{Primitives}
+JaTest\'{e} supports the following primitives:
+\begin{itemize}
+\item int
+\item double
+\item char
+\item boolean
+\item string
+\end{itemize}
+\subsubsection{Arrays}
+In JaTest\'{e}, an array of type ``t" and size ``n" is an allocated block of memory that holds n contiguous values all of type t. This exactly how arrays are implemented in C, C++, and Java. They can be allocated on the stack or heap.
+\subsubsection{Structs}
+Structs in JaTest\'{e} are just like in C, but with the added capability of giving them methods. This makes it easier to associate functions with the data they are meant to manipulate. Structs can be allocated on the stack or heap. 
+\subsubsection{Operators}
+JaTest\'{e} supports the following operators:
+\begin{itemize}
+\item Arithmetic: $+, -, *, \ \hat{}, \  ,\setminus $
+\item Logical: \&\& , $\mid \mid$
+\item Relational: $== , <, <=, !=, >, >=$
+\end{itemize}
+\subsubsection{Control Flow}
+JaTest\'{e} supports standard control flow constructs, such as for and while loops, and if-else statements. ``return" is used to return control to the caller, as in almost any other programming language. 
+\subsubsection{Test Cases}
+Test cases are used to test user-defined functions, and are at the heart of the JaTest\'{e} programming language. The best way to illustrate how to take advantage of JaTest\'{e}'s built in testing functionality is through an example:
+\begin{lstlisting}
+func int add(int x, int y)
+{
+        return x + y;
+} with test {
+        assert(add(a,0)  == 10);
+        assert(add(b,b)  == 10);
+        assert(add(a,b)  == 15);
+} using {
+        int a;
+        int b;
+        a = 10;
+        b = 5;
+}
+\end{lstlisting}
+Here we've defined a function, ``add", and appended a few test cases using the built-in ``with test" and ``using" keywords.
+It is within ``with test \{ $\ldots$ \}" where the programmer actually defines his or her tests. In this example, the programmer is verifying that the add() function returns the correct value for three specific inputs. Notice how each test uses variables ``a" and/or ``b"; these variables are defined inside ``using \{ $\ldots$ \}".  Thus,  ``using \{ $\ldots$ \}" is used to set up the environment for the test cases. This makes it easier for the programmer to write meaningful ``assert" statements inside the ``with test \{ $\ldots$ \}" testing block.
 
 \subsection{Sample Programs}
+Here are a few example programs.
 \begin{enumerate}
-\item Here's the first example of a JaTest\'{e} program. As illustrated, the syntax is very similar to C. Note the keyword ``func" that is needed for defining functions. 
+\item Here's the first example of a JaTest\'{e} program. As illustrated, the syntax is very similar to C. 
 \begin{lstlisting}
+#include_jtlib <math.jt>
+int my_global;
+
 func int main()
 {
         int i;
@@ -163,10 +243,17 @@ func int add(int x, int y)
         a = 10;
         b = 5;
 }
+
+struct house {
+    int price;
+    int zipcode;
+};
 \end{lstlisting}
-As can be seen the ``add" function has a snippet of code directly preceding it. This is an example of using test cases. The code within the ``with test" block defines the test cases for the add function. Furthermore, note the code following the test case that starts with ``using $\ldots $". The block is used to setup the environment for the test cases. In this example, the test single test case ``assert(a == 10);" references the variable ``a"; it is within ``using " block scope that a is defined. 
+Note the structure of the program. More specifically, include files are specified at the top, global variables are declared next, functions definitions are coded in the middle, and structs are defined at the end of the source file. 
+\par
+As can be seen the ``add" function has a snippet of code directly following it. This is an example of a program that takes advantage of JaTest\'{e}'s built-in testing framework. The code within the ``with test" block defines the test cases for the add function, via an assert statement. In this case, the programmer has only specified one test. Furthermore, note the code following the test case that starts with ``using \{ $\ldots $ \}". This block is used to set up the environment for the test cases. In this example, the single test case ``assert(a == 10);" references the variable ``a"; it is within the scope of the ``using " block that ``a" is defined. 
 \item
-Here's another example program: \\
+Here's another JaTest\'{e} program: \\
 \begin{lstlisting}
 func int main()
 {
@@ -204,14 +291,16 @@ func int sub(int x, int y)
         d = 9;
 }
 \end{lstlisting}
-This example is similar to the previous one; however, note that there are now multiple ``asserts". The programmer may define as many test cases as he or she wants. When compiled with the ``-t" command line argument, the compiler creates a file ``test-testcase2-test.ll" (the name of the source program being ''test-testcase2.jt" in this case. 
-When ``lli test-testcase2-test.l" is run, the output is: \\
+This example is similar to the previous one; however, note that there are now multiple ``asserts". The programmer may define as many test cases as he or she wants. When compiled with the ``-t" command line argument, the compiler creates a file ``test-testcase2-test.ll" (the name of the source program being ''test-testcase2.jt" in this case) in addition to a regular executable (which would be named testcase2.ll in this case).  
+When ``lli test-testcase2-test.ll" is run, the output is: \\
 Tests: \\
 subtest tests: \\
 sub(10,5) == b - 5 passed \\
 sub(b,d) == 1 passed \\
 sub(c,d) == 4 passed \\
+As illustrated, the test program will let you know which tests pass and which fail.
 \item
+
 Here we introduce structs. The syntax is very similar to C: \\
 
 \begin{lstlisting}
@@ -246,31 +335,109 @@ struct rectangle {
         int height;
 };
 \end{lstlisting}
-Note the syntax of the whole program here. More precisely, global variables are declared at the top, functions are defined in the middle, and structs are defined at the bottom. This is the required order for all  JaTest\'{e} programs. 
+Again, note the syntax of the whole program here. More precisely, global variables are declared at the top, functions are defined in the middle, and structs are defined at the bottom. Note, this file does not use any header files; these would go above the global variable declaration. This is the required order for \emph{all} JaTest\'{e} programs. 
+
+\item
+As previously explained, JaTest\'{e} is a pass-by-value programming language. For those familiar with C, this paradigm should be very familiar. For those not, this simply means every variable is passed around by value, not address. Pointers can be used to mimic pass-by-reference as the following example shows:
+\begin{lstlisting}
+func int main()
+{
+        int a;
+        int b;
+        int *c;
+
+
+        a = 10;
+        b = 500;
+
+        c = &b;
+
+        if (*c == 500) {
+                print("passed");
+        } else {
+                print("failed");
+        }
+
+        return 0;
+}
+\end{lstlisting}
+\& is used to return the address of a variable, as in done on line 11 of this program. * is used to declare a variable as a pointer, as is done with the variable ``c" above on line 5. Thus, line 11 sets the variable ``c" to the address of ``b". Since ``b" contains value 500, and ``c" contains the address of ``b", we can say that ``c" points to ``b's " value of 500.  * can subsequently be used to deference pointers, as is done on line 13 inside ``if (*c == 500)". Here, we use * to access the value pointed to by ``c", which is ``b's " value of 500 and so the expression inside the if-statement will evaluate to true. 
+
+\item
+All variables are allocated on the stack, unless the ``new" keyword is used in conjunction with structs and/or arrays, as the following example illustrates.
+\begin{lstlisting}
+func int main()
+{
+        
+        struct house *my_house;
+        int price;
+        int vol;
+        
+        my_house = new struct house;
+        
+        my_house->set_price(100);
+        my_house->set_height(88);
+        my_house->set_width(60);
+        my_house->set_length(348);
+        
+        price = my_house->get_price();
+        vol = my_house->get_volumne();
+        
+        print(price);
+        print(vol);
+        return 0;
+}
+
+struct house {
+        int price;
+        int height;
+        int width;
+        int length;
+
+        method void set_price(int x)
+        {
+                price = x;
+        }
+
+        method void set_height(int x)
+        {
+                height = x;
+        }
+
+        method void set_width(int x)
+        {
+                width = x;
+        }
+        
+};
+\end{lstlisting}
+The line  my$\_$house = new struct house; is used to allocate memory on the heap for a struct object. Note ``$->$" is used to access the given structs methods. This syntax is required because my\_house is a pointer to a struct. If my\_house was a regular house struct variable, and not a pointer, a dot would suffice (e.g. my$\_$house.set$\_$price(100);) This example also illustrates the use of methods within structs. Unlike C, you can directly embed methods in structs. The functionality is very similar to how methods work in object-oriented languages.
 \end{enumerate}
 
 \newpage
+\section{Language Reference Manual}
 
-\section*{Language Reference Manual}
+\subsection{Lexical Conventions}
+This section will describe how input code will be processed and how tokens will be generated.
 
-\section{LRM - Lexical Conventions}
-This chapter will describe how input code will be processed and how tokens will be generated.
-
-\subsection{Identifiers}
+\subsubsection{Identifiers}
 % Specs on how to name variables, functions, data types, etc.
-Identifiers are used to name a variable, a function, or other types of data, as in most programming language. An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters. The set of keyword, listed below, cannot be used as identifiers.
+Identifiers are used to name variables as in most programming language. An identifier can include all letters, digits, and the underscore character.  An identifier must start with either a letter or an underscore - it cannot start with a digit.  Capital letters will be treated differently from lower case letters. The set of keyword, listed below, cannot be used as identifiers.
+\\
+Here's the regular expression for an identifier:
 
 \begin{Verbatim}[frame=single]
-ID = "(['a'-'z' 'A'-'Z'] | '_') (['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_')*"
+['a' - 'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm)}
 \end{Verbatim}
 
-\subsection{Keywords}
+\subsubsection{Keywords}
 % Just a list of reserved keywords
-Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason.  The list of keywords the language recognizes and reserves is as follows: 
+Keywords are a set of words that serve a specific purpose in our language and may not be used by the programmer for any other reason. The list of keywords the language recognizes and reserves is as follows: 
 
-\texttt{int, char, double, struct, bool, if, else, for, while, with test, using, assert, true, false, func, method, malloc, free, NULL, return, string, int*, char*, struct*, double*, new, int[], char[], double[]}
+\texttt{if, else, return, while, for, assert, void, struct, method, double, int, char, string, bool, true, false, func, new, free, NULL }
+Each keyword's meaning will be explained at some point later in this chapter.
 
-\subsection{Constants}
+\subsubsection{Constants}
 % How to define constants such as x = 5
 Our language includes integer, character, real number, and string constants. They're defined in the following sections.
 
@@ -281,53 +448,52 @@ Integer constants are a sequence of digits. An integer is taken to be decimal. T
 \begin{Verbatim}[frame=single]
 digit = ['0' - '9']
 int = digit+
-
 \end{Verbatim}
 
 \subsubsection{Double Constants}
 % Do we want to allow for only ints?  If yes, delete this section
-Real number constants represent a floating point number. They are composed of a sequence of digits, representing the whole number portion, followed by a decimal and another sequence of digits, representing the fractional part. Here are some examples. The whole part or the fractional part may be omitted, but not both.  The regular expression for a double is as follows:
+Real number constants represent a floating point number. They are composed of a sequence of digits, representing the whole number portion, followed by a decimal and another sequence of digits, representing the fractional part. Here are some examples.
 
 \begin{Verbatim}[frame=single]
-double = (digit+) ['.'] digit+
+let double = (digit+) ['.'] digit+
 \end{Verbatim}
 
 \subsubsection{Character Constants}
 % Same for character
-Character constants hold a single character and are enclosed in single quotes. They are stored in a variable of type char. Character constants that are preceded with a backslash have special meaning. The regex for a character is as follows:
+Character constants hold a single character and are enclosed in single quotes. They are stored in a variable of type ``char". The regular expression for a character is as follows:
 
 \begin{Verbatim}[frame=single]
-char = ['a' - 'z' 'A' - 'z']
+let my_char = '''['a' - 'z' 'A' - 'Z']''' 
 \end{Verbatim}
 
 \subsubsection{String Constants}
 % How to define a string constant
-Strings are a sequence of characters enclosed by double quotes. A String is treated like a character array. The regex for a string is as follows:
+Strings are a sequence of characters enclosed by double quotes. A String is treated like a character array. The regular expression for a string is as follows:
 
 \begin{Verbatim}[frame=single]
 my_string = '"' (['a' - 'z'] | [' '] | ['A' - 'Z'] | ['_'] | '!' | ',' )+ '"'
 \end{Verbatim}
 Strings are immutable; once they have been defined, they cannot change.
 
-\subsection{Operators}
+\subsubsection{Operators}
 % Just note they can be used, will be explained more later
-Operators are special tokens such as multiply, equals, etc. that are applied to one or two operands.  Their use will be explained further in chapter 4.
+Operators are special tokens such as multiply, equals, etc. that are applied to one or two operands.  Their use will be explained further in section 3.2.
 
-\subsection{White Space}
-Whitespace is considered to be a space, tab, or newline. It is used for token delimitation, but has no meaning otherwise. That is, when compiled, white space is thrown away.
+\subsubsection{White Space}
+White space is considered to be a space, tab, or newline. It is used for token delimitation, but has no meaning otherwise. That is, when compiled, white space is thrown away.
 
 \begin{Verbatim}[frame=single]
 WHITESPACE = "[' '  '\t' '\r' '\n']"
 \end{Verbatim}
 
-\subsection{Comments}
-A comment is a sequence of characters beginning with a forward slash followed by an asterisk. It continues until it is ended with an asterisk followed by a forward slash. Comments are treated as whitespace. 
+\subsubsection{Comments}
+A comment is a sequence of characters beginning with a forward slash followed by an asterisk. It continues until it is ended with an asterisk followed by a forward slash. Comments are treated as white space. 
 \begin{Verbatim}[frame=single]
 COMMENT = "/\* [^ \*/]* \*/ "
 \end{Verbatim}
 
-\subsection{Separators}
-Separators are used to separate tokens. Separators are single character tokens, except for whitespace which is a separator, but not a token. 
+\subsubsection{Separators}
+Separators are used to separate tokens. Separators are single character tokens, except for white space which is a separator, but not a token. 
 \begin{Verbatim}[frame=single]
 '('	{ LPAREN }
 ')'	{ RPAREN }
@@ -340,12 +506,12 @@ Separators are used to separate tokens. Separators are single character tokens, 
 \subsection{Data Types}
 The data types in JaTeste can be classified into three categories: primitive types, structures, and arrays. 
 
-\subsection{Primitives}
+\subsubsection{Primitives}
 % Define primitives and values they can hold
-The primitives our language recognizes are int, bool, double, char, and string. 
+The primitives our language recognizes are int, double, bool, char, and string. 
 
 \subsubsection{Integer Types}
-The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword \texttt{int} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+The integer data type is a 32 bit value that can hold whole numbers ranging from $-2,147,483,648 \text{ to } 2,147,483,647$. Keyword \texttt{int} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value; this cannot be done in one step. 
 
 \begin{lstlisting}
 int a;
@@ -363,8 +529,8 @@ The grammar that recognizes an integer initialization is:
 ID ASSIGN expr
 \end{Verbatim}
 
-\subsubsection{bool Types}
-The bool type is your standard boolean data type that can take on one of two values: 1) true 2) false. Booleans get compiled into 1 bit integers.
+\subsubsection{Boolean Types}
+The ``bool" type is your standard Boolean data type that can take on one of two values: 1) true 2) false. Booleans get compiled into 1 bit integers.
 
 \begin{lstlisting}
  bool my_bool;
@@ -372,7 +538,7 @@ The bool type is your standard boolean data type that can take on one of two val
 \end{lstlisting}
 
 \subsubsection{Double Types}
-The double data type is a 64 bit value.  Keyword \texttt{double} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+The double data type is a 64 bit value.  Keyword \texttt{double} is required to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step just like with ints.
 
 \begin{lstlisting}
 double a;
@@ -391,7 +557,7 @@ ID ASSIGN expr
 \end{Verbatim}
 
 \subsubsection{Character Type}
-The character type is an 8 bit value that is used to hold a single character. The keyword \texttt{char} is used to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+The character type is an 8 bit value that is used to hold a single character. Like most programming languages, characters in Jateste get compiled into a 1 byte integer. The keyword \texttt{char} is used to declare a variable with this type.  A variable must be declared before it can be assigned a value.
 \begin{lstlisting}
 char a;
 a = 'h';
@@ -408,7 +574,7 @@ typ ID ASSIGN expr SEMI
 \end{Verbatim}
 
 \subsubsection{String Type}
-The string type is variable length and used to hold a string of chars.  The keyword \texttt{string} is used to declare a variable with this type.  A variable must be declared before it can be assigned a value, this cannot be done in one step.
+The string type is variable length and used to hold a string of chars.  The keyword \texttt{string} is used to declare a variable with this type.  A variable must be declared before it can be assigned a value, as with all variables.
 \begin{lstlisting}
 string a;
 a = "hello";
@@ -424,7 +590,7 @@ The grammar that recognizes a char initialization is:
 typ ID ASSIGN expr SEMI
 \end{Verbatim}
 
-\subsection{Structures}
+\subsubsection{Structures}
 % I.e. structs
 The structure data type is a user-defined collection of primitive types, other structure data types and, optionally, methods. The keyword ``struct'' followed by the name of the struct is used to define structures. Curly braces are then used to define what the structure is actually made of. As an example, consider the following:
 
@@ -457,41 +623,44 @@ struct person name;
 int salary;
 };
 \end{lstlisting}
-Here we have defined two structs, the first being of type \texttt{struct square} and the second of type \texttt{struct manager}. The square struct has methods associated with it, unlike the manage struct which is just like a regular C struct.  The grammar that recognizes defining a structure is as follows:
+Here we have defined two structs, the first being of type \texttt{struct square} and the second of type \texttt{struct manager}. Note square struct has methods associated with it, unlike the manage struct which is just like a regular C struct.  The grammar that recognizes defining a structure is as follows:
 
 \begin{Verbatim}[frame=single]
-STRUCT ID LBRACE vdecl_list struc\_func\_decls RBRACE SEMI
+STRUCT ID LBRACE vdecl_list struc_func_decls RBRACE SEMI
 \end{Verbatim}
 
 \subsubsection{Initializing Structures}
-To create a structure, the new keyword is used as follow:
+To create a structure on the heap, the ``new" keyword is used:
 \begin{lstlisting}
-struct manager yahoo_manager = new struct manager;
-struct person sam = new struct person;
+struct manager *yahoo_manager;
+struct person sam;
+
+yahoo_manager = new struct manager;
+sam = new struct person;
+
 \end{lstlisting}
 
 \begin{Verbatim}[frame=single]
 NEW STRUCT ID 
 \end{Verbatim}
-
-Here, we create two variables yahoo\_manager and sam. The first is of type ``struct manager'', and the second is of type ``struct person''. When using the ``new" keyword, the memory is allocated on the heap for the given structs. Structs can also be allocated on the stack as follows:
+Here, we create two variables yahoo\_manager and sam on the heap. The first is of type ``struct manager'', and the second is of type ``struct person''. When using the ``new" keyword, the memory is allocated on the heap for the given struct. ``free(p)" is used to de-allocate heap memory pointed to by ``p". Structs can also be allocated on the stack as follows:
 
 \begin{lstlisting}
 struct manager yahoo_manager;
 struct person sam;
 \end{lstlisting}
 
+
 \subsubsection{Accessing Structure Members}
 
- To access structs and modify its variables, a right arrow as in C is used followed by the variable name is used:
-
+ To access structs allocated on the heap, and modify its variables, a right arrow C is used followed by the variable name:
  \begin{lstlisting}
 yahoo_manager->name = sam;
 yahoo_manager->age = 45;
 yahoo_manager->salary = 65000;
 \end{lstlisting}
 
-If the struct is allocated on the stack, use:
+If the struct is allocated on the stack, just use a dot as follows:
  \begin{lstlisting}
 yahoo_manager.name = sam;
 yahoo_manager.age = 45;
@@ -502,13 +671,40 @@ yahoo_manager.salary = 65000;
 \begin{Verbatim}[frame=single]
 expr DOT expr 
 \end{Verbatim}
+\subsubsection{Using Structure Methods}
+Methods are accessed in the same way as fields: if the struct is allocated on the stack, use a dot, otherwise use a right arrow.
+
+ \begin{lstlisting}
+        struct square p;
+        int area;
+        p.height = 7;
+        p.width = 9;
+        area = p.get_area();
+        p.set_height(55);
+        p.set_width(3);
+        area = p.get_area();
+\end{lstlisting}
 
 
-\subsection{Arrays}
-An array is a data structure that allows for the storage of one or more elements of the same data type consecutively in memory. Each element is stored at an index, and array indices begin at 0. This section will describe how to use Arrays.
+ \begin{lstlisting}
+        struct square *p;
+        int area;
+        p = new struct square;
+        p->height = 7;
+        p->width = 9;
+        area = p->get_area();
+        p->set_height(55);
+        p->set_width(3);
+        area = p->get_area();
+\end{lstlisting}
+
+
+
+\subsubsection{Arrays}
+An array is a data structure that allows for the storage of one or more elements of the same data type contiguously in memory. Each element is stored at an index, and array indexes begin at 0. This section will describe how to use Arrays.
 
 \subsubsection{Defining Arrays}
-An array is declared by specifying its data type, name, and size. The size must be positive. Here is an example of declaring an integer array of size 5:
+An array is declared by specifying its data type, name, and size. The size must be positive. Here is an example of defining an integer array on the heap wth size 5:
 
  \begin{lstlisting}
 arr = new int[5];
@@ -518,11 +714,10 @@ arr = new int[5];
 ID ASSIGN NEW prim_typ LBRACKET INT_LITERAL RBRACKET
 \end{Verbatim}
 
-\subsubsection{Initializing Arrays}
-An array can be initialized by listing the element values separated by commas and surrounded by brackets. Here is an example:
+You can also create arrays on the stack as follows:
 
  \begin{lstlisting}
-arr = { 0, 1, 2, 3, 4 };
+int arr[10];
 \end{lstlisting}
 
 It is not required to initialize all of the elements. Elements that are not initialized will have a default value of zero.
@@ -539,17 +734,17 @@ Accessing arrays is simply an expression:
  expr LBRACKET INT_LITERAL RBRACKET 
 \end{Verbatim}
 
-
-JaTeste does not test for index out of bounds, so the following code would compile although it is incorrect; thus it is up to the programmer to make sure he or she does not write past the end of arrays. 
+The syntax is the same for arrays allocated on the heap or stack. Also, JaTeste does not test for index out of bounds, so the following code would compile although it is incorrect; thus it is up to the programmer to make sure he or she does not write past the end of arrays. 
 
  \begin{lstlisting}
 arr = new int[2];
 arr[5] = 1;
 \end{lstlisting}
+This will compile, but will of course will give unpredictable results. 
 
-\section{LRM - Expressions and Operators}
+\subsection{Expressions and Operators}
 
-\subsection{Expressions}
+\subsubsection{Expressions}
 An expression is a collection of one or more operands and zero or more operators that can be evaluated to produce a value.  A function that returns a value can be an operand as part of an expression.  Additionally, parenthesis can be used to group smaller expressions together as part of a larger expression.  A semicolon terminates an expression.  Some examples of expressions include:
 \begin{lstlisting}
 35 - 6;
@@ -560,41 +755,52 @@ foo(42) * 10;
 The grammar for expressions is: 
 \begin{Verbatim}[frame=single]
 expr:
-expr:
-	  INT_LITERAL 	
-	| ID 		
-	| expr PLUS expr
-	| expr MINUS expr
-	| expr TIMES expr 
-	| expr DIVIDE expr 	
-	| expr EQ  expr 
-	| expr EXPO  expr 
-	| expr MODULO  expr 	
-	| expr NEQ  expr 	
-	| expr LT expr 		
-	| expr LEQ  expr 
-	| expr GT expr 		
-	| expr GEQ expr 	
-	| expr AND  expr 	
-	| expr OR expr 		
-	| NOT expr		
-	| AMPERSAND expr	
-	| expr ASSIGN expr
-	| expr DOT expr 	
-	| expr LBRACKET INT_LITERAL RBRACKET 	   
-	| NEW prim_typ LBRACKET INT_LITERAL RBRACKET
-	| NEW STRUCT ID 			
-	| ID LPAREN actual_opts_list RPAREN          
+          INT_LITERAL           
+        | STRING_LITERAL        
+        | CHAR_LITERAL          
+        | DOUBLE_LITERAL        
+        | TRUE                  
+        | FALSE              
+        | ID                  
+        | LPAREN expr RPAREN  
+        | expr PLUS expr    
+        | expr MINUS expr      
+        | expr STAR expr    
+        | expr DIVIDE expr      
+        | expr EQ  expr         
+        | expr EXPO  expr       
+        | expr MODULO  expr     
+        | expr NEQ  expr       
+        | expr LT expr          
+        | expr LEQ  expr        
+        | expr GT expr        
+        | expr GEQ expr     
+        | expr AND  expr  
+        | expr OR expr        
+        | NOT expr            
+        | AMPERSAND expr        
+        | expr ASSIGN expr      
+        | expr DOT expr         
+        | expr POINTER_ACCESS expr      
+        | STAR expr                     
+        | expr LBRACKET INT_LITERAL RBRACKET         
+        | NEW prim_typ LBRACKET INT_LITERAL RBRACKET
+        | NEW STRUCT ID                              
+        | FREE LPAREN expr RPAREN                   
+        | ID LPAREN actual_opts_list RPAREN          
+        | NULL LPAREN any_typ_not_void RPAREN       
 \end{Verbatim}
 
 
 
-\subsection{Assignment Operators}
+\subsubsection{Assignment Operators}
 % =, +=, -=, etc
-Assignment can be used to assign the value of an expression on the right side to a named variable on the left hand side of the equals operator.  The left hand side can either be a named variable that has already been declared or a named variable that is being declared and initialized in this assignment.  Examples include:
+Assignment can be used to assign the value of an expression on the right side to a named variable on the left hand side of the equals operator.  The left hand side can either be a named variable that has already been declared or a literal value:
 \begin{lstlisting}
 int x;
+int y;
 x = 5;
+y = x;
 float y;
 y = 9.9;
 \end{lstlisting}
@@ -605,18 +811,7 @@ y = 9.9;
 
 All assignments are pass by value. Our language supports pointers and so pass by reference can be mimicked using addresses (explained below).
 
-\subsection{Incrementing and Decrementing}
-% ++, --, etc.
-The following operators can also be used for variations of assignment:
-
-\begin{itemize}
-\item \texttt{+=} increments the left hand side by the result of the right hand side
-\item \texttt{-=} decrements the left hand side by the result of the right hand side
-\end{itemize}
-
- The \texttt{++} operator to used to increment and the \texttt{--} operator is used to decrement a value.  If the operator is placed before a value it will be incremented / decremented first, then it will be evaluated.  If the operator is placed following a value, it will be evaluated with its original value and then incremented / decremented.
-
-\subsection{Arithmetic Operators}
+\subsubsection{Arithmetic Operators}
 % +, -, ...
 \begin{itemize}
 \item \texttt{+} can be used for addition
@@ -643,7 +838,7 @@ The grammar for the above operators, in order, is as follows:
 \end{Verbatim}
 
 
-\subsection{Comparison Operators}
+\subsubsection{Comparison Operators}
 % ==, >, <, etc.
 \begin{itemize}
 \item \texttt{==} can be used to evaluate equality
@@ -664,7 +859,7 @@ expr GEQ   expr
 \end{Verbatim}
 \end{itemize}
 
-\subsection{Logical Operators}
+\subsubsection{Logical Operators}
 % &&, ||
 \begin{itemize}
 \item \texttt{!} can be used to evaluate the negation of one expression
@@ -679,51 +874,51 @@ expr AND  expr
 expr OR   expr
 \end{Verbatim}
 
-\subsection{Operator Precedence}
+\subsubsection{Operator Precedence}
 We adhere to standard operator precedence rules. 
 
-
 \begin{Verbatim}[frame=single]
-/* 
-   Precedence rules 
+/*
+   Precedence rules
 */
-%nonassoc NOELSE 
-%nonassoc ELSE 
-%right ASSIGN 
+%nonassoc NOELSE
+%nonassoc ELSE
+%right ASSIGN
 %left OR
 %left AND
 %left EQ NEQ
-%left LT GT LEQ GEQ 
-%left PLUS MINUS 
-%left TIMES DIVIDE MODULO
+%left LT GT LEQ GEQ
+%left PLUS MINUS
+%left STAR DIVIDE MODULO
 %right EXPO
 %right NOT NEG AMPERSAND
 %right RBRACKET
 %left LBRACKET
-%right DOT
+%right DOT POINTER_ACCESS
 \end{Verbatim}
 
-\subsection{Order of Evaluation}
+\subsubsection{Order of Evaluation}
 % ++ vs * and such
 Order of evaluation is dependent on the operator. For example, assignment is right associative, while addition is left associative. Associativity is indicated in the table above.
 
-\section{LRM - Statements}
-Statements include: \texttt{if, while, for, return}, as well all expressions, as explained in the following sections. That is, statements include all expressions, as well as snippets of code that are used solely for their side effects.
+\subsection{Statements}
+Statements include: \texttt{if, while, for, return, assert}, as well all expressions, as explained in the following sections. That is, statements include all expressions, as well as snippets of code that are used solely for their side effects.
 
 \begin{Verbatim}[frame=single]
 stmt:
-	    expr SEMI 					
-	  | LBRACE stmt_list RBRACE				
-	  | RETURN SEMI					
-	  | RETURN expr SEMI				 
-	  | IF LPAREN expr RPAREN stmt ELSE stmt 	     
-	  | IF LPAREN expr RPAREN stmt \%prec NOELSE 	     
-	  | WHILE LPAREN expr RPAREN stmt 		   
-  	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt 
+            expr SEMI                                            
+          | LBRACE stmt_list RBRACE                                
+          | RETURN SEMI                                           
+          | RETURN expr SEMI                                        
+          | IF LPAREN expr RPAREN stmt ELSE stmt                    
+          | IF LPAREN expr RPAREN stmt %prec NOELSE                 
+          | WHILE LPAREN expr RPAREN stmt                          
+          | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt 
+          | ASSERT LPAREN expr RPAREN SEMI    
 
 \end{Verbatim}
 
-\subsection{If Statement}
+\subsubsection{If Statement}
 % explain if, else if, else
 The if, else if, else construct will work as expected in other languages. Else clauses match with the closest corresponding if clause. Thus, their is no ambiguity when it comes to which if-else clauses match.
 
@@ -741,11 +936,11 @@ else {
 
 The grammar that recognizes an if statement is as follows:
 \begin{Verbatim}[frame=single]
-IF LPAREN expr RPAREN stmt ELSE stmt
-IF LPAREN expr RPAREN stmt %prec NOELSE
+IF LPAREN expr RPAREN stmt ELSE stmt                  
+| IF LPAREN expr RPAREN stmt %prec NOELSE   
 \end{Verbatim}
 
-\subsection{While Statement}
+\subsubsection{While Statement}
 The while statement will evaluate in a loop as long as the specified condition in the while statement is true.
 
 \begin{lstlisting}
@@ -753,7 +948,7 @@ The while statement will evaluate in a loop as long as the specified condition i
 int x = 0;
 while (x < 10) {
 	print("Hey there");
-	x++;
+	x = x + 1;
 }
 \end{lstlisting}
 
@@ -762,7 +957,7 @@ The grammar that recognizes a while statement is as follows:
 WHILE LPAREN expr RPAREN stmt
 \end{Verbatim}
 
-\subsection{For Statement}
+\subsubsection{For Statement}
 The for condition will also run in a loop so long as the condition specified in the for statement is true.  The expectation for a for statement is as follows:
 
 \texttt{for ( <initial state>; <test condition>; <step forward> )}
@@ -772,14 +967,8 @@ Examples are as follows:
 \begin{lstlisting}
 /* 	This will run as long as i is less than 100
 	i will be incremented on each iteration of the loop */
-for (int i = 0; i < 100; i++) {
+for (i = 0; i < 100; i = i + 1) {
 	/* do something */
-}
-
-/* i can also be declared or initialized outside of the for loop */
-int i;
-for (i = 0; i < 100; i += 2) {
-	/* code block */
 }
 \end{lstlisting}
 
@@ -787,8 +976,8 @@ The grammar that recognizes a for statement is as follows:
 \begin{Verbatim}[frame=single]
 FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN
 \end{Verbatim}
-
-\subsection{Code Blocks}
+Note, since all variables must be declared at the beginning of functions, you can't declared i inside the  ``initial state" part of the for loop.
+\subsubsection{Code Blocks}
 % Code within braces
 Blocks are code that is contained within a pair of brackets, \texttt{\{ code \}}, that gets executed within a statement.  For example, any code blocks that follow an \texttt{if} statement will get executed if the \texttt{if} condition is evaluated as true:
 
@@ -797,7 +986,7 @@ int x = 42;
 if (x == 42) {
 	/* the following three lines are executed */
 	print("Hey");
-	x++;
+	x = x + 1;
 	print("Bye");
 }
 \end{lstlisting}
@@ -809,7 +998,7 @@ LBRACE stmt RBRACE
 
 Code blocks are used to define scope. Local variables are always given precedence over global variables. 
 
-\subsection{Return Statement}
+\subsubsection{Return Statement}
 The \texttt{return} statement is used to exit out of a function and return a value.  The return value must be the same type that is specified by the function deceleration.  Return can be used as follows:
 
 \begin{lstlisting}
@@ -825,31 +1014,34 @@ RETURN SEMI
 RETURN expr SEMI
 \end{Verbatim}
 
-Note that functions can be declared as returning void; this is done as follows: 
+Note that functions can be declared as returning void, and don't need to use the return statement at all subsequently. Also, there should not be any code after return statements as is usual convention.
+
+\subsubsection{Assert Statement}
+The assert statement is used only for test cases. Thus, using assert outside of a test case will throw an error. Asserts wrap all tests with a given test case as the following illustrates:
+
 \begin{lstlisting}
-return ;
+func int add(int x, int y)
+{
+        return x + y;
+} with test {
+        assert(add(a,0) == 10);
+          assert(add(5,1) == 6);
+} using {
+        int a;
+        int b;
+        a = 10;
+        b = 5;
+}
 \end{lstlisting}
-This adheres to the expectation that all functions return something.
+Asserts ultimately get compiled into if-else statements. 
 
-\section{LRM - Functions}
-Functions allow you to group snippets of code together that can subsequently be called from other parts of your program, depending on scope. Functions are global, unless they are prepended with the keyword ``private''. While not necessary, it is encouraged that you declare functions before defining them. Functions are usually declared at the top of the file they're defined in. Functions that aren't declared can only be called after they have been defined. 
+\subsection{Functions}
+Functions allow you to group snippets of code together that can subsequently be called from other parts of your program. All functions are global. You don't declare functions before defining them. To use functions from other Jateste files, you need to include those files at the top of your program using ``\#include$\_$jtlib $<$filename.jt$>$". If the file is your current directory, use quotations instead of carets.
 
-\subsection{Function Declarations}
-
-The keyword ``func'' is used to declare a function. A return type is also required using keyword ``return''; if your function doesn't return anything then use keyword ``void'' instead.  Functions are declared with or without parameters; if parameters are used, their types must be specified. A function can be defined with multiple, different parameters. Though a function can only have one return type, it can also be any data type, including void.
-
-\begin{lstlisting}
-func int add(int a, int b); /* this functions has two int parameters as input and returns an int */
-func void say_hi(); /* this function doesn't return anything nor takes any parameters */
-func int isSam(string name, int age); /* this functions has two input parameters, one of type string and one of type int */
-\end{lstlisting}
-
-\subsection{Function Definitions}
-Function definitions contain the instructions to be performed when that function is called. The first part of the syntax is similar to how you declare functions; but curly brackets are used to define what the function actually does. For example, 
+\subsubsection{Function Definitions}
+Function definitions contain the instructions to be performed when that function is called. The first part of the syntax is similar to how you define them in C, except the keyword ``func" is additionally required. For example, 
 
 \begin{lstlisting}
-func int add(int a, int b); /* declaration */
-
 func int add(int x, int y) /* definition */
 {
 return x + y;
@@ -861,44 +1053,61 @@ fdecl:
 	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE
 \end{Verbatim}
 
-This snippet of code first declares add, and then defines it. Declaring before defining is best practice. Importantly, functions can \emph{not} reference global variables; that is, the only variables they can act on are formal parameters and local variables. For example:
+A functions can accept any type of formal arguments, except for void. Thus, functions can accept pointers as arguments, enabling the programmer to mimic pass by reference functionality. Note, variables must be declared at the top of each function. For example, the following is not allowed:
 
 \begin{lstlisting}
-func int add_to_a(int x); /* declaration */
-int a = 10;
-func int add_to_a(int x) /* definition */
+func int do_something(int x, int y) /* definition */
 {
-return x + a; /* this is NOT allowed */
+    int c;
+    c = x + y;
+    int a;    /* This is illegal. a must be declared at the top of this function, above c = x + y; */
+    return c;
 }
+
+\end{lstlisting}
+The following is the correct implementation of the above example:
+\begin{lstlisting}
+func int do_something(int x, int y) /* definition */
+{
+    int c;
+    int a;
+    c = x + y;
+    return c;
+}
+
 \end{lstlisting}
 
-This code is no good because it relies on global variable ``a''. Functions can only reference formal parameters and/or local variables.
-
-\subsection{Calling Functions}
+\subsubsection{Calling Functions}
 
 A function is called using the name of the function along with any parameters it requires. You \emph{must} supply a function with the parameters it expects. For example, the following will not work:
 
 \begin{lstlisting}
-func int add(int a, int b); /* declaration */
-
+func int main()
+{
+add(); /* this is wrong and will not compile because add expects two ints as parameters */
+return 0;
+}
 func int add(int x, int y) /* definition */
 {
 return x + y;
 }
 
-add(); /* this is wrong and will not compile because add expects two ints as parameters */
-
 \end{lstlisting}
 
+Here's the grammar for a functional call:
 \begin{Verbatim}[frame=single]
 	 ID LPAREN actual_opts_list RPAREN { Call($1, $3)}
 \end{Verbatim}
 
-Note, calling functions is simply another expression. This means they are guaranteed to return a value and so can be used as part of other expressions.
-Functions are first class objects and so can be used anywhere a normal data type can be used. Of course, a function's return type must be compatible with the context it's being used in. For example, a function that returns a char cannot be used as an actual parameter to a function that expects an int.  Consider the following:
+Note, calling functions is simply another expression. This means they are guaranteed to return a value (except for void functions) and so can be used as part of other expressions. Of course, a function's return type must be compatible with the context it's being used in. For example, a function that returns a char cannot be used as an actual parameter to a function that expects an int.  Consider the following:
 
 \begin{lstlisting}
-func int add_int(int a, int b); /* declaration */
+func int main()
+{
+int answer = subtract(add(10,10), 10); /* this is ok */
+int answer2 = subtract(add_float(10.0,10.0), 10); /* this is NOT ok because subtract expects its first parameter to be an int while add_float returns a float */
+return 0;
+}
 
 func int add_int(int x, int y) /* definition */
 {
@@ -915,13 +1124,58 @@ func int subtract(int x, int y)
 	return x - y;
 }
 
-int answer = subtract(add(10,10), 10); /* this is ok */
-int answer2 = subtract(add_float(10.0,10.0), 10); /* this is NOT ok because subtract expects its first parameter to be an int while add_float returns a float */
-
 \end{lstlisting}
 
-\subsection{Function Parameters}
-Formal parameters can be any data type. Furthermore, they need not be of the same type. For example, the following is syntactically fine:
+Structs can be defined with methods. The syntax for calling these functions is slightly different as the following illustrates:
+
+\begin{lstlisting}
+func int main()
+{
+
+        struct house *my_house;
+        int price;
+        int vol;
+
+        my_house = new struct house;
+
+        my_house->set_price(100);
+        my_house->set_height(88);
+        my_house->set_width(60);
+        my_house->set_length(348);
+
+        price = my_house->get_price();
+        vol = my_house->get_volumne();
+
+        print(price);
+        print(vol);
+        return 0;
+}
+
+struct house {
+        int price;
+        int height;
+        int width;
+        int length;
+
+        method void set_price(int x)
+        {
+                price = x;
+        }
+
+        method void set_height(int x)
+        {
+                height = x;
+        }
+
+        method void set_width(int x)
+        {
+                width = x;
+        }
+\end{lstlisting}
+Thus, a variable of type ``struct t" must be used with either ``$->$" (if the variable is stored on the heap) or ``." (if the variable is stored on the stack) to call the method associated with ``struct t". 
+
+\subsubsection{Function Parameters}
+Formal parameters can be any data type including pointers, except ``void". Furthermore, they need not be of the same type. For example, the following is syntactically fine:
 
 \begin{lstlisting}
 func void speak(int age, string name)
@@ -953,12 +1207,16 @@ int_pt  = &a;
 % \subsection{Main Function}
 % Do we want a main function?
 
-\subsection{Recursive Functions}
+\subsubsection{Recursive Functions}
 
-Functions can be used recursively. Each recursive call results in the creation of a new stack and new set of local variables. It is up to the programmer to prevent infinite loops. 
+Functions can be used recursively. Each recursive call results in the creation of a new stack frame and new set of local variables. It is up to the programmer to prevent infinite loops.
 
-\subsection{Function Test Cases}
-Functions can be appended with test cases directly in the source code. Most importantly, the test cases will be compiled into a separate (executable) file. The keyword ``with test'' is used to define a test case as illustrated here:
+
+\subsubsection{Main Function}
+Each Jateste program must have a main function that serves as the entry point for execution. 
+
+\subsubsection{Function Test Cases}
+Functions can be appended with test cases directly in the source code. Most importantly, the test cases will be compiled into a separate (executable) file as previously explained. The keyword ``with test'' is used to define a test case as illustrated here:
 
 \begin{lstlisting}
 func int add(int a, int b); /* declaration */
@@ -968,15 +1226,15 @@ func int add(int x, int y) /* definition */
 return x + y;
 }
 with test {
-	add(1,2) == 3;
-	add(-1, 1) == 0;
+	assert(add(1,2) == 3);
+	assert(add(-1, 1) == 0);
+		assert(add(a, 2) == 4);
+} using {
+    int a;
+    a = 2;
 }
-with test {
-	add(0,0) <= 0;
-	add(0,0) >= 0; 
-}
-
 \end{lstlisting}
+
 
 \begin{Verbatim}[frame=single]
 FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl 
@@ -985,37 +1243,29 @@ testdecl:
 	WTEST LBRACE stmt_list RBRACE usingdecl
 \end{Verbatim}
 
-Test cases contain a set of boolean expressions. Multiple boolean expressions can be defined, they just must be separated with semi-colons. As shown above, you can define separate test cases one after another too. \\ 
-Snippets of code can also be used to set up a given test case's enviornment using the ``using'' keyword. That is, ``using'' is used to define code that is executed right before the test case is run. Consider the following:
+Test cases contain a sets of boolean expressions, wrapped in assert statements. Multiple boolean expressions can be defined, they just must be separated with semi-colons. As shown above, the programmer may define as many tests within a given test case as he or she wants.
+Snippets of code can also be used to set up a given test case's environment via the ``using'' keyword. That is, ``using'' is used to define code that is executed right before the test case is run. Consider the following:
 
 \begin{lstlisting}
-func void changeAge(struct person temp_person, int age)
+func void changeAge(struct person *temp_person, int age)
 {
-temp_person.age = age;
+*temp_person.age = age;
 }
 with test {
-	sam.age == 11;
+	assert(sam.age == 11);
 }
 using {
 struct person sam;
 sam.age = 10;
-changeAge(sam, 11);
+changeAge(&sam, 11);
 }
 
 
 \end{lstlisting}
 
 
-\begin{Verbatim}[frame=single]
-FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list stmt_list RBRACE testdecl usingdecl 
-
-usingdecl:
-	USING LBRACE vdecl_list stmt_list RBRACE 
-\end{Verbatim}
-
-
-``using'' is used to create a struct and then call function changeAge; it is setting up the enviornment for it's corresponding test. Variables defined in the ``using'' section of code can safely be referenced in its corresponding test case as shown. Basically, the code in the ``using'' section is executed right before the boolean expressions are evaluated and tested. \\
-The ``using'' section is optional. As a result some test cases may contain ``using'' sections and others might not. As per convention, each ``using'' section will match up with its closest test case. For, example:
+``using'' is used to create a struct and then call function changeAge; thus it is setting up the environment for it's corresponding test case. Variables defined in the ``using'' section of code can safely be referenced in the corresponding test case as shown. Basically, the code in the ``using'' section is executed right before the boolean expressions are evaluated and tested. \\
+The ``using'' section is required, but can be left empty if desired
 
 \begin{lstlisting}
 
@@ -1024,32 +1274,74 @@ func int add(int x, int y) /* definition */
 return x + y;
 }
 with test { /*  variables a, b defined below are NOT in this test case's scope*/
-	add(1,2) == 3;
+	add(10,2) == 12;
 	add(-1, 1) == 0;
 }
-with test { /* variables a and b ARE in this test case's scope */
-	add(a, b) == 20;
-}
 using {
-int a = 10;
-int b = 10;
+ 
 }
 
 \end{lstlisting}
 
-As explained in the comments, the ``using'' section is matched up with the second test case.
-\\
-Test cases are compiled into a separate program which can subsequently be run. The program will run all test cases and output appropriate information.
+Test cases are compiled into a separate program which can subsequently be run. The program will run all test cases and output appropriate information. Here's an example of what the test executable could output:
+\begin{lstlisting}
+Tests:
+addtest tests:
+add(a,0) == 10 passed
+add(a,b) == 15 passed
+\end{lstlisting}
+Of course, it's possible tests fail. Consider the following source code:
+\begin{lstlisting}
+func int add(int x, int y)
+{
+        return x;
+} with test {
+        assert(add(a,1) == 11);
+        assert(add(a,b) == 15);
+} using {
+        int a;
+        int b;
+        a = 10;
+        b = 5;
+}
+\end{lstlisting}
+The add function implementation is clearly wrong (it returns x, instead of x + y). After compiling and running the test executable we get:
+\begin{lstlisting}
+Tests:
+addtest tests:
+add(a,1) == 11 failed
+add(a,b) == 15 failed
+\end{lstlisting}
 
 \newpage
 
 \section{Project Plan}
 \subsection{Team Roles}
-From the onset of the project, we assigned roles among the team as was recommended.  Andy came up with the idea for the language, so it seemed natural that he would be the Language Guru.  All of us had input on the design of the language but we always consulted with Andy to ensure continuity with his vision for the project.  Jake helped form the team, had good organization skills, and was on top of things from the start, so it seemed like he would be a good fit as the team Manager.  Jake worked throughout the term to make sure that team meetings took place and deadlines were met.  Jared had extensive experience with group projects and version control software, so he fell nicely into the role of System Architect.  Jared drew up a work flow, based on pull requests, for our group to adhere to in order to ensure things went smoothly.  Jemma had significant prior experience with testing and agreed to take the lead as the Tester for the team.  Jemma worked to ensure that tests were created alongside of feature implementation to ensure that code was fully tested.  As the project progressed, roles became more fluid as work was required in varying areas and everyone pitched in where things needed to get done.  However, final say in any given area always remained with the assigned team member for that role.
+From the onset of the project, we assigned roles among the team as was recommended.  Andy came up with the idea for the language, so it seemed natural that he would be the Language Guru.  All of us had input on the design of the language but we always consulted with Andy to ensure continuity with his vision for the project. Jake helped form the team, had good organization skills, and was on top of things from the start, so it seemed like he would be a good fit as the team Manager. Jake worked throughout the term to make sure that team meetings took place and deadlines were met.  Jared had extensive experience with group projects and version control software, so he fell nicely into the role of System Architect.  Jared drew up a work flow, based on pull requests, for our group to adhere to in order to ensure things went smoothly.  Jemma had significant prior experience with testing and agreed to take the lead as the Tester for the team.  Jemma worked to ensure that tests were created alongside of feature implementation to ensure that code was fully tested.  As the project progressed, roles became more fluid as work was required in varying areas and everyone pitched in where things needed to get done.  However, final say in any given area always remained with the assigned team member for that role.
 \subsection{Planning and Development}
 As a team, we made a commitment to meet weekly with David to make sure we were on the right track and to help answer any question we had about how to move forward.  On weeks that we did not meet with David, we were conscious to meet as a team to discuss our progress over that week.  Each week we identified tasks that needed to get done and assigned work for the week.  We also utilized team meeting time to do research when necessary, and implement some feature together to make sure everyone was on the same page.  We communicated throughout the week on our progress when it affected the work of another team member.  Additionally, for tasks that could be picked up and implemented by anyone when they had a chance, we used a system of creating "issues" on GitHub that described portions of work that needed to get done.  We also made some "milestones" on GitHub to motivate each other to get large segments of work done.
 \subsection{Testing Procedure}
-In the beginning we decided that it would be reasonable to write tests for the code we are submitting, and verify that all of the code builds properly without warning or errors and that tests passed before issuing a pull request.  This focus on quality reduced headache associated with code that negatively affects the workflow of other team members.  This worked as the team was diligent in this effort.  At a later stage of the project, we decided that it would be awesome to have an automatic continuous integration in place to make the testing effort more seamless.  We designed this system so that before issuing a pull request, all of the committed code is built remotely to make sure that nothing is broken, as well as all of the tests are run remotely to ensure that the new code does not break any of the pre-existing tests.  We found that this process helped identify errors in the code earlier on and made fixing bugs less of a headache.
+Throughout the writing of our compiler, we wrote tests to verify the functionality we were implementing. This served the twofold purpose of ensuring that we were generating the proper code output when we implemented new functionality, and also that we didn't break previously functioning parts of our compiler. Tests were written as canned recipes in a separate Makefile specifically written for our \textit{tests} folder. These recipes compiled example programs from (.jt) source and checked the output of executing the compiled .ll code against a precomputed output that we paired with each source file. For compilation errors, we had a separate canned recipe to verify that the JaTeste compiler failed to finish compiling the bad source files.   
+
+\subsubsection{Continuous Integration}
+As our testing suite became more complex, we decided to implement a continuous-integration build using Travis-CI that ensure that all pull requests to our master branch passed all existing tests before they could be merged. This helped reduce the need for a reviewer to actually download and compile all updates to make sure that no tests broke, which in turn increased the productivity of our team. In addition, all pushes to our master branch are built and tested in order to ensure that our master branch is always working.
+
+Implementing continuous integration came with it's own challenges, as Travis-CI uses a containerized work flow to provide virtual testing environments with very little boot time. In order to run our build, we needed to find a way to install various dependencies, including OCaml and LLVM which were rather tricky to install on a Linux 12.04 Docker container. Once we were able to install all dependencies however, the continuous-integration system made testing our code a much simpler procedure. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.9\textwidth]{travis_ci_on_commits.png}
+    \caption{Example commit list showing continuous integration build status next to commit SHA}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.9\textwidth]{merge_with_travis.png}
+    \caption{Merging on Github with automatic continuous integration checks }
+\end{figure}
+
+
+
 \subsection{Programming Style Guide}
 \subsubsection{Comments}
 Comments used are to be associated with the code directly below the comment.  Multi-line comments are allowed when necessary but discouraged.  Keep comments concise and to one line when possible.
@@ -1079,16 +1371,22 @@ Use parenthesis for chunks of code when necessary but avoid unnecessary parenthe
 	5/6/16 & Work on final report and presentation \\ \hline
 \end{tabular}
 
+\newpage
 \subsection{GitHub Progression}
 \includegraphics[width=\textwidth]{github_stats.png}
-\par As you can see from our chart, we were sow to start as we had to hash out the details of our language and did not involve a ton of code.  The first major bump is at the time of the LRM deadline as a lot of code was written leading up to that deadline to get everything up and running.  From that point on, we worked at a slow and steady pace, through the "Hello, World" deadline, and leading into the final deadline.
+\par As you can see from our chart, we were slow to start as we had to hash out the details of our language and did not involve a ton of code.  The first major bump is at the time of the LRM deadline as a lot of code was written leading up to that deadline to get everything up and running.  From that point on, we worked at a slow and steady pace, through the ``Hello, World" deadline, and leading into the final deadline.
 
 \subsection{Software Development Environment}
-We used Git and GitHub for version control.  We used issues, pull requests, and local branches to keep things running smoothly.  All of our development was done in OCaml.  Since our language compiled down to LLVM, we did a lot of development in VirtualBox using the image that was provided by the teaching staff.  Some of us used Vim in the VirtualBox as our primary text editor, others decided to stick with Sublime on our local machine.  We also used LaTex for our submissions and reports.
+We used Git and a private GitHub repository for version control. Each team-member had their own private fork of the main repository for doing their own development. This allowed us to maintain a central master branch that was always working and passing tests. In order to merge into the master branch, we devised a work flow early based on reviewing pull requests from feature branches on each team-member's fork. Each pull request was reviewed by another team-member, and later on in our development, we even added continuous integration to our build using Travis-CI to ensure that all tests were passing.
+We have since open-sourced this repository under the MIT license and it is available at \url{https://github.com/jaredweiss/JaTeste}
+
+All of our compiler was written in OCaml, compiling .jt source code to LLVM. This was made easy by the fact that we were provided a VirtualBox image with OCaml and LLVM pre-installed (installing these dependencies on our Travis-CI builds was actually a fairly difficult task). For our CI builds, we installed OCaml (and ocamlfind via opam), make, and LLVM 3.8 as dependencies. 
+
+All submissions and reports were written in \LaTeX.
 
 \newpage
 
-\section{Architecture}
+\section{Architecture Design}
 
 \subsection{Block Diagram}
 \tikzstyle{decision} = [diamond, draw, fill=blue!20, 
@@ -1126,32 +1424,34 @@ We used Git and GitHub for version control.  We used issues, pull requests, and 
 
 
 \subsection{The Compiler}
-The entry point of the compiler for a given source.jt file is jateste.ml. This is where the different phases of the compilation process are coordinated. At a high level, the compiler reads characters from source.jt, builds up an AST in the parser, performs a walk of the AST to create the SAST, passes the SAST on to the codegen, which finally creates the LLVM code. 
+The entry point of the compiler for a given source.jt file is jateste.ml. This is where the various phases of the compilation process are coordinated. At a high level, the compiler reads characters from source.jt, builds up an AST in the parser, performs a walk of the AST to create the SAST, passes the SAST on to codegen.ml, which finally generates the LLVM code. 
 \par
 As described in the introduction section the compiler is capable of producing two executables:
 \begin{enumerate}
 \item regular executable: source.ll
-\item test executable: source-test.ll. If the ``-t" argument is given on the command line, a test file is created.
+\item test executable: source-test.ll
 \end{enumerate}
-Both can be run using the LLVM intepreter ``lli".
+Both can be run using the LLVM interpreter ``lli". 
 \par
-jateste.ml is also where include files are handled. More specifically, if a given source file wants to include an external \*.jt file, jateste.ml is where the given is searched for.
+jateste.ml is also where include files are handled. More specifically, if a given source file wants to include an external \*.jt file, jateste.ml is where the given file is searched for.
 \subsection{The Scanner}
-The scanner reads characters from source.jt according to the regular expressions in scanner.ml and outputs a stream of tokens to parser.mly.
+The scanner reads characters from source.jt according to the regular expressions in scanner.ml and outputs a stream of tokens to parser.mly. The regular expressions for each token are in scanner.ml.
 \subsection{The Parser}
-The parser receives tokens from the scanner and creates an AST from the given context free grammar. The CFG is defined in parser.mly. At a high level, the AST is made up of a 3-element record: \\
+The parser receives tokens from the scanner and creates an AST from the given context free grammar. The CFG is defined in parser.mly. At a high level, the AST is made up of a 4-element record: \\
 \begin{lstlisting}
 type program = header list * bind list * func_decl list * struct_decl list
 \end{lstlisting}
-As illustrated, the AST consists of a list of global variables, a list of function definitions, and a list of struct definitions
+As illustrated, the AST consists of a list of header files, a list of global variables, a list of function definitions, and a list of struct definitions. If the parser is not able to build up an AST, it will throw a parsing error.
 \subsection{The Semantic Checker}
-The semantic checker receives the AST from the parser, walks the tree, and creates an SAST. The SAST carries additional information that helps the codegen phases of the compiler. For example, each array access is represented by a node; the SAST contains the array type information for such an access, which the AST does not.
+The semantic checker receives the AST from the parser, walks the tree, and creates an SAST. The SAST carries additional information that helps the codegen phase of the compiler. For example, each array access is represented by a node in the AST; the SAST adds the array type information to such a node, which the AST does not.
 \par
-An important part of the semantic checker is converting test cases into functions. More specifically, after checking the test case for a given function is semantically valid, semant.ml turns the test cases into standlone functions, where the using clause is copied and pasted to the top of the new function. Codegen is subsequently responsible for turning the new test case functions into standalone snippets of code.  
+An important part of the semantic checker is converting test cases into functions. More specifically, after checking the test case for a given function is semantically valid, semant.ml turns the test cases into standalone functions, where the using clause is copied and pasted to the top of the new function. Codegen is subsequently responsible for turning the new test case functions into standalone snippets of code.  
+\par
+If the semantic checker finds an error, it will immediately abort and print a relevant error message to the console. 
 \subsection{The Code Generator}
 codegen.ml takes an SAST as input and creates LLVM code. We take advantage of OCaml's built in support for LLVM to help build the assembly code. 
 \par
-One of the most important jobs of the Code Generator is to create the test file. If instructed to, codegen.ml creates code for the test functions that were constructed as nodes in the SAST in the semantic checking phase. Importantly, codegen.ml ignores the user-defined main function, and calls the test functions from a branch new main. For example, consider the following snippet of code:
+One of the most important jobs of the Code Generator is to create the test file. If instructed to, codegen.ml creates code for the test functions that were constructed as nodes in the SAST in the semantic checking phase. Importantly, codegen.ml ignores the user-defined main function, and calls the test functions from a brand new main. For example, consider the following snippet of code:
 \begin{lstlisting}
 
 func int main()
@@ -1171,7 +1471,7 @@ func int add(int x, int y)
 }
 \end{lstlisting}
 
-codegen.ml would compile this into the following pseudo code test file:
+codegen.ml would compile this into the following pseudo-code test file:
 
 \begin{lstlisting}
 
@@ -1215,27 +1515,23 @@ func int add(int x, int y)
 
 
 \subsection{Supplementary Code} %libraries, built in functions, etc
-There is a Jateste standard library located in the lib folder. To include other jateste files in a given sourcr code file, source.jt, the programmer has two options. If the file to include is in the current directory, the following syntax is used to include a file called file.jt: 
+There is a Jateste standard library located in the lib folder. To include other jateste files in a given source code file, source.jt, the programmer has two options. If the file to include is in the current directory, the following syntax is used to include a file called file.jt: 
 \begin{lstlisting}
 #include_jtlib "file.jt"
 \end{lstlisting}
 If the file to include is in the standard library, use:
 \begin{lstlisting}
 #include_jtlib <file.jt>
-\end{lstlisting
-
+\end{lstlisting}
 
 
 \newpage
 
-\section{Testing}
-
-\subsection{Test Plan}
-
-\newpage
+\section{Test Plan}
 
 \subsection{Test Suite Log}
 We wrote tests for every feature in the compiler. There are several small tests that we used to test individual elements such as structs, function calls, loops, etc. We included tests that were expected to pass, as well as tests that were expected to fail\\
+\\
 Test Suite Log:\\
 ========= Running All Tests! ========== \\
 make[1]: Entering directory '/home/plt/JaTeste/test' \\
@@ -1261,7 +1557,7 @@ Testing 'struct-access-fail1.jt', should fail to compile...\\
 Testing 'invalid-assignment-fail1.jt', should fail to compile...\\
   ----$>$  Test passed!\\
   Testing 'class1-var-fail1.jt', should fail to compile...\\
-  ----$>$  Test passed!
+  ----$>$  Test passed! \\
 ======= Compilation Tests Passed! ========\\
 Testing 'test-func3.jt'\\
   ----$>$  Test passed!\\
@@ -1278,7 +1574,7 @@ Testing 'test-free1.jt'\\
 Testing 'test-testcase1.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-testcase2.jt'\\
-  ----$>$  Test passed!//
+  ----$>$  Test passed!\\
 Testing 'test-testcase3.jt'\\
   ----$>$  Test passed!\\
 Testing 'test-array1.jt'\\
@@ -1311,13 +1607,196 @@ Testing 'test-class3.jt'\\
 
 
 \subsection{Test Automation}
-We had x tests in our test suite. In order to run all of the tests and see if they pass, type make all in the src directory. This diffs the outputs of the tests with the files that we created that include expected outputs. If there are differences, it marks the test as a failure, otherwise it prints "Test passed!" as can be seen in the Test Suit Log
+We had 34 tests in our test suite. In order to run all of the tests and see if they pass, run \textbf{make all} or \textbf{make test} in the src directory. This diffs the outputs of the tests with the files that we created that include expected outputs. If there are differences, it marks the test as a failure, otherwise it prints "Test passed!" as can be seen in the Test Suit Log
 
 \newpage
 
 \subsection{Tests}
 
-class1-var-fail.jt
+add-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	string s;
+
+	a = 10;
+	s =  "cool";
+
+	a = a + s;	
+
+	return 0;
+}
+\end{lstlisting}
+
+add-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidExpr("Illegal binary op")
+\end{lstlisting}
+
+\newpage
+
+class-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+
+	struct house *my_house;
+	int price;
+	int vol;
+	
+	my_house = new struct house;
+
+	my_house->set_price(100);
+	my_house->set_height(88);
+	my_house->set_width(60);
+	my_house->set_length(348);
+
+	price = my_house->get_price();
+	vol = my_house->get_volumne(10);
+
+	print(price);
+	print(vol);
+	return 0;
+}
+
+func void update_price(struct house *h, int a)
+{
+	h->set_price(a);
+} with test {
+	assert(my_house->price == 100);
+} using {
+	struct house *my_house;
+	my_house = new struct house;
+	update_price(my_house, 100);
+}
+
+struct house {
+	int price;
+	int height;
+	int width;
+	int length;
+
+	method void set_price(int x)
+	{
+		price = x;
+	}
+
+	method void set_height(int x)
+	{
+		height = x;
+	}
+
+	method void set_width(int x)
+	{
+		width = x;
+	}
+
+	method void set_length(int x)
+	{
+		length = x;
+	}
+
+	method int get_price()
+	{
+		return price;
+	}
+
+	method int get_volumne()
+	{
+		int temp;
+		temp = height * width * length;
+		return temp;
+	}
+
+
+};
+\end{lstlisting}
+
+class-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidArgumentsToFunction("houseget_volumne is supplied with wrong args")
+\end{lstlisting}
+
+\newpage
+
+class-fail2.jt
+\begin{lstlisting}
+
+func int main()
+{
+
+	struct house *my_house;
+	struct condo *my_condo;
+	int a;
+	int b;
+	int c;
+
+	my_house = new struct house;
+	my_condo = new struct condo;
+
+	my_house->set_price(100);
+	my_condo->set_price(59);
+
+	a = my_house->get_price();
+	b = my_condo->geat_price();
+	
+	c = a - b;
+	
+	print(c);
+
+
+
+	return 0;
+}
+
+
+struct house {
+	int price;
+
+	method void set_price(int x)
+	{
+		price = x;
+	}	
+
+	method int get_price()
+	{
+		return price;
+	}
+
+
+};
+
+struct condo {
+	int price;
+
+	method void set_price(int x)
+	{
+		price = x;
+	}	
+
+	method int get_price()
+	{
+		return price;
+	}
+
+};
+\end{lstlisting}
+
+class-fail2.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidStructField
+\end{lstlisting}
+
+\newpage
+
+class1-var-fail1.jt
 \begin{lstlisting}
 func int main()
 {
@@ -1386,6 +1865,77 @@ Fatal error: exception Exceptions.UndeclaredVariable("pricee")
 
 \newpage
 
+class2-method-args-fail.jt
+\begin{lstlisting}
+func int main()
+{
+	struct circle *my_circle;
+	int diameter;
+	int i;
+	my_circle = new struct circle;
+	my_circle->set_radius(10);
+
+	diameter = my_circle->get_diameter();
+	print(diameter);
+
+	my_circle->set_radius(10,1);
+
+	return 0;
+}
+
+struct circle {
+	int radius;
+	int diameter;
+	
+	method void set_radius(int c)
+	{
+		radius = c;
+		diameter = radius * 2;
+	}
+
+	method int get_radius()
+	{
+		return radius;
+	}	
+
+	method int get_diameter()
+	{
+		return diameter;
+	}
+
+
+};
+\end{lstlisting}
+
+class2-method-args-fail.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidArgumentsToFunction("circleset_radius is supplied with wrong args")
+\end{lstlisting}
+
+\newpage
+
+dereference-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	*a = 10;
+	return 0;
+}
+\end{lstlisting}
+
+dereference-fail1.out
+\begin{lstlisting}
+
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidDereference
+\end{lstlisting}
+
+\newpage
+
 global-scope.jt
 \begin{lstlisting}
 int global_var;
@@ -1421,6 +1971,24 @@ global-scope.out
 \begin{lstlisting}
 passed
 passed
+\end{lstlisting}
+
+\newpage
+
+header-fail1.jt
+\begin{lstlisting}
+#include_jtlib "nvlkj"
+func int main()
+{
+	return 0;
+}
+\end{lstlisting}
+
+header-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidHeaderFile("./nvlkj")
 \end{lstlisting}
 
 \newpage
@@ -1487,6 +2055,40 @@ Fatal error: exception Exceptions.UndeclaredVariable("main_var")
 
 \newpage
 
+method-fail1.jt
+\begin{lstlisting}
+
+func int main()
+{
+	struct car *my_car;
+
+	my_car->0;
+
+	return 0;
+}
+
+
+struct car {
+	int price;
+	int year;
+	string model;
+
+	method void set_model(string s)
+	{
+		model = s;
+	}
+};
+\end{lstlisting}
+
+method-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.MissingMainFunction
+\end{lstlisting}
+
+\newpage
+
 no-main-fail.jt
 \begin{lstlisting}
 func int my_main()
@@ -1500,6 +2102,51 @@ no-main-fail.out
 Scanned
 Parsed
 Fatal error: exception Exceptions.MissingMainFunction
+\end{lstlisting}
+
+\newpage
+
+pointer-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+	struct house my_house;
+	int a;
+	a = my_house->price;
+
+	return 0;
+}
+
+struct house {
+	int price;
+	int zipcode;
+};
+\end{lstlisting}
+
+pointer-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidPointerAccess
+\end{lstlisting}
+
+\newpage
+
+pointer-fail2.jt
+\begin{lstlisting}
+func int main()
+{
+	void *p;
+
+	return 0;
+}
+\end{lstlisting}
+
+pointer-fail2.out
+\begin{lstlisting}
+
+Scanned
+Fatal error: exception Parsing.Parse_error
 \end{lstlisting}
 
 \newpage
@@ -1540,6 +2187,127 @@ Fatal error: exception Exceptions.InvalidReturnType("Can't have any code after r
 \newpage
 
 
+return-fail2.jt
+\begin{lstlisting}
+func int main()
+{
+
+	struct house *my_house;
+	struct condo *my_condo;
+	int a;
+	int b;
+	int c;
+
+	my_house = new struct house;
+	my_condo = new struct condo;
+
+	my_house->set_price(100);
+	my_condo->set_price(59);
+
+	a = my_house->get_price();
+	b = my_condo->get_price();
+	
+	c = a - b;
+	
+	print(c);
+
+	return 0;
+}
+
+
+struct house {
+	int price;
+	char c;
+
+	method void set_price(int x)
+	{
+		price = x;
+	}	
+
+	method int get_price()
+	{
+		return c;
+	}
+
+
+};
+
+struct condo {
+	int price;
+
+	method void set_price(int x)
+	{
+		price = x;
+		return 0;
+	}	
+
+	method int get_price()
+	{
+		return price;
+	}
+
+};
+\end{lstlisting}
+
+return-fail2.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidReturnType("return type doesnt match with function definition")
+\end{lstlisting}
+
+\newpage
+
+return-fail3.jt
+\begin{lstlisting}
+func int main()
+{
+
+	string s;
+	s = add(1,1);
+
+	return 0;
+}
+
+func int add(int a, int b) {
+	return a + b;
+}
+\end{lstlisting}
+
+return-fail3.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.IllegalAssignment
+\end{lstlisting}
+
+\newpage
+
+return-fail4.jt
+\begin{lstlisting}
+func int main()
+{
+
+	return 0;
+}
+
+func int do_something(int a, int b, int c, int d)
+{
+	int i;
+	return a + b + c + d;
+	i = i + 1;
+}
+\end{lstlisting}
+
+return-fail4.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.InvalidReturnType("Can't have any code after return statement")
+\end{lstlisting}
+
+\newpage
+
 struct-access-fail1.jt
 \begin{lstlisting}
 func int main()
@@ -1565,6 +2333,63 @@ struct-access-fail1.out
 Scanned
 Parsed
 Fatal error: exception Exceptions.InvalidStructField
+\end{lstlisting}
+
+\newpage
+
+struct-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+
+
+}
+
+struct ahouse {
+	int price;
+
+	method int get_price()
+	{
+		return price;
+	}
+	
+	int zipcode;
+	
+};
+\end{lstlisting}
+
+struct-fail1.out
+\begin{lstlisting}
+
+Scanned
+Fatal error: exception Parsing.Parse_error
+\end{lstlisting}
+
+\newpage
+
+struct-fail2.jt
+\begin{lstlisting}
+int main()
+{
+	return 0;
+}
+
+struct garden {
+	int trees;
+	int plants;
+
+	func int set_trees(int a)
+	{
+		tree = a;
+	}
+
+};
+\end{lstlisting}
+
+struct-fail2.out
+\begin{lstlisting}
+Scanned
+Fatal error: exception Parsing.Parse_error
 \end{lstlisting}
 
 \newpage
@@ -1686,6 +2511,67 @@ func int main()
 
 test-bool2.out
 \begin{lstlisting}
+passed
+\end{lstlisting}
+
+\newpage
+
+test-bool3.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	int b;
+	int c;
+	int d;
+
+	double d1;
+	double d2;
+	double d3;
+	double d4;
+	
+	bool my_bool;
+
+	a = 10;
+	b = 11;
+	c = 10;
+	d = 20;
+	
+	d1 = 19.18;
+	d2 = 0.7;
+	d3 = 0.7;
+	d4 = 19.19;
+
+	my_bool = true;
+
+	if ((a == c) && (d1 < d4)) {
+		print("passed");
+	}
+
+	if ((a < c) || (d2 == d3)) {
+		print("passed");
+	}
+
+	if ((d1 != d2) && (a <= c) && (d1 < d4) && (my_bool == true)) {
+		print("passed");
+	}
+
+	b = 10;
+	d = 10;
+
+	if (((a != b) && (c == d)) || (d2 == d3)) {
+		print("passed");
+	}
+	
+	return 0;
+
+\end{lstlisting}
+
+test-bool3.out
+\begin{lstlisting}
+passed
+passed
+passed
 passed
 \end{lstlisting}
 
@@ -1888,6 +2774,90 @@ test-class3.out
 \newpage
 
 
+test-double1.jt
+\begin{lstlisting}
+
+func int main()
+{
+	double d1;
+	double d2;
+	double d3;
+
+	d1 = 10.1;
+	d2 = 7.33;
+	d3 = d1 + d2;
+
+	if (d1 == 10.1 ) {
+		print("passed");
+	}
+
+	if (d3 == 17.43) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+	d1 = 7.33;
+
+	if (d1 == d2) {
+		print(d1);
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-double1.out
+\begin{lstlisting}
+passed
+passed
+7.330000
+\end{lstlisting}
+
+\newpage
+
+test-double2.jt
+\begin{lstlisting}
+func int main()
+{
+	double d1;
+	double d2;
+	double d3;
+
+	d1 = -10.1;
+	d2 = 7.89;
+	d3 = d1 + d2;
+
+	if (d1 == -10.1 ) {
+		print("passed");
+	}
+
+	if (d3 == -2.21) {
+		print("passed");
+	} else {
+		print("failed");
+	}
+
+	d1 = -9.14;
+	d2 = -9.14;
+
+	if (d1 == d2) {
+		print(d1);
+	}
+
+	return 0;
+}
+\end{lstlisting}
+
+test-double2.out
+\begin{lstlisting}
+passed
+passed
+-9.140000
+\end{lstlisting}
+
+\newpage
+
 
 test-for1.jt
 \begin{lstlisting}
@@ -1912,43 +2882,6 @@ test-for1.out
 
 \newpage
 
-test-free1.jt
-\begin{lstlisting}
-func int main()
-{
-	struct person *sam;
-
-	sam = new struct person;
-		
-	sam->age = 100;
-	sam->height = 100;
-	sam->gender = 100;
-	
-	free(sam);
-
-	print("freed");
-	
-	
-	return 0;
-}
-
-struct person {
-	int age;
-	int height;
-	int gender;
-};
-\end{lstlisting}
-
-test-for1.out
-\begin{lstlisting}
-0
-1
-2
-3
-4
-\end{lstlisting}
-
-\newpage
 
 test-free1.jt
 \begin{lstlisting}
@@ -2147,6 +3080,80 @@ passed
 
 \newpage
 
+test-linkedlist-delete1.jt
+\begin{lstlisting}
+
+#include_jtlib <int_list.jt>
+
+func int main()
+{
+
+	struct int_list *header;
+	header = int_list_initialize();
+	int_list_insert(header, 0);
+	int_list_insert(header, 9);
+	int_list_insert(header, 9);
+	int_list_insert(header, 13);
+	int_list_insert(header, 19);
+	int_list_delete(header, 13);
+	int_list_insert(header, 8);
+	int_list_delete(header, 19);
+
+	int_list_print(header);
+
+
+	return 0;
+}
+\end{lstlisting}
+
+test-linkedlist-delete1.out
+\begin{lstlisting}
+0
+9
+9
+8
+\end{lstlisting}
+
+\newpage
+
+test-linkedlist-free1.jt
+\begin{lstlisting}
+#include_jtlib <int_list.jt>
+
+func int main()
+{
+
+	struct int_list *header;
+	int len;
+
+	header = int_list_initialize();
+
+	int_list_insert(header,5);
+	int_list_insert(header,9);
+	int_list_insert(header,1);
+	int_list_insert(header,18);
+	int_list_insert(header,4738);
+	int_list_insert(header,17);
+	int_list_insert(header,5);
+
+	len = int_list_length(header);
+	print(len);
+	int_list_free_list(header);
+	len = int_list_length(header);	
+	print(len);
+
+	return 0;
+}
+\end{lstlisting}
+
+test-linkedlist-free1.out
+\begin{lstlisting}
+7
+0
+\end{lstlisting}
+
+\newpage
+
 
 test-linkedlist1.jt
 \begin{lstlisting}
@@ -2270,6 +3277,82 @@ word up
 
 \newpage
 
+test-mod1.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	int b;
+	int c;
+	int d;
+	int e;
+	int mod;
+	
+
+	a = 15;
+	b = 7;
+	c = 23;
+	d = 5;
+	e = 100;
+
+	mod = a % b;
+	print(mod);
+	mod = c % d;
+	print(mod);
+	mod = e % 10;
+	print(mod);
+	mod = d % b;
+	print(mod);
+	mod = b % d;
+	print(mod);
+
+	return 0;
+}
+\end{lstlisting}
+
+test-mod1.out
+\begin{lstlisting}
+1
+3
+0
+5
+2
+\end{lstlisting}
+
+\newpage
+
+test-negative1.jt
+\begin{lstlisting}
+func int main()
+{
+	int a;
+	int b;
+	int c;
+	int d;
+	int e;
+	int sum;
+
+	a = -23;
+	b = 15;
+	c = -3;
+	d = -9;
+	e = 8;
+
+	sum = a + b + c + d + e;
+
+	print(sum);
+
+	return 0;
+}
+\end{lstlisting}
+
+test-negative1.out
+\begin{lstlisting}
+-12
+\end{lstlisting}
+
+\newpage
+
 test-pointer1.jt
 \begin{lstlisting}
 func int main()
@@ -2333,6 +3416,191 @@ test-struct-access1.out
 \begin{lstlisting}
 99
 10
+\end{lstlisting}
+
+\newpage
+
+test-struct-malloc1.jt
+\begin{lstlisting}
+func int main()
+{
+
+	struct rectangle *my_rec;
+	struct house *my_house;
+	struct house my_house2;
+	int a;
+	int i;
+	char my_char;
+	char my_char2;
+	my_rec = new struct rectangle;
+	my_house = new struct house;
+
+	update_width(my_rec, 19);
+
+	my_house2.set_a('r');
+
+	my_char2 = my_house2.a;
+
+	if (my_char2 == 'r') {
+		print("is r");	
+	}
+
+	a = my_rec->width;
+	print(a);
+	i = 0;
+	while (i < 10) {
+		update_width(my_rec, i);
+		a = my_rec->width;
+		print(a);
+		update_height(my_rec, (i+5));	
+		a = my_rec->height;
+		print(a);
+		i = i + 1;
+	}
+
+		update_num(&a);
+	print(a);
+
+	if (a <= 9) {
+		print("noo");
+	} else if (a >= 11) {
+		print("nooo");
+	} else {
+		print("coool");
+	}
+
+	update_house_a(my_house);	
+
+	if (my_house->a == 'y') {
+		print("nice");
+	} else {
+		print("not nice");
+	}
+
+	
+	my_house2.a = 'e';
+
+	my_char = my_house2.a;
+
+	if (my_house2.a != 'f') {
+		print("hey");
+	}
+
+	free(my_rec);
+	free(my_house);
+
+	return 0;
+}
+
+func void update_num(int *i)
+{
+	*i = 10;
+}
+
+func void update_house_a(struct house *h)
+{
+	h->a = 'y';
+}
+
+func void update_width(struct rectangle *r, int w)
+{
+
+	r->set_width(w);
+}
+
+func void update_height(struct rectangle *r, int w)
+{
+
+	r->set_height(w);
+} with test {
+	assert(my_square->height == d);
+} using {
+	int a;
+	int b;
+	int c;
+	int d;
+	int e;
+	int f;
+	int g;
+	struct rectangle *my_square;
+	
+	my_square = new struct rectangle;
+	
+	d = 10;
+	update_height(my_square, d);	
+
+	while ( a < 10 ) {
+		update_height(my_square, a);
+		a = a + 1;
+	}
+
+}
+struct rectangle {
+
+	int width;
+	int height;
+
+	method void set_height(int x)
+	{
+		height = x;
+	}
+
+	method void set_width(int x)
+	{
+		width = x;
+	}
+
+	method int get_area()
+	{	
+		int a;
+		int b;
+		int c;
+		a = width;
+		b = height;
+		c = a * b;
+		return c;
+	}
+};
+
+struct house {
+	char a;
+	char b;
+
+	method void set_a(char c)
+	{
+		a = c;
+	}
+};
+\end{lstlisting}
+
+test-struct-malloc1.out
+\begin{lstlisting}
+is r
+19
+0
+5
+1
+6
+2
+7
+3
+8
+4
+9
+5
+10
+6
+11
+7
+12
+8
+13
+9
+14
+10
+coool
+nice
+hey
 \end{lstlisting}
 
 \newpage
@@ -2453,6 +3721,63 @@ passed
 
 \newpage
 
+test-testcase4.jt
+\begin{lstlisting}
+
+int global_var;
+
+func int main()
+{
+	int tmp;
+	struct rectangle *rec_pt;
+	rec_pt = new struct rectangle;
+	update_rec(rec_pt, 6);
+	tmp = rec_pt->width;
+
+	print(tmp);
+
+	return 0;
+}
+
+func void update_rec(struct rectangle *p, int x)
+{
+	p->width = x;
+} with test {
+	assert(t->width == 30);
+	assert(t->height == 4239);
+} using {
+	struct rectangle *t;
+	t = new struct rectangle;
+	update_rec(t, 10);
+	t->multiply_width(3);
+	t->height = 471;
+	t->multiply_height(9);
+}
+
+struct rectangle {
+	int width;
+	int height;
+
+	method void multiply_width(int a)
+	{
+		width = width * a;
+	}
+
+	method void multiply_height(int a)
+	{
+		height = height * a;
+	}		
+
+};
+\end{lstlisting}
+
+test-testcase4.out
+\begin{lstlisting}
+6
+\end{lstlisting}
+
+\newpage
+
 test-while1.jt
 \begin{lstlisting}
 func int main()
@@ -2485,15 +3810,203 @@ looping
 
 \newpage
 
-\section{Lessons Learned}
-\subsection{Andrew}
-\subsection{Jemma}
-\subsection{Jared}
-\subsection{Jake}
+var-fail1.jt
+\begin{lstlisting}
+func int main()
+{
+
+	return 0;
+}
+
+struct phone {
+	int price;
+	int model;
+	int year;
+	bool iphone;
+
+	method void set_iphone(bool b)
+	{
+		phone = b;
+	}
+};
+\end{lstlisting}
+
+var-fail1.out
+\begin{lstlisting}
+Scanned
+Parsed
+Fatal error: exception Exceptions.UndeclaredVariable("phone")
+\end{lstlisting}
 
 \newpage
 
-\section{Code}
+\section{Lessons Learned}
+\subsection{Andrew Grant}
+One of the main things I learned was the importance of providing clean and well defined interfaces between the different parts of a large software systems project. There were a few times where we tried to work around the interfaces we had in place, but that only ended up costing us time. For example, at first our SAST was almost exactly the same as our AST. During code generation we often needed access to the types of certain variables. We created code in codegen.ml to do this for us, but it made a lot more sense to add that information to the SAST \emph{while} performing semantic checking. Eventually we added this functionality, but having a clearer understanding of the interface between semantic checking and code generation would have served us well.
+\par
+One thing I think we did well was start early. There wasn't really a time during the semester that we felt rushed, which I think ended up letting us think clearer and more rationally about how to tackle the next problem. For example, we were able to implement our testing functionality about three weeks before the project was due; this enabled us to focus on the presentation of the testing output, as well as add some simple object-oriented features to our language.
+\par
+I also think we did a good job communicating with each other and working as a team. We were pretty much all present at most meetings. We met with David just about every week too which was very helpful. There was very little conflict which enabled us to focus on writing the compiler as opposed to wasting time arguing about unimportant things. 
+\par
+Overall I'm very proud of the project we were able to pull off given none of us have any compiler experience before.
+\subsection{Jemma Losh}
+I learned the importance of communication when tackling a large-scale group project. It can be difficult to make sure everyone is on the same page and up-to-date with the information they need to complete their portion. Weekly meetings helped our team with this aspect, but between these each group member had to be proactive in reaching out to others and coordinating ideas. The weekly meetings also allowed our team to work on the major key components together, so that everyone was able to understand the course of the project, and not just the parts they put work into. Overall, I was very lucky to have worked with a talented and well rounded team that had little problem with collaboration. For future teams I would suggest defining roles at the beginning, but realize that roles will become more fluid throughout the project, so be able to be flexible and put in work where it's needed.
+\subsection{Jared Weiss}
+I think this project helped us learn about working well as a team of software developers. Since we couldn't always work in the same room together, it was important to communicate well and make sure that 2 team members weren't working on the same thing. We needed to manually resolve a few merge conflicts when we started working on this project, but as we developed our git workflow and began using issues to track the work we were doing, there became a lot fewer conflicts. Furthermore, when we all worked together as a group in a library, I feel like we were able to get more work done more quickly since we were able to just ask our teammates simple questions and not need to wait for a response on a github issue tracker. 
+
+More regular 'hackathon'-style meetings would have likely made this project even easier, but overall I think we did a very good job of working together. Our roles were fairly well-defined and it was easy to know what each of us was supposed to be working on. 
+
+The one area we definitely could have done a little better was in our system of reviewing pull requests. At the start of this project, it was easy to get multiple sets of eyes on a pull request before merging, but as we progressed and the scope of each PR became more complicated, we stopped being as diligent with our reviews. This is why we ultimately ended up moving to a continuous-integration build system: to make sure that if a PR was merged, it didn't break any of the existing functionality. While having this extra layer of security in place is ultimately helpful, it still can't beat having teammates doing code review on every line. 
+
+\subsection{Jake Weissman}
+This was a very rewarding experience for me as I got to work on a meaningful project with a team of people that I got along really well with.  I'm happy to say that our team worked really well together and got along with little to no conflict.  Beyond the joy of completing a really cool project, it was an added bonus to become such good friends with my teammates.  As tough as the project was at times, we had some good laughs along the way and made the most out of it.  My main takeaway from the project is that teamwork should be a project in itself.  We are all smart and motivated students, but working together to such a great extent was a new experience for most of us and it took us some time to get into a groove of working together.  There were some early struggles when we couldn't agree on our language, or decide on what we were going to compile down to, but we got through them and made decisions as a team with minimal personality clashes.  I think it helped that we were all pretty easy going for the most part.  As the project continued, we divided up work nicely and all tried to do our part, with time were people had to pick up the slack for others being inevitable.  One comment I would make is that it might have been better to have more structure and more deadlines for our work - setting our own deadlines were often not enough motivation and things might have gotten done more smoothly and continuously if there were more regular, intermediate, deadlines to meet.  Thankfully our group was motivated enough to get work done and we didn't have a ton to do at the last minute.  All in all the project was a blast and I'm glad I had the opportunity to work with my awesome team!
+
+
+\newpage
+
+\section{Source Code}
+This section contains the JaTest\'{e} compiler source code. It includes the following files:
+\begin{itemize}
+\item jateste.ml 
+\item scanner.ml
+\item parser.mly
+\item ast.ml
+\item semant.ml
+\item sast.ml
+\item codegen.ml
+\item exceptions.ml
+\end{itemize}
+All of the code is open source and available at \url{https://github.com/jaredweiss/JaTeste}
+\newpage
+\subsection{jateste.ml}
+\begin{lstlisting}
+open Printf 
+module A = Ast
+module S = Sast
+
+
+(* Location of Jateste's standard library *)
+let standard_library_path = "/home/plt/JaTeste/lib/"
+let current_dir_path = "./"
+
+type action = Scan | Parse |  Ast | Sast | Compile | Compile_with_test
+
+(* Determines what action compiler should take based on command line args *)
+let determine_action args = 
+	let num_args = Array.length args in
+	(match num_args with
+	  1 -> raise Exceptions.IllegalInputFormat
+	| 2 -> Compile
+	| 3 -> let arg = Array.get args 1 in 
+		(match arg with
+		  "-t" -> Compile_with_test
+		| "-l" -> Scan
+		| "-p" -> Parse
+		| "-se" ->Sast
+		| "-ast" -> Ast
+		| _ -> raise (Exceptions.IllegalArgument arg)
+		)
+	
+	| _ -> raise (Exceptions.IllegalArgument "Can't recognize arguments")
+	)
+
+(* Create executable filename *)
+let executable_filename filename =
+	let len = String.length filename in
+	let str = String.sub filename 0 (len - 3) in
+	let exec = String.concat "" [str ; ".ll"] in
+	exec 
+
+(* Create test executable filename *)
+let test_executable_filename filename =
+	let len = String.length filename in
+	let str = String.sub filename 0 (len - 3) in
+	let exec = String.concat "" [str ; "-test.ll"] in
+	exec 
+
+(* Just scan input *)
+let scan input_raw = 
+	let lexbuf = Lexing.from_channel input_raw in (print_string "Scanned\n"); lexbuf
+
+(* Scan, then parse input *)
+let parse input_raw =
+	let input_tokens = scan input_raw in
+	let ast:(A.program) = Parser.program Scanner.token input_tokens in (print_string "Parsed\n"); ast
+
+(* Process include statements. Input is ast, and output is a new ast *)
+let process_headers ast:(A.program) =
+	let (includes,_,_,_) = ast in
+	let gen_header_code (incl,globals, current_func_list, structs) (path, str) = 
+		let tmp_path = (match path with A.Curr -> current_dir_path | A.Standard -> standard_library_path) in
+		let file = tmp_path ^ str in
+		let ic = 
+		try open_in file with _ -> raise (Exceptions.InvalidHeaderFile file) in
+		let (_,_,funcs,strs) = parse ic in
+		let tmp_funcs = List.map (fun n -> let tmp = {A.typ = n.A.typ ; A.fname = n.A.fname ; A.formals = n.A.formals ; A.vdecls = n.A.vdecls ; A.body = n.A.body ; A.tests = n.A.tests ; A.struc_method = false ; A.includes_func = true } in tmp) funcs in
+		let new_ast:(A.program) = (incl, globals, current_func_list @ tmp_funcs, structs @ strs) in
+		new_ast 	
+	in
+	let modified_ast:(A.program) = List.fold_left gen_header_code ast includes in 
+	modified_ast
+
+
+(* Scan, parse, and run semantic checking. Returns Sast *)
+let semant input_raw = 
+	let tmp_ast = parse input_raw in
+	let input_ast = process_headers tmp_ast in
+	let sast:(S.sprogram) = Semant.check input_ast in (print_string "Semantic check passed\n"); sast
+
+(* Generate code given file. @bool_tests determines whether to create a test file *)
+let code_gen input_raw exec_name bool_tests =
+	let input_sast = semant input_raw in
+	let file = exec_name in
+	let oc = open_out file in
+	let m = Codegen.gen_llvm input_sast bool_tests in 
+	Llvm_analysis.assert_valid_module m;
+	fprintf oc "%s\n" (Llvm.string_of_llmodule m); 
+	close_out oc;
+	()
+
+let get_ast input_raw =
+	let ast = parse input_raw in
+	ast
+
+(*************************************************************************************)
+(* Entry pointer for compiler. Input is a .jt text file, output is LLVM code in a .ll file. *)
+(* 
+file.jt text file -> 
+scanner.mll: convert raw text to tokens according to regexes -> 
+parser.mly: creates Ast according to CFG defined in parser.mly -> 
+semant.ml: checks the semantics of the program (e.g. type checking), and converts the Ast into an Sast -> 
+codege.ml: takes Sast as input and creates LLVM code in a .ll file ->
+file.ll file 
+*)
+(*************************************************************************************)
+let _ =
+	(* Read in command line args *)
+	let arguments = Sys.argv in
+	(* Determine what the compiler should do based on command line args *)
+	let action = determine_action arguments in
+	let source_file = open_in arguments.((Array.length Sys.argv - 1)) in
+	(* Create a file to put executable in *)
+	let exec_name = executable_filename arguments.((Array.length Sys.argv -1)) in
+	(* Create a file to put test executable in *)
+	let test_exec_name = test_executable_filename arguments.((Array.length Sys.argv -1)) in
+	
+	(* Determine what the compiler should do, then do it *)
+	let _ = (match action with 
+	  Scan -> let _  = scan source_file in ()
+ 	| Parse -> let _ = parse source_file in ()
+ 	| Ast ->  let _ = parse source_file in ()
+ 	| Sast ->  let _ = semant source_file in () 
+	| Compile ->  let _ = code_gen source_file exec_name false in ()
+	| Compile_with_test -> let _ = code_gen source_file exec_name false in 
+			let source_test_file = open_in arguments.((Array.length Sys.argv - 1)) in 			  let _ = code_gen source_test_file test_exec_name true in ()
+	) in
+	close_in source_file
+
+\end{lstlisting}
+
 \newpage
 \subsection{scanner.mll}
 \begin{lstlisting}
@@ -2594,9 +4107,12 @@ and string_find buffer = parse
 	  '"' {Buffer.contents buffer }
 	| _ as chr { Buffer.add_char buffer chr; string_find buffer lexbuf }
 
-\newpage
 
+\end{lstlisting}
+
+\newpage
 \subsection{parser.mly}
+\begin{lstlisting}
 %{ open Ast %}
 
 /*
@@ -2670,42 +4186,55 @@ includes:
 include_file:
 	  POUND INCLUDE STRING_LITERAL { (Curr, $3) } 
 	| POUND INCLUDE LT INCLUDE_FILE GT       { (Standard,$4) }
+
 var_decls: 			  
 	/* nothing */ { [] }
 	| var_decls vdecl   { $2::$1 }
+
 func_decls:	
 	 fdecl {[$1]}
 	| func_decls fdecl  {$2::$1}
+
 mthd:
 	  METHOD any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = None }}
+		$9; tests = None ; struc_method = false ; includes_func = false }}
+
 struc_func_decls:
 	  /* nothing */ { [] }
 	| struc_func_decls mthd { $2::$1 } 
+
 struc_decls:
 	  /*nothing*/ { [] }
 	| struc_decls sdecl {$2::$1}
+
 prim_typ:
 	| STRING 	{ String }
 	| DOUBLE 	{ Double }
 	| INT 		{ Int }
 	| CHAR 		{ Char }
 	| BOOL		{ Bool }
+
 void_typ:
 	| VOID 		{ Void }
 	
 struct_typ:
 	| STRUCT ID { $2 }
+
 array_typ:
 	    prim_typ LBRACKET INT_LITERAL RBRACKET  	{ ($1, $3) }
 	  | prim_typ LBRACKET RBRACKET  		{ ($1, 0) }
+
 pointer_typ:
 	| prim_typ STAR 		{ Primitive($1) }
 	| struct_typ STAR 		{ Struct_typ($1) }
 	| array_typ STAR 		{ Array_typ(fst $1, snd $1) }
+
 double_pointer_typ:
 	| pointer_typ STAR 		{ Pointer_typ($1)  }
+
+
+
 any_typ:
 	  prim_typ 		{ Primitive($1) }
 	| struct_typ 		{ Struct_typ($1) }
@@ -2713,72 +4242,90 @@ any_typ:
 	| double_pointer_typ 	{ Pointer_typ($1) }
 	| void_typ 		{ Primitive($1) }
 	| array_typ		{ Array_typ(fst $1, snd $1) }
+
+
 any_typ_not_void:
 	  	  prim_typ 		{ Primitive($1) }
 		| struct_typ 		{ Struct_typ($1) }
 		| pointer_typ 		{ Pointer_typ($1) }
 		| double_pointer_typ 	{ Pointer_typ($1) }
 		| array_typ		{ Array_typ(fst $1, snd $1) }
+
 /* 
 Rules for function syntax
 */
 fdecl:
 	  FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = None }}
+		$9; tests = None ; struc_method = false ; includes_func = false}}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }})  }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = []; stmts = [] }}) ; struc_method = false ; includes_func = false  }}
 	| FUNC any_typ ID LPAREN formal_opts_list RPAREN LBRACE vdecl_list func_body RBRACE testdecl usingdecl {{
 		typ = $2; fname = $3; formals = $5; vdecls = List.rev $8; body = List.rev
-		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) }}
+		$9; tests = Some({asserts = $11;  using = { uvdecls = (fst $12); stmts = (snd $12)}}) ; struc_method = false ; includes_func = false }}
+
 /* 
 "with test" rule 
 */
 testdecl:
 	WTEST LBRACE stmt_list RBRACE { $3 }
+
 /* 
 "using" rule 
 */
 usingdecl:
 	USING LBRACE vdecl_list stmt_list RBRACE { (List.rev $3, List.rev $4) }
+
+
 /*
 Formal parameter rules
 */
 formal_opts_list:
 	  /* nothing */    { [] }
 	| formal_opt { $1 }
+
 formal_opt:
 	     any_typ_not_void ID 			{[($1,$2)]}
 	   | formal_opt COMMA any_typ_not_void ID 	{($3,$4)::$1}
+
 actual_opts_list:
 	  /* nothing */ { [] }
 	| actual_opt 	{ $1 }
+
 actual_opt:
 	     expr { [$1] }
 	   | actual_opt COMMA expr {$3::$1}
+
 /* 
 Rule for declaring a list of variables, including variables of type struct x 
 */
 vdecl_list: 
 	  /* nothing */ { [] }
 	| vdecl_list vdecl { $2::$1 }
+
 /*
 Includes declaring a struct
 */
+
 vdecl:
 	  any_typ_not_void ID SEMI { ($1, $2) }
+
 /* 
 Rule for defining a struct 
 */
 sdecl:
 	STRUCT ID LBRACE vdecl_list struc_func_decls RBRACE SEMI {{
 		sname = $2; attributes = List.rev $4; methods = List.rev $5 }}
+
+
 func_body: 
 	stmt_list 	{[Block(List.rev $1)]}
+
 stmt_list:
 	  /* nothing */ { [] }
 	| stmt_list stmt { $2::$1 }
+
 /* 
 Rule for statements. Statments include expressions 
 */
@@ -2792,6 +4339,7 @@ stmt:
 	  | WHILE LPAREN expr RPAREN stmt 		       	    { While($3, $5) }
   	  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3, $5, $7, $9)}
 	  | ASSERT LPAREN expr RPAREN SEMI 			    { Assert($3) }
+
 /* 
 Rule for building expressions 
 */
@@ -2820,6 +4368,7 @@ expr:
 	| expr OR expr 		{ Binop($1, Or, $3)}
 	| NOT expr		{ Unop(Not, $2) }
 	| AMPERSAND expr	{ Unop(Addr, $2) }
+	| MINUS expr		{ Unop(Neg, $2) }
 	| expr ASSIGN expr 	{ Assign($1, $3) }
 	| expr DOT expr 	{ Struct_access($1, $3)}
 	| expr POINTER_ACCESS expr 	{ Pt_access($1, $3)}
@@ -2834,7 +4383,9 @@ expr:
 expr_opt:
 	  /* nothing */ { Noexpr }
 	| expr 		{ $1 }
+
 \end{lstlisting}
+
 \newpage
 \subsection{ast.ml}
 \begin{lstlisting}
@@ -2843,8 +4394,13 @@ type uop = Neg | Not | Addr
 type prim = Int | Double | String | Char | Void | Bool
 type typ = Primitive of prim | Struct_typ of string | Func_typ of string | Pointer_typ of typ | Array_typ of prim * int | Any 
 type bind = typ * string
+
 type dir_location = Curr | Standard
+
+(* include files node *)
 type header = dir_location * string
+
+(* Jateste expressions *)
 type expr =
     Lit     of int
   | String_lit of string
@@ -2866,6 +4422,8 @@ type expr =
   | BoolLit of bool
   | Null of typ
   | Dubs 
+
+(* Jateste statements *)
 type stmt =
     Block of stmt list   
   | Expr of expr
@@ -2874,14 +4432,19 @@ type stmt =
   | For of expr * expr * expr * stmt
   | Return of expr
   | Assert of expr
+
+(* Node that describes the envoirnment for with_test_decl node *)
 type with_using_decl = {
   uvdecls : bind list;
   stmts : stmt list;
 }
+
+(* Node the describes test cases *)
 type with_test_decl = {
   asserts : stmt list;
   using : with_using_decl; 
 }
+
 (* Node that describes a function *)
 type func_decl = {
   typ : typ;
@@ -2890,33 +4453,46 @@ type func_decl = {
   vdecls  : bind list;
   body  :   stmt list;
   tests   :   with_test_decl option; 
+  struc_method : bool;
+  includes_func : bool;
 }
+
 (* Node that describes a given struct *)
 type struct_decl = {
   sname   : string;
   attributes  : bind list;
   methods  : func_decl list;
 }
-(* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
+
+(* Root of tree. Our program is made up four things 1) list of header/include files 2) list of global variables 3) list of function definitions 4) list of struct definitions *)
 type program = header list * bind list * func_decl list * struct_decl list
+
 \end{lstlisting}
+
 \newpage
 \subsection{semant.ml}
+
 \begin{lstlisting}
 (* Semantic checker code. Takes Ast as input and returns a Sast *)
+
 module A = Ast
 module S = Sast
 module StringMap = Map.Make(String)
+
 type variable_decls = A.bind;;
+
 (* Hashtable of valid structs. This is filled out when we iterate through the user defined structs *)
 let struct_types:(string, A.struct_decl) Hashtbl.t = Hashtbl.create 10
 let func_names:(string, A.func_decl) Hashtbl.t = Hashtbl.create 10
-let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None }
+
+let built_in_print_string:(A.func_decl) = {A.typ = A.Primitive(A.Void) ; A.fname = "print"; A.formals = [A.Any, "arg1"]; A.vdecls = []; A.body = []; A.tests = None ; A.struc_method = false ; includes_func = false }
+
 (* Symbol table used for checking scope *)
 type symbol_table = {
 	parent : symbol_table option;
 	variables : (string, A.typ) Hashtbl.t;
 }
+
 (* Environment*)
 type environment = {
 	scope : symbol_table;
@@ -2926,6 +4502,7 @@ type environment = {
 	in_struct_method : bool;
 	struct_name : string option
 }
+
 (* For debugging *)
 let rec string_of_typ t =
 	match t with
@@ -2938,6 +4515,7 @@ let rec string_of_typ t =
 	| A.Pointer_typ(t) -> "pointer " ^ (string_of_typ t)
 	| A.Array_typ(p,_) -> "Array type " ^ (string_of_typ (A.Primitive(p)))
 	| _ -> "not sure"
+
 (* Search symbol tables to see if the given var exists somewhere *)
 let rec find_var (scope : symbol_table) var =
 	try Hashtbl.find scope.variables var
@@ -2945,15 +4523,32 @@ let rec find_var (scope : symbol_table) var =
 	match scope.parent with
 	  Some(parent) -> find_var parent var
 	| _ -> raise (Exceptions.UndeclaredVariable var)	
+
 (* Helper function to reeturn an identifers type *)
 let type_of_identifier var env = 
 	find_var env.scope var
+
+(* left side of Binop. Returns an expression *)
+let left_side_of_binop e =
+	(match e with 
+	  A.Binop(ls,_,_) -> ls
+	| _ -> raise (Exceptions.BugCatch "left side of binop")
+	)
+
+(* left side of Binop. Returns an expression *)
+let right_side_of_binop e =
+	(match e with 
+	  A.Binop(_,_,rs) -> rs
+	| _ -> raise (Exceptions.BugCatch "left side of binop")
+	)
+
 (* Returns the type of the arrays elements. E.g. int[10] arr... type_of_array arr would return A.Int *)
 let type_of_array arr _ =
 	match arr with
 	  A.Array_typ(p,_) -> A.Primitive(p)
 	| A.Pointer_typ(A.Array_typ(p,_)) -> A.Primitive(p)
 	| _ -> raise (Exceptions.InvalidArrayVariable)
+
 (* Function is done for creating sast after semantic checking. Should only be called on struct or array access *)
 let rec string_identifier_of_expr expr = 
 	match expr with
@@ -2963,6 +4558,8 @@ let rec string_identifier_of_expr expr =
 	| A.Array_access(e1, _) -> string_identifier_of_expr e1
 	| A.Call(s,_) -> s
 	| _ -> raise (Exceptions.BugCatch "string_identifier_of_expr")
+
+(* Used for generating test prints *)
 let rec string_of_expr e env =
 	match e with 
 	  A.Lit(i) -> string_of_int i
@@ -2979,10 +4576,10 @@ let rec string_of_expr e env =
 		| A.Div -> "/"
 		| A.Equal -> "=="
 		| A.Neq -> "!="
-		| A.Less -> "<="
-		| A.Leq -> "<"
-		| A.Greater -> ">="
-		| A.Geq -> ">"
+		| A.Less -> "<"
+		| A.Leq -> "=<"
+		| A.Greater -> ">"
+		| A.Geq -> ">="
 		| A.And -> "&&"
 		| A.Or -> "||"
 		| A.Mod  -> "%"
@@ -3006,6 +4603,7 @@ let rec string_of_expr e env =
   	| A.Pt_access(e1,e2) -> let str1 = string_of_expr e1 env in
 				let str2 = string_of_expr e2 env in
 				let str_acc = String.concat "->" [str1; str2] in str_acc
+
   	| A.Dereference(e) -> let str1 = string_of_expr e env in (String.concat "" ["*"; str1])
   	| A.Array_create(i,p) -> let str_int = string_of_int i in
 			let rb = "]" in
@@ -3016,7 +4614,7 @@ let rec string_of_expr e env =
 			  A.Int -> "int"
 			| A.Double ->"double"
 			| A.Char -> "char"
-			| _ -> raise (Exceptions.BugCatch "string_of_expr")
+			| _ -> raise (Exceptions.InvalidArrayType)
 			) in let str_ar_ac = String.concat "" [new_; " "; str_prim; lb; str_int; rb] in str_ar_ac   
   	| A.Array_access(e,i) -> let lb = "[" in
 			let rb = "]" in
@@ -3036,6 +4634,7 @@ let rec string_of_expr e env =
 		)
   	| A.Null(_) -> "NULL"
   	| A.Dubs -> ""
+
 (* Function is done for creating sast after semantic checking. Should only be called on struct fields *)
 let string_of_struct_expr expr = 
 	match expr with
@@ -3049,6 +4648,7 @@ let report_duplicate exceptf list =
       | _ :: t -> helper t
       | [] -> ()
     in helper (List.sort compare list)
+
 (* Used to check include statments *)
 let check_ends_in_jt str = 
 	let len = String.length str in
@@ -3058,11 +4658,14 @@ let check_ends_in_jt str =
 	  ".jt" -> ()
 	| _ -> raise (Exceptions.InvalidHeaderFile str)
 	)
+
 let check_in_test e = if e.in_test_func = true then () else raise (Exceptions.InvalidAssert "assert can only be used in tests")
+
 (* Helper function to check a typ is not void *)
 let check_not_void exceptf = function
       (A.Primitive(A.Void), n) -> raise (Failure (exceptf n))
     | _ -> ()
+
 (* Helper function to check two types match up *)
 let check_assign lvaluet rvaluet err =
 	(match lvaluet with
@@ -3075,20 +4678,25 @@ let check_assign lvaluet rvaluet err =
 	| A.Array_typ(A.Char,_) -> (match rvaluet with A.Array_typ((A.Char),_) -> lvaluet | A.Primitive(A.String) -> lvaluet | _ -> raise err)
 	| _ -> if lvaluet = rvaluet then lvaluet else raise err
 	)
+
      
 (* Search hash table to see if the struct is valid *)
 let check_valid_struct s =
 	try Hashtbl.find struct_types s
 	with | Not_found -> raise (Exceptions.InvalidStruct s)
+
 (* Checks the hash table to see if the function exists *)
 let check_valid_func_call s = 
 	try Hashtbl.find func_names s
 	with | Not_found -> raise (Exceptions.InvalidFunctionCall (s ^ " does not exist. Unfortunately you can't just expect functions to magically exist"))
+
+
 (* Helper function that finds index of first matching element in list *)
 let rec index_of_list x l = 
 	match l with
 	  [] -> raise (Exceptions.BugCatch "index_of_list")
 	| hd::tl -> let (_,y) = hd in if x = y then 0 else 1 + index_of_list x tl
+
 let index_helper s field env = 
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
@@ -3099,30 +4707,42 @@ let index_helper s field env =
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		try let index = index_of_list field stru.A.attributes in index with | Not_found -> raise (Exceptions.BugCatch "index_helper"))
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
+
+
 (* Function that returns index of the field in a struct. E.g. given: stuct person {int age; int height;};.... index_of_struct_field *str "height" env will return 1 *)
 let index_of_struct_field stru expr env = 	
 		match stru with
 	  		A.Id(s) -> (match expr with A.Id(s1) -> index_helper s s1 env | _ -> raise (Exceptions.BugCatch "index_of_struct")) 
 			| _ -> raise (Exceptions.InvalidStructField)
+
+
+
 (* Checks the relevant struct actually has a given field *)
 let struct_contains_field s field env = 
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
 		  A.Struct_typ(struc_name) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
-		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> raise (Exceptions.InvalidStructField))
+		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with 
+				| Not_found -> raise (Exceptions.InvalidStructField))
 		| A.Pointer_typ(A.Struct_typ(struc_name)) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
-		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with | Not_found -> 
-		try let tmp_fun = (List.find (fun f -> if f.A.fname = field then true else false) stru.A.methods) in tmp_fun.A.typ with | Not_found -> raise (Exceptions.InvalidStructField))
+		try let (my_typ,_) = (List.find (fun (_,nm) -> if nm = field then true else false) stru.A.attributes) in my_typ with 
+		| Not_found ->  try let tmp_fun = (List.find (fun f -> if f.A.fname = field then true else false) stru.A.methods) in  tmp_fun.A.typ with 
+				| Not_found -> raise (Exceptions.InvalidStructField))
+
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
+
 let struct_contains_method s methd env =
 		let struct_var = find_var env.scope s in 
 		match struct_var with 
-		 A.Pointer_typ(A.Struct_typ(struc_name)) ->
+		 A.Pointer_typ(A.Struct_typ(struc_name)) | A.Struct_typ(struc_name) ->
 		(let stru:(A.struct_decl) = check_valid_struct struc_name in 
 		 try let tmp_fun = (List.find (fun f -> if f.A.fname = methd then true else false) stru.A.methods) in tmp_fun.A.typ with | Not_found -> raise (Exceptions.InvalidStructField))
+
 		| _ -> raise (Exceptions.BugCatch "struct_contains_field")
+
+
 (* Checks that struct contains expr *)
 let struct_contains_expr stru expr env = 
 	match stru with
@@ -3131,9 +4751,12 @@ let struct_contains_expr stru expr env =
 			|  A.Call(s1, _) -> struct_contains_method s s1 env
 			| _ -> raise (Exceptions.InvalidStructField)) 
 	| _ -> raise (Exceptions.InvalidStructField)
+
 let struct_field_is_local str fiel env =
 	try (let _ = struct_contains_field str fiel env in false) 
 	with | Exceptions.InvalidStructField -> true
+
+(* Returns type of expression - used for checking for type mismatches *)
 let rec type_of_expr env e =
 	match e with
 	  A.Lit(_) -> A.Primitive(A.Int)
@@ -3176,8 +4799,9 @@ let rec expr_sast expr env =
 	| A.String_lit s -> S.SString_lit s	
 	| A.Char_lit c -> S.SChar_lit c
 	| A.Double_lit d -> S.SDouble_lit d
-	| A.Binop (e1, op, e2) -> let tmp_type = type_of_expr env e1 in S.SBinop (expr_sast e1 env, op, expr_sast e2 env, tmp_type)
-	| A.Unop (u, e) -> S.SUnop(u, expr_sast e env)
+	| A.Binop (e1, op, e2) -> let tmp_type = type_of_expr env e1 in 
+			S.SBinop (expr_sast e1 env, op, expr_sast e2 env, tmp_type)
+	| A.Unop (u, e) -> let tmp_type = type_of_expr env e in S.SUnop(u, expr_sast e env, tmp_type)
 	| A.Assign (s, e) -> S.SAssign (expr_sast s env, expr_sast e env)
 	| A.Noexpr -> S.SNoexpr
 	| A.Id s ->  (match env.in_struct_method with
@@ -3186,7 +4810,9 @@ let rec expr_sast expr env =
 				  Some(nm) -> let local_struct_field = struct_field_is_local nm s env in 
 				(match local_struct_field with
 				  true -> S.SId (s)
-				| false -> let tmp_id = A.Id(nm) in let tmp_pt_access = A.Pt_access(tmp_id, A.Id(s)) in (expr_sast tmp_pt_access env)
+				| false -> let tmp_id = A.Id(nm) in 
+				let tmp_pt_access = A.Pt_access(tmp_id, A.Id(s)) in 
+				(expr_sast tmp_pt_access env)
 				)
 				| None -> raise (Exceptions.BugCatch "expr_sast")
 				)
@@ -3194,10 +4820,21 @@ let rec expr_sast expr env =
 		     )
 	| A.Struct_create s -> S.SStruct_create s
 	| A.Free e -> let st = (string_identifier_of_expr e) in S.SFree(st)
-	| A.Struct_access (e1, e2) -> let index = index_of_struct_field e1 e2 env in S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index)
+	| A.Struct_access (e1, e2) -> 			
+			(match e2 with
+			  A.Id(_) ->  let index = index_of_struct_field e1 e2 env in 
+					let tmp_type = (type_of_expr env (A.Struct_access(e1,e2))) in 
+				    S.SStruct_access (string_identifier_of_expr e1, string_of_struct_expr e2, index, tmp_type)
+			| A.Call(ec, le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
+				(match struct_decl with
+				A.Struct_typ(struct_type_string) -> let tmp_unop = A.Unop(A.Addr, e1) in S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([tmp_unop]@le)))
+				| _ -> raise (Exceptions.BugCatch "expr_sast")
+				)
+			| _ -> raise (Exceptions.BugCatch "expr_sast")
+			)
 	| A.Pt_access (e1, e2) ->  
 		(match e2 with
-		  A.Id(_) -> let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index) in  t
+		  A.Id(_) ->let tmp_type =  (type_of_expr env (A.Pt_access(e1,e2))) in let index = index_of_struct_field e1 e2 env in let t =  S.SPt_access (string_identifier_of_expr e1, string_identifier_of_expr e2, index, tmp_type) in  t
 		| A.Call(ec,le) -> let string_of_ec = string_identifier_of_expr e1 in let struct_decl = find_var env.scope string_of_ec in
 			(match struct_decl with
 			A.Pointer_typ(A.Struct_typ(struct_type_string)) -> S.SCall (struct_type_string ^ ec, (List.map (fun n -> expr_sast n env) ([e1]@le)))
@@ -3208,38 +4845,47 @@ let rec expr_sast expr env =
 	| A.Array_create (i, p) -> S.SArray_create (i, p)
 	| A.Array_access (e, i) -> let tmp_string = (string_identifier_of_expr e) in 
 		let tmp_type = find_var env.scope tmp_string in S.SArray_access (tmp_string, i, tmp_type)
-	| A.Dereference(e) -> S.SDereference(string_identifier_of_expr e) 
+	| A.Dereference(e) -> let tmp_type = (type_of_expr env (A.Dereference(e))) in S.SDereference(string_identifier_of_expr e, tmp_type) 
 	| A.Call (s, e) -> S.SCall (s, (List.map (fun n -> expr_sast n env) e))
 	| A.BoolLit(b) -> S.SBoolLit((match b with true -> 1 | false -> 0))
 	| A.Null(t) -> S.SNull t
 	| A.Dubs -> S.SDubs
+
+
 (* Convert ast struct to sast struct *)
 let struct_sast r = 
 	let tmp:(S.sstruct_decl) = {S.ssname = r.A.sname ; S.sattributes = r.A.attributes} in
 	tmp
+
+
 (* function that adds struct pointer to formal arg *)
 let add_pt_to_arg s f =
 	let tmp_formals = f.A.formals in
 	let tmp_type = A.Pointer_typ(A.Struct_typ(s.A.sname)) in 
-	let tmp_string = "p" in
+	let tmp_string = "pt_hack" in
 	let new_formal:(A.bind) = (tmp_type, tmp_string) in
 	let formals_with_pt = new_formal :: tmp_formals in
-	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests} in 
+	let new_func = {A.typ = f.A.typ ; A.fname = s.A.sname ^ f.A.fname ; A.formals = formals_with_pt ; A.vdecls = f.A.vdecls; A.body = f.A.body; A.tests = f.A.tests ; A.struc_method = true ; A.includes_func = f.A.includes_func} in 
 	new_func
+
 (* Creates new functions whose first paramters is a pointer to the struct type that the method is associated with *)
 let add_pts_to_args s fl = 
 	let list_of_struct_funcs = List.map (fun n -> add_pt_to_arg s n) fl in	
 	list_of_struct_funcs
 	
+
 (* Struct semantic checker *)
 let check_structs structs = 
 	(report_duplicate(fun n -> "duplicate struct " ^ n) (List.map (fun n -> n.A.sname) structs)); 
+
 	ignore (List.map (fun n -> (report_duplicate(fun n -> "duplicate struct field " ^ n) (List.map (fun n -> snd n) n.A.attributes))) structs);
+
 	ignore (List.map (fun n -> (List.iter (check_not_void (fun n -> "Illegal void field" ^ n)) n.A.attributes)) structs);
 	ignore(List.iter (fun n -> Hashtbl.add struct_types n.A.sname n) structs);
 	let tmp_funcs = List.map (fun n -> (n, n.A.methods)) structs in
 	let tmp_funcs_with_formals = List.fold_left (fun l s  -> let tmp_l = (add_pts_to_args (fst s) (snd s)) in l @ tmp_l) [] tmp_funcs in
 	(structs, tmp_funcs_with_formals)
+
 (* Globa variables semantic checker *)
 let check_globals globals env = 
 	ignore(env);
@@ -3253,6 +4899,7 @@ let check_globals globals env =
 	(* Add global variables to top level symbol table. Side effects *)
 	List.iter (fun (t,s) -> (Hashtbl.add env.scope.variables s t)) globals;
 	globals
+
 (* Main entry pointer for checking the semantics of an expression *)
 let rec check_expr expr env =
 	match expr with
@@ -3266,8 +4913,8 @@ let rec check_expr expr env =
 		  A.Primitive(A.Int) | A.Primitive(A.Double) | A.Primitive(A.Char)  -> 
 		(match op with
 		  A.Add | A.Sub | A.Mult | A.Div | A.Exp | A.Mod  when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
-		| A.Equal | A.Neq when e1' = e2' -> ignore("got equal");A.Primitive(A.Int)
-		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> e1'
+		| A.Equal | A.Neq when e1' = e2' -> A.Primitive(A.Bool)
+		| A.Less | A.Leq | A.Greater | A.Geq when e1' = e2' && (e1' = A.Primitive(A.Int) || e1' = A.Primitive(A.Double))-> A.Primitive(A.Bool)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 ) 
 		| A.Primitive(A.Bool) -> 		
@@ -3279,35 +4926,77 @@ let rec check_expr expr env =
 		| A.Pointer_typ(_) -> let e1' = (check_expr e1 env) in 
 			let e2' = (check_expr e1 env)  in  
 		(match op with
-		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> e1'
+		  A.Equal | A.Neq when e1' = e2' && (e1 = A.Null(e2') || e2 = A.Null(e1') ) -> A.Primitive(A.Bool)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		)
 		| _ -> raise (Exceptions.InvalidExpr "Illegal binary op") 
 		) 
 	| A.Unop(uop,e) -> let expr_type = check_expr e env in
 			(match uop with
-				  A.Not -> (match expr_type with A.Primitive(A.Bool) -> expr_type | _ -> raise Exceptions.NotBoolExpr) 
-				| A.Neg -> expr_type
-				| A.Addr -> A.Pointer_typ(expr_type)
-			)
+				  A.Not -> (match expr_type with 
+						A.Primitive(A.Bool) -> expr_type 
+						| _ -> raise Exceptions.NotBoolExpr
+					   ) 
+				| A.Neg -> (match expr_type with 
+					     A.Primitive(_) -> expr_type 
+					   | _ -> raise Exceptions.InvalidNegativeType
+					   ) 
+				| A.Addr -> (match e with 
+					     A.Id(_) -> A.Pointer_typ(expr_type)
+					   | _ -> raise Exceptions.InvalidNegativeType
+					   )			)
 	| A.Assign(var,e) -> (let right_side_type = check_expr e env in 
 			let left_side_type  = check_expr var env in
 				check_assign left_side_type right_side_type Exceptions.IllegalAssignment)
 	| A.Noexpr -> A.Primitive(A.Void)
 	| A.Id(s) -> type_of_identifier s env 
-	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Pointer_typ(A.Struct_typ(tmp_struct.A.sname))) with | Not_found -> raise (Exceptions.InvalidStruct s))
-	| A.Struct_access(e1,e2) -> struct_contains_expr e1 e2 env
+	| A.Struct_create(s) -> (try let tmp_struct = check_valid_struct s in (A.Pointer_typ(A.Struct_typ(tmp_struct.A.sname))) with 
+			| Not_found -> raise (Exceptions.InvalidStruct s))
+	| A.Struct_access(e1,e2) -> let e1' = check_expr e1 env in
+				(match e1' with 
+				  A.Struct_typ(st) -> 
+				(match e2 with 
+			  		A.Call(sc,args) -> ignore(struct_contains_expr e1 e2 env); 
+					     let tmp_expr = A.Unop(A.Addr, e1) in 
+					     let tmp_formals = [tmp_expr] @ args in
+					     let tmp_struc_string = st in
+					     let tmp_func_name = tmp_struc_string ^ sc in
+					     let tmp_call = A.Call(tmp_func_name, tmp_formals) in 	
+					     check_expr tmp_call env
+					| A.Id(_) ->  struct_contains_expr e1 e2 env
+					| _ ->  raise (Exceptions.BugCatch "check_expr")
+				)
+				| _ -> raise (Exceptions.BugCatch "check_expr")
+				)
+		
 	| A.Pt_access(e1,e2) -> let e1' = check_expr e1 env in
 			(match e1' with
-			  A.Pointer_typ(A.Struct_typ(_)) -> struct_contains_expr e1 e2 env
-			| A.Pointer_typ(A.Primitive(p)) -> (let e2' = check_expr e2 env in (check_assign (A.Primitive(p)) e2') (Exceptions.InvalidPointerDereference))
-			| _ -> raise (Exceptions.BugCatch "hey")
+			  A.Pointer_typ(A.Struct_typ(_)) -> 
+			(match e2 with 
+			  A.Call(sc,args) -> ignore(struct_contains_expr e1 e2 env); 
+					     let tmp_string2 = string_identifier_of_expr e1 in
+					     let tmp_formals = [e1] @ args in
+					     let tmp_struc = find_var env.scope tmp_string2 in
+					     let tmp_struc_string = 
+					     (match tmp_struc with
+					          A.Pointer_typ(A.Struct_typ(sst)) -> sst
+						|  _ -> raise (Exceptions.InvalidStructMethodCall) 
+					     ) in
+					     let tmp_func_name = tmp_struc_string ^ sc in
+					     let tmp_call = A.Call(tmp_func_name, tmp_formals) in 	
+					     check_expr tmp_call env
+			| A.Id(_) ->  struct_contains_expr e1 e2 env
+			| _ ->  raise (Exceptions.InvalidPointerAccess)
 			)
-	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in (
+			| A.Pointer_typ(A.Primitive(p)) -> (let e2' = check_expr e2 env in (check_assign (A.Primitive(p)) e2') (Exceptions.InvalidPointerDereference))
+			| _ -> raise (Exceptions.InvalidPointerAccess)
+			)
+	| A.Dereference(i) ->  let pointer_type = (check_expr i env)  in 
+			(
 			 match pointer_type with 
 			   A.Pointer_typ(pt) -> pt
-			 | _ -> raise (Exceptions.BugCatch "Deference") 
-						)
+			 | _ -> raise (Exceptions.InvalidDereference) 
+			)
 				
 	| A.Array_create(size,prim_type) -> A.Pointer_typ(A.Array_typ(prim_type, size))
 	| A.Array_access(e, _) -> type_of_array (check_expr e env) env
@@ -3326,17 +5015,21 @@ let rec check_expr expr env =
 	| A.BoolLit(_) -> A.Primitive(A.Bool)
 	| A.Null(t) -> t
 	| A.Dubs -> A.Primitive(A.Void)
+
 (* Checks if expr is a boolean expr. Used for checking the predicate of things like if, while statements *)
 let check_is_bool expr env = 
 	ignore(check_expr expr env);
 	match expr with
 	 A.Binop(_,A.Equal,_) | A.Binop(_,A.Neq,_) | A.Binop(_,A.Less,_) | A.Binop(_,A.Leq,_) | A.Binop(_,A.Greater,_) | A.Binop(_,A.Geq,_) | A.Binop(_,A.And,_) | A.Binop(_,A.Or,_) | A.Unop(A.Not,_) -> ()
+
 	| _ ->  raise (Exceptions.InvalidBooleanExpression)
+
 (* Checks that return value is the same type as the return type in the function definition*)
 let check_return_expr expr env = 
 	match env.return_type with
 	  Some(rt) -> if rt = check_expr expr env then () else raise (Exceptions.InvalidReturnType "return type doesnt match with function definition")
 	| _ -> raise (Exceptions.BugCatch "Should not be checking return type outside a function")
+
 (* Main entry point for checking semantics of statements *)
 let rec check_stmt stmt env = 
 	match stmt with
@@ -3359,16 +5052,24 @@ let rec check_stmt stmt env =
 	| A.Return(e) -> ignore(check_return_expr e env);S.SReturn (expr_sast e env)
 	| A.Assert(e) -> ignore(check_in_test env); ignore(check_is_bool e env); 
 			let str_expr = string_of_expr e env in  
-			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed")])) in 
-			let else_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed")])) in S.SIf (expr_sast e env, then_stmt, else_stmt)
+			let lhs = (expr_sast (left_side_of_binop e) env) in
+			let rhs = (expr_sast (right_side_of_binop e) env) in
+			let then_stmt = S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " passed!")])) in 
+			let else_stmt = S.SBlock([S.SExpr(S.SCall("print", [S.SString_lit(str_expr ^ " failed!")]))]
+			@[S.SExpr(S.SCall("print", [S.SString_lit("LHS evaluated to: ")]))]
+			@[S.SExpr(S.SCall("print", [lhs]))]
+			@[S.SExpr(S.SCall("print", [S.SString_lit("RHS evaluated to: ")]))]			   @[S.SExpr(S.SCall("print", [rhs]))]) in S.SIf (expr_sast e env, then_stmt, else_stmt)
+
 (* Converts 'using' code from ast to sast *)
 let with_using_sast r env = 
 	let tmp:(S.swith_using_decl) = {S.suvdecls = r.A.uvdecls; S.sstmts = (List.map (fun n -> check_stmt n env) r.A.stmts)} in
 	 tmp
+
 (* Converts 'test' code from ast to sast *)
 let with_test_sast r env =
 	let tmp:(S.swith_test_decl) = {S.sasserts = (List.map (fun n -> check_stmt n env) r.A.asserts) ; S.susing = (with_using_sast r.A.using env)} in
 	tmp 
+
 (* Here we convert the user defined test cases to functions which can subseqeuntly be called by main in the test file *)
 let convert_test_to_func using_decl test_decl env = 
 	List.iter (fun n -> (match n with A.Assert(_) -> () | _ -> raise Exceptions.InvalidTestAsserts)) test_decl.A.asserts;
@@ -3376,9 +5077,11 @@ let convert_test_to_func using_decl test_decl env =
 	let concat_stmts = using_decl.A.stmts @ test_asserts  in
 	(match env.func_name with
 	  Some(fn) ->let new_func_name = fn ^ "test" in  
-		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None} in new_func
+		let new_func:(A.func_decl) = {A.typ = A.Primitive(A.Void); A.fname = (new_func_name); A.formals = []; A.vdecls =  using_decl.A.uvdecls; A.body = concat_stmts ; A.tests = None ; A.struc_method = false ; includes_func = false } in new_func
+
 	|  None -> raise (Exceptions.BugCatch "convert_test_to_func")
 )
+
 (* Function names (aka can't have two functions with same name) semantic checker *)
 let check_function_names functions = 
 	ignore(report_duplicate (fun n -> "duplicate function names " ^ n) (List.map (fun n -> n.A.fname) functions));	
@@ -3386,33 +5089,39 @@ let check_function_names functions =
 	ignore(Hashtbl.add func_names built_in_print_string.A.fname built_in_print_string);
 	(* Go through the functions and add their names to a global hashtable that stores the whole function as its value -> (key, value) = (func_decl.fname, func_decl) *)
 	ignore(List.iter (fun n -> Hashtbl.add func_names n.A.fname n) functions); ()
+
 let check_prog_contains_main funcs =
 	let contains_main = List.exists (fun n -> if n.A.fname = "main" then true else false) funcs in
 	(match contains_main with
 	  true -> ()
 	| false -> raise Exceptions.MissingMainFunction
 	)
+
 (* Checks programmer hasn't defined function print as it's reserved *)
 let check_function_not_print names = 
 	ignore(if List.mem "print" (List.map (fun n -> n.A.fname) names ) then raise (Failure ("function print may not be defined")) else ()); ()
+
 (* Check the body of the function here *)
 let rec check_function_body funct env =
 	let curr_func_name = funct.A.fname in
 	report_duplicate (fun n -> "duplicate formal arg " ^ n) (List.map snd funct.A.formals);
 	report_duplicate (fun n -> "duplicate local " ^ n) (List.map snd funct.A.vdecls);
 	(* Check no duplicates *)
+
 	let in_struc = env.in_struct_method in
 	let formals_and_locals =
 		(match in_struc with
 			 true ->
 			let (struct_arg_typ, _) = List.hd funct.A.formals in
                          (match struct_arg_typ with
-                           A.Pointer_typ(A.Struct_typ(s)) -> let struc_arg = check_valid_struct     s in List.append (List.append funct.A.formals funct.A.vdecls) struc_arg.A.attributes
+                           A.Pointer_typ(A.Struct_typ(s)) -> let struc_arg = check_valid_struct s in 
+			List.append (List.append funct.A.formals funct.A.vdecls) struc_arg.A.attributes
                          | _ -> raise (Exceptions.BugCatch "check function body")
                          )
                  | false -> List.append funct.A.formals funct.A.vdecls
                  )
          in
+
 	report_duplicate (fun n -> "same name for formal and local var " ^ n) (List.map snd formals_and_locals);
 	(* Check structs are valid *)
 	List.iter (fun (t,_) -> match t with 
@@ -3433,8 +5142,9 @@ let rec check_function_body funct env =
 		)
 	in	
 		
-	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test)} in
+	let tmp:(S.sfunc_decl) = {S.styp = funct.A.typ; S.sfname = funct.A.fname; S.sformals = funct.A.formals; S.svdecls = funct.A.vdecls ; S.sbody = body_with_env; S.stests = (sast_func_with_test) ; S.sstruc_method = funct.A.struc_method ; S.sincludes_func = funct.A.includes_func } in
 	tmp
+
 (* Entry point to check functions *)
 let check_functions functions_with_env includes globals_add structs_add = 
 	let function_names = List.map (fun n -> fst n) functions_with_env in 
@@ -3447,51 +5157,59 @@ let check_functions functions_with_env includes globals_add structs_add =
 	let sast = (includes, globals_add, sast_funcs, (List.map struct_sast structs_add )) in
 	sast
 	(* Need to check function test + using code here *)
+
 let check_includes includes = 
 	let headers = List.map (fun n -> snd n) includes in
 	report_duplicate (fun n -> "duplicate header file " ^ n) headers;
 	List.iter check_ends_in_jt headers;
 	()
 	
-(******************************************************************)
-(* Entry point for semantic checking AST. Output is SAST *)
-(******************************************************************)
+
+(*******************************************************************)
+(* Entry point for semantic checking. Input is Ast, output is Sast *)
+(*******************************************************************)
 let check (includes, globals, functions, structs) =  
 	let prog_env:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = false ; struct_name = None } in
 	let _ = check_includes includes in
 	let (structs_added, struct_methods) = check_structs structs in
 	let globals_added = check_globals globals prog_env in
 	let functions_with_env = List.map (fun n -> (n, prog_env)) functions in
-	let methods_with_env = List.map (fun n -> let prog_env_in_struct:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = true ; struct_name = Some(snd (List.hd n.A.formals)) } in (n, prog_env_in_struct)) struct_methods in
+	let methods_with_env = List.map (fun n -> let prog_env_in_struct:environment = {scope = {parent = None ; variables = Hashtbl.create 10 }; return_type = None; func_name = None ; in_test_func = false ; in_struct_method = true ; struct_name = Some(snd (List.hd n.A.formals)) }  in  (n, prog_env_in_struct)) struct_methods in
 	let sast = check_functions (functions_with_env @ methods_with_env) includes globals_added structs_added in
 	sast
+
 \end{lstlisting}
+
 \newpage
 \subsection{sast.ml}
+
 \begin{lstlisting}
 open Ast
+
 type var_info = (string * typ)
+
 type sexpr =
     SLit     of int
   | SString_lit of string
   | SChar_lit of char
   | SDouble_lit of float
   | SBinop   of sexpr * op * sexpr * typ
-  | SUnop    of uop * sexpr
+  | SUnop    of uop * sexpr * typ
   | SAssign  of sexpr * sexpr
   | SNoexpr
   | SId of string
   | SStruct_create of string
-  | SStruct_access of string * string * int
-  | SPt_access of string * string * int
+  | SStruct_access of string * string * int * typ
+  | SPt_access of string * string * int * typ
   | SArray_create of int * prim
   | SArray_access of string * int * typ
-  | SDereference of string
+  | SDereference of string * typ
   | SFree of string
   | SCall of string * sexpr list
   | SBoolLit of int
   | SNull of typ
   | SDubs
+
 type sstmt =
     SBlock of sstmt list   
   | SExpr of sexpr
@@ -3499,14 +5217,17 @@ type sstmt =
   | SWhile of sexpr * sstmt
   | SFor of sexpr * sexpr * sexpr * sstmt
   | SReturn of sexpr
+
 type swith_using_decl = {
   suvdecls : bind list;
   sstmts : sstmt list;
 }
+
 type swith_test_decl = {
   sasserts : sstmt list;
   susing : swith_using_decl;
 }
+
 (* Node that describes a function *)
 type sfunc_decl = {
   styp : typ;
@@ -3515,27 +5236,38 @@ type sfunc_decl = {
   svdecls  : bind list;
   sbody  :   sstmt list;
   stests   :   sfunc_decl option;
+  sstruc_method : bool;
+  sincludes_func : bool;
 }
+
 (* Node that describes a given struct *)
 type sstruct_decl = {
   ssname   : string;
   sattributes  : bind list;
 }
+
 (* Root of tree. Our program is made up three things 1) list of global variables 2) list of functions 3) list of struct definition *)
 type sprogram = header list * bind list * sfunc_decl list * sstruct_decl list
+
 \end{lstlisting}
+
 \newpage
 \subsection{codegen.ml}
+
 \begin{lstlisting}
+(* Code generation code. Converts a Sast into LLVM code*)
+
 module L = Llvm
 module A = Ast
 module S = Sast
 module C = Char
 module StringMap = Map.Make(String)
+
 let context = L.global_context () 
 (* module is what is returned from this file aka the LLVM code *)
 let main_module = L.create_module context "Jateste" 
 let test_module = L.create_module context "Jateste-test" 
+
 (* Defined so we don't have to type out L.i32_type ... every time *)
 let i32_t = L.i32_type context
 let i64_t = L.i64_type context
@@ -3544,22 +5276,33 @@ let i1_t = L.i1_type context
 let d_t = L.double_type context
 let void_t = L.void_type context
 let str_t = L.pointer_type i8_t 
+
 (* Hash table of the user defined structs *)
 let struct_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 10
 (* Hash table of global variables *)
 let global_variables:(string, L.llvalue) Hashtbl.t = Hashtbl.create 50
+
 (* Helper function that returns L.lltype for a struct. This should never fail as semantic checker should catch invalid structs *)
 let find_struct_name name = 
 	try Hashtbl.find struct_types name
 	with | Not_found -> raise(Exceptions.InvalidStruct name)
+
 let rec index_of_list x l = 
          match l with
            	  [] -> raise (Exceptions.InvalidStructField)
  		| hd::tl -> let (_,y) = hd in if x = y then 0 else 1 + index_of_list x tl
+
+
+let cut_string s l = let len = String.length s in 
+		if l >= len then raise (Exceptions.BugCatch "cut_string")
+			    else let string_len = len - l in String.sub s 0 string_len
+
 (* Code to declare struct *)
 let declare_struct s =
 	let struct_t = L.named_struct_type context s.S.ssname in
 	Hashtbl.add struct_types s.S.ssname struct_t
+
+
 let prim_ltype_of_typ = function
 	  A.Int -> i32_t
 	| A.Double -> d_t
@@ -3567,27 +5310,34 @@ let prim_ltype_of_typ = function
 	| A.Void -> void_t
 	| A.String -> str_t
 	| A.Bool -> i1_t
+
+
 let rec ltype_of_typ = function
 	| A.Primitive(s) -> prim_ltype_of_typ s
 	| A.Struct_typ(s) ->  find_struct_name s
 	| A.Pointer_typ(s) -> L.pointer_type (ltype_of_typ s)
 	| A.Array_typ(t,n) -> L.array_type (prim_ltype_of_typ t) n
     	| _ -> void_t 
+
 let type_of_llvalue v = L.type_of v
+
 let string_of_expr e =
 	match e with
 	  S.SId(s) -> s
 	| _  -> raise (Exceptions.BugCatch "string_of_expr")
+
 (* Function that builds LLVM struct *)
 let define_struct_body s =
-	let struct_t = Hashtbl.find struct_types s.S.ssname in
+	let struct_t = try Hashtbl.find struct_types s.S.ssname with | Not_found -> raise (Exceptions.BugCatch "defin_struct") in
 	let attribute_types = List.map (fun (t, _) -> t) s.S.sattributes in
 	let attributes = List.map ltype_of_typ attribute_types in		
 	let attributes_array = Array.of_list attributes in 
 	L.struct_set_body struct_t attributes_array false
+
 (* Helper function to create an array of size i fille with l values *)
 let array_of_zeros i l = 
 	Array.make i l
+
 let default_value_for_prim_type t = 
 	match t with 
 		  A.Int -> L.const_int (prim_ltype_of_typ t) 0
@@ -3596,6 +5346,7 @@ let default_value_for_prim_type t =
 		| A.Char ->L.const_int (prim_ltype_of_typ t) 0
 		| A.Void ->L.const_int (prim_ltype_of_typ t) 0
 		| A.Bool ->L.const_int (prim_ltype_of_typ t) 0
+
 (* Here we define and initailize global vars *)
 let define_global_with_value (t, n) = 
 		match t with 
@@ -3609,10 +5360,15 @@ let define_global_with_value (t, n) =
 			| A.Bool -> let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)
 		)
 		| A.Struct_typ(s) -> let init = L.const_named_struct (find_struct_name s) [||] in (L.define_global n init main_module)		
+
 		| A.Pointer_typ(_) ->let init = L.const_pointer_null (ltype_of_typ t) in (L.define_global n init main_module)		
+
 		| A.Array_typ(p,i) ->let init = L.const_array (prim_ltype_of_typ p) (array_of_zeros i (default_value_for_prim_type ((p)))) in (L.define_global n init main_module)		
+
 		| A.Func_typ(_) ->let init = L.const_int (ltype_of_typ t) 0 in (L.define_global n init main_module)		
 		| A.Any -> raise (Exceptions.BugCatch "define_global_with_value")
+
+
 (* Where we add global variabes to global data section *)
 let define_global_var (t, n) =
 		match t with
@@ -3622,12 +5378,16 @@ let define_global_var (t, n) =
 		| A.Array_typ(_,_) -> Hashtbl.add global_variables n (define_global_with_value (t,n))
 		| A.Func_typ(_) -> Hashtbl.add global_variables n (L.declare_global (ltype_of_typ t) n main_module)
 		| A.Any -> raise (Exceptions.BugCatch "define_global_with_value")
+
 	
 (* Translations functions to LLVM code in text section  *)
 let translate_function functions the_module = 
+
 (* Here we define the built in print function *)
 let printf_t = L.var_arg_function_type i32_t [||] in
 let printf_func = L.declare_function "printf" printf_t the_module in
+
+
 (* Here we iterate through Ast.functions and add all the function names to a HashMap *)
 	let function_decls =
 		let function_decl m fdecl =
@@ -3637,18 +5397,21 @@ let printf_func = L.declare_function "printf" printf_t the_module in
             	in let ftype = L.function_type (ltype_of_typ fdecl.S.styp) formal_types in
              	StringMap.add name (L.define_function name ftype the_module, fdecl) m in
     		List.fold_left function_decl StringMap.empty functions in
+
 		(* Create format strings for printing *)
-		let (main_function,_) = StringMap.find "main" function_decls in
+		let (main_function,_) = try StringMap.find "main" function_decls with | Not_found -> raise (Exceptions.BugCatch "function decls") in
 		let builder = L.builder_at_end context (L.entry_block main_function) in
 		(*let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in *)
 		let str_format_str = L.build_global_stringptr "%s\n" "fmt_string" builder in
 		let int_format_str = L.build_global_stringptr "%d\n" "fmt_int" builder in
 		let float_format_str = L.build_global_stringptr "%f\n" "fmt_float" builder in
+
 (* Method to build body of function *)
 	let build_function_body fdecl =
-	let (the_function, _) = StringMap.find fdecl.S.sfname function_decls in
+	let (the_function, _) = try StringMap.find fdecl.S.sfname function_decls with | Not_found -> raise (Exceptions.BugCatch "build function body") in
 	(* builder is the LLVM instruction builder *)
 	let builder = L.builder_at_end context (L.entry_block the_function) in
+
 	
 	(* This is where we push local variables onto the stack and add them to a local HashMap*)
 	let local_vars = 
@@ -3656,52 +5419,73 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		let local = L.build_alloca (ltype_of_typ t) n builder in
 		ignore (L.build_store p local builder);
 		StringMap.add n local m in
+
 		let add_local m (t, n) =
         	let local_var = L.build_alloca (ltype_of_typ t) n builder
         	in StringMap.add n local_var m in
+
 	(* This is where we push formal arguments onto the stack *)
 	let formals = List.fold_left2 add_formal StringMap.empty fdecl.S.sformals
           (Array.to_list (L.params the_function)) in
           List.fold_left add_local formals fdecl.S.svdecls in
+
+
 	(* Two places to look for a variable 1) local HashMap 2) global HashMap *)
 	let find_var n = try StringMap.find n local_vars
 		with Not_found -> try Hashtbl.find global_variables n
 		with Not_found -> raise (Failure ("undeclared variable " ^ n))
 		in
-		(*
-		 let type_of_expr e =
-		 let tmp_type = L.type_of e in
-		 let tmp_string = L.string_of_lltype tmp_type in ignore(print_string tmp_string);
-		match tmp_string  with 
-	  	  "i32*" -> A.Primitive(A.Int)
-	  	| "i32" -> A.Primitive(A.Int)
-	  	| "i8" -> A.Primitive(A.Char)
-	  	| "i8*" -> A.Primitive(A.Char)
-	  	| "i1" -> A.Primitive(A.Bool)
-		| "i1*" -> A.Primitive(A.Bool)
-		| "double"  -> A.Primitive(A.Double) 
-		| "double*"  -> A.Primitive(A.Double) 
-		| _ -> raise (Exceptions.BugCatch ("type_of_expr"))
-		in 
-		*)
+
+	let print_format_typ t =
+			(match t with 
+			  A.Primitive(A.Int) -> int_format_str
+			 | A.Primitive(A.Double) -> float_format_str
+			 | A.Primitive(A.String) -> str_format_str
+			 | A.Primitive(A.Char) -> int_format_str
+			 | A.Primitive(A.Bool) -> int_format_str
+			 | _ -> raise (Exceptions.BugCatch "print format") 
+			)
+			in
+
 	(* Format to print given arguments in print(...) *)
-	let print_format e =
+	let rec print_format e =
 		(match e with 
 		  (S.SString_lit(_)) -> str_format_str
 		| (S.SLit(_)) -> int_format_str
 		| (S.SDouble_lit(_)) -> float_format_str
+		| S.SBinop(l,_,_,_) -> print_format l
+		| S.SUnop(op,e,_) -> 
+			(match op with
+				A.Neg -> print_format e
+				| _ -> raise (Exceptions.BugCatch "print format")
+			)
+		| S.SAssign(_,_) -> raise (Exceptions.InvalidPrintFormat) 
+		| S.SNoexpr -> raise (Exceptions.InvalidPrintFormat) 
 		| (S.SId(i)) -> let i_value = find_var i in 
 			let i_type = L.type_of i_value in 
 			let string_i_type = L.string_of_lltype i_type in 
-		(match string_i_type with 
+			(match string_i_type with 
 		    "i32*" -> int_format_str 
+		  | "i1*" -> int_format_str 
 		  | "i8**" -> str_format_str
 		  | "float*" -> float_format_str
 		  | "double*" -> float_format_str
-		  | _ -> raise (Exceptions.InvalidPrintFormat))		
+		  | _ -> raise (Exceptions.InvalidPrintFormat)
+			)		
+		| S.SStruct_access(_,_,_,t) -> print_format_typ t
+		| S.SPt_access(_,_,_,t) -> print_format_typ t
+		| S.SArray_create(_,_) -> raise (Exceptions.InvalidPrintFormat) 
+		| S.SArray_access(_,_,t) -> print_format_typ t
+		| S.SDereference(_,t) -> print_format_typ t
+		| S.SFree(_) -> raise (Exceptions.InvalidPrintFormat) 
+		| S.SCall(f,_) ->let (_, fdecl) = try StringMap.find f function_decls with | Not_found -> raise (Exceptions.BugCatch "print format") in 
+			let tmp_typ = fdecl.S.styp in print_format_typ tmp_typ	
+		| S.SBoolLit(_) -> int_format_str
+		| S.SNull(_) -> raise (Exceptions.InvalidPrintFormat) 
 		| _ -> raise (Exceptions.InvalidPrintFormat) 
 		)
 		in
+
 	(* Returns address of i. Used for lhs of assignments *)
 	let rec addr_of_expr i builder= 
 	match i with
@@ -3710,14 +5494,15 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SChar_lit (_) -> raise Exceptions.InvalidLhsOfExpr
  	| S.SId(s) -> find_var s
 	| S.SBinop(_,_,_,_) ->raise (Exceptions.UndeclaredVariable("Unimplemented addr_of_expr"))
- 	| S.SUnop(_,e) -> addr_of_expr e builder
-	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in 
+ 	| S.SUnop(_,e,_) -> addr_of_expr e builder
+	| S.SStruct_access(s,_,index,_) -> let tmp_value = find_var s in 
 			let deref = L.build_struct_gep tmp_value index "tmp" builder in deref
-	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in 
+	| S.SPt_access(s,_,index,_) -> let tmp_value = find_var s in 
 			let load_tmp = L.build_load tmp_value "tmp" builder in 
 			let deref = L.build_struct_gep load_tmp index "tmp" builder in deref
-	| S.SDereference(s) -> let tmp_value = find_var s in 
+	| S.SDereference(s,_) -> let tmp_value = find_var s in 
 			let deref = L.build_gep tmp_value [|L.const_int i32_t 0|] "tmp" builder in L.build_load deref "tmp" builder
+
 	| S.SArray_access(ar,index, t) -> let tmp_value = find_var ar in 
 		(match t with 
 		  A.Array_typ(_) -> let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref 
@@ -3725,11 +5510,13 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			let deref = L.build_gep loaded_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in deref 
 		| _ -> raise Exceptions.InvalidArrayAccess)
 	| _ -> raise (Exceptions.UndeclaredVariable("Invalid LHS of assignment"))
+
 	in 
 	let add_terminal builder f =
           match L.block_terminator (L.insertion_block builder) with
         	  Some _ -> ()
       		| None -> ignore (f builder) in	
+
 	(* This is where we build LLVM expressions *)
 	let rec expr builder = function 
 	  S.SLit l -> L.const_int i32_t l
@@ -3744,26 +5531,34 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		  A.Add -> L.build_add 
 		| A.Sub -> L.build_sub
 		| A.Mult -> L.build_mul
+		| A.Div -> L.build_sdiv
+		| A.Mod -> L.build_srem
 		| A.Equal -> L.build_icmp L.Icmp.Eq
 		| A.Neq -> L.build_icmp L.Icmp.Ne
 		| A.Less -> L.build_icmp L.Icmp.Slt
 		| A.Leq -> L.build_icmp L.Icmp.Sle
 		| A.Greater -> L.build_icmp L.Icmp.Sgt
 		| A.Geq -> L.build_icmp L.Icmp.Sge
-		| _ -> raise (Exceptions.BugCatch "Binop")		
+		| A.And -> L.build_and
+		| A.Or -> L.build_or
+		| _ -> raise (Exceptions.BugCatch "Prim Binop")		
 		)e1' e2' "add" builder
 		| A.Primitive(A.Double) ->
 		(match op with 
 		  A.Add -> L.build_fadd 
 		| A.Sub -> L.build_fsub
 		| A.Mult -> L.build_fmul
+		| A.Div -> L.build_fdiv
+		| A.Mod -> L.build_frem
 		| A.Equal -> L.build_fcmp L.Fcmp.Oeq
 		| A.Neq -> L.build_fcmp L.Fcmp.One
 		| A.Less -> L.build_fcmp L.Fcmp.Olt
 		| A.Leq -> L.build_fcmp L.Fcmp.Ole
 		| A.Greater -> L.build_fcmp L.Fcmp.Ogt
 		| A.Geq -> L.build_fcmp L.Fcmp.Oge
-		| _ -> raise (Exceptions.BugCatch "Binop")
+		| A.And -> L.build_and
+		| A.Or -> L.build_or
+		| _ -> raise (Exceptions.BugCatch "Double Binop")
 		) e1' e2' "addfloat" builder
 		| A.Primitive(A.Bool) -> 
 		(
@@ -3780,9 +5575,15 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 			| _ -> raise (Exceptions.BugCatch "Binop")
 			)e1' "add" builder
 		| _ -> raise (Exceptions.BugCatch "Binop")) 		 
-	| S.SUnop(u,e) -> 
+
+	| S.SUnop(u,e, t) -> 
 			(match u with
-				  A.Neg -> let e1 = expr builder e in L.build_not e1 "not" builder
+				  A.Neg -> let e1 = expr builder e in 
+				(match t with
+				  A.Primitive(A.Int) ->  L.build_neg e1 "neg" builder
+				| A.Primitive(A.Double) -> L.build_fneg e1 "neg" builder 
+				| _ -> raise (Exceptions.BugCatch "expr builder")
+				)
 				| A.Not -> let e1 = expr builder e in L.build_not e1 "not" builder
 				| A.Addr ->let iden = string_of_expr e in 
 					   let lvalue = find_var iden in lvalue
@@ -3792,10 +5593,10 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 	| S.SNoexpr -> L.const_int i32_t 0
 	| S.SId (s) -> L.build_load (find_var s) s builder
 	| S.SStruct_create(s) -> L.build_malloc (find_struct_name s) "tmp" builder
-	| S.SStruct_access(s,_,index) -> let tmp_value = find_var s in 
+	| S.SStruct_access(s,_,index,_) -> let tmp_value = find_var s in 
 			let deref = L.build_struct_gep tmp_value index "tmp" builder in 
 			let loaded_value = L.build_load deref "dd" builder in loaded_value
-	| S.SPt_access(s,_,index) -> let tmp_value = find_var s in 
+	| S.SPt_access(s,_,index,_) -> let tmp_value = find_var s in 
 			let load_tmp = L.build_load tmp_value "tmp" builder in 
 			let deref = L.build_struct_gep load_tmp index "tmp" builder in 
 			let tmp_value = L.build_load deref "dd" builder in tmp_value
@@ -3808,17 +5609,20 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		| A.Array_typ(_) -> let deref = L.build_gep tmp_value [|L.const_int i32_t 0 ; L.const_int i32_t index|] "arrayvalueaddr" builder in 
 			let final_value = L.build_load deref "arrayvalue" builder in final_value 
 		| _ -> raise Exceptions.InvalidArrayAccess)
-	| S.SDereference(s) -> let tmp_value = find_var s in 
+	| S.SDereference(s,_) -> let tmp_value = find_var s in 
 			let load_tmp = L.build_load tmp_value "tmp" builder in 
 			let deref = L.build_gep load_tmp [|L.const_int i32_t 0|] "tmp" builder in 			  let tmp_value2 = L.build_load deref "dd" builder in tmp_value2
+
 	| S.SFree(s) -> let tmp_value = L.build_load (find_var s) "tmp" builder in L.build_free (tmp_value) builder
 	| S.SCall("print", [e]) | S.SCall("print_int", [e])-> L.build_call printf_func [|(print_format e); (expr builder e) |] "printresult" builder
-	| S.SCall(f, args) -> let (def_f, fdecl) = StringMap.find f function_decls in
+	| S.SCall(f, args) -> let (def_f, fdecl) = try StringMap.find f function_decls with | Not_found -> raise (Exceptions.BugCatch f) in
 			      let actuals = List.rev (List.map (expr builder) (List.rev args)) in 				let result = (match fdecl.S.styp with A.Primitive(A.Void) -> "" | _ -> f ^ "_result") in L.build_call def_f (Array.of_list actuals) result builder
 	| S.SBoolLit(b) -> L.const_int i1_t b
 	| S.SNull(t) -> L.const_null (ltype_of_typ t)
 	| S.SDubs -> let tmp_call = S.SCall("print", [(S.SString_lit("dubs!"))]) in expr builder tmp_call 	
 	in
+
+
 	(* This is where we build the LLVM statements *)
 	let rec stmt builder = function 
 	  S.SBlock b -> List.fold_left stmt builder b
@@ -3832,6 +5636,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		let merge_bb = L.append_block context "merge" the_function in
 		(* then block *)
 		let then_bb = L.append_block context "then" the_function in
+
 		add_terminal (stmt (L.builder_at_end context then_bb) then_stmt) (L.build_br merge_bb);
 		(* else block*)
 		let else_bb = L.append_block context "else" the_function in 
@@ -3848,6 +5653,7 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 		let merge_bb = L.append_block context "merge" the_function in
 		ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);	
 		L.builder_at_end context merge_bb
+
 	| S.SFor(e1,e2,e3,s) -> ignore(expr builder e1); let tmp_stmt = S.SExpr(e3) in 
 			let tmp_block = S.SBlock([s] @ [tmp_stmt]) in  
 			let tmp_while = S.SWhile(e2, tmp_block) in stmt builder tmp_while 
@@ -3867,21 +5673,26 @@ let printf_func = L.declare_function "printf" printf_t the_module in
 (* Here we go through each function and build the body of the function *)
 List.iter build_function_body functions;
 the_module
+
 (* Create a main function in test file - main then calls the respective tests *)
 let test_main functions = 
 	let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [t]  | None -> l)) [] functions in 
 	let names_of_test_calls = List.fold_left (fun l n -> l @ [(n.S.sfname)]) [] tests in
-	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit(n ^ " tests:")]))] @ [S.SExpr(S.SCall(n,[]))]) [] names_of_test_calls in
-	let print_stmt = S.SExpr(S.SCall("print",[S.SString_lit("Tests:")])) in 
-	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt::sast_calls; S.stests= None;  } in tmp_main
+	let print_stars = S.SExpr(S.SCall("print", [S.SString_lit("*************")])) in 
+	let sast_calls = List.fold_left (fun l n -> l @ [S.SExpr(S.SCall("print",[S.SString_lit((cut_string n 4) ^ " results:")]))] @ [S.SExpr(S.SCall(n,[]))]@ [print_stars] ) [] names_of_test_calls in
+	let print_stmt = [S.SExpr(S.SCall("print",[S.SString_lit("TEST RESULTS!")]))]@[print_stars] in 
+	let tmp_main:(S.sfunc_decl) = { S.styp = A.Primitive(A.Void); S.sfname = "main"; S.sformals = []; S.svdecls = []; S.sbody = print_stmt@sast_calls; S.stests = None; S.sstruc_method = false ; S.sincludes_func = false } in tmp_main
+
+
 let func_builder f b = 
 	(match b with 
-	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> l)) [] f in (tests @ [(test_main f)]) 
+	  true -> let tests = List.fold_left (fun l n -> (match n.S.stests with Some(t) -> l @ [n] @ [t]  | None -> if (n.S.sstruc_method = false && n.S.sincludes_func = false) then (l) else (l@[n]))) [] f in (tests @ [(test_main f)]) 
 	| false -> f
 	)
-	(***************************************************************)
-	(* Entry point for translating Ast.program to LLVM module *)
-	(***************************************************************)
+
+(***********************************************************)
+(* Entry point for translating Sast.program to LLVM module *)
+(***********************************************************)
 let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool = 
 	let _ = List.iter declare_struct input_structs in
 	let _ = List.iter define_struct_body input_structs in
@@ -3889,149 +5700,62 @@ let gen_llvm (_, input_globals, input_functions, input_structs) gen_tests_bool =
 	let the_module = (match gen_tests_bool with true -> test_module | false -> main_module) in
 	let _ = translate_function (func_builder input_functions gen_tests_bool) the_module in
 	the_module
+
 \end{lstlisting}
-\newpage
-\subsection{myprinter.ml}
+
 \newpage
 \subsection{exceptions.ml}
 \begin{lstlisting}
 (* Program structure exceptions *)
 exception MissingMainFunction
+
 exception InvalidHeaderFile of string
+
 (* Struct exceptions*)
 exception InvalidStruct of string
+exception InvalidStructField
+exception InvalidStructMethodCall
+
+(* Array exceptions*)
+exception InvalidArrayVariable
+exception InvalidArrayAccess
+exception InvalidArrayType
+
 (* Variable exceptions*)
 exception UndeclaredVariable of string
-(*Expression exceptions *)
+
+(* Expression exceptions *)
 exception InvalidExpr of string
 exception InvalidBooleanExpression 
 exception IllegalAssignment
 exception InvalidFunctionCall of string
 exception InvalidArgumentsToFunction of string
-exception InvalidArrayVariable
-exception InvalidStructField
 exception InvalidFree of string
 exception InvalidPointerDereference
+exception InvalidDereference
+exception InvalidPointerAccess
 exception NotBoolExpr
-exception InvalidArrayAccess
+exception InvalidLhsOfExpr
+exception InvalidNegativeType
+
 (* Print exceptions *)
 exception InvalidPrintCall
 exception InvalidPrintFormat
+
 (* Statement exceptions*)
 exception InvalidReturnType of string
-exception InvalidLhsOfExpr
+
 (* Bug catcher *)
 exception BugCatch of string
+
 (* Input *)
 exception IllegalInputFormat
 exception IllegalArgument of string
+
 (* Test cases *)
 exception InvalidTestAsserts
 exception InvalidAssert of string
+
 \end{lstlisting}
-\newpage
-\subsection{jateste.ml}
-\begin{lstlisting}
-open Printf 
-module A = Ast
-module S = Sast
-let standard_library_path = "/home/plt/JaTeste/lib/"
-let current_dir_path = "./"
-type action = Scan | Parse |  Ast | Sast | Compile | Compile_with_test
-(* Determines what action compiler should take based on command line args *)
-let determine_action args = 
-	let num_args = Array.length args in
-	(match num_args with
-	  1 -> raise Exceptions.IllegalInputFormat
-	| 2 -> Compile
-	| 3 -> let arg = Array.get args 1 in 
-		(match arg with
-		  "-t" -> Compile_with_test
-		| "-l" -> Scan
-		| "-p" -> Parse
-		| "-se" ->Sast
-		| "-ast" -> Ast
-		| _ -> raise (Exceptions.IllegalArgument arg)
-		)
-	
-	| _ -> raise (Exceptions.IllegalArgument "Can't recognize arguments")
-	)
-(* Create executable filename *)
-let executable_filename filename =
-	let len = String.length filename in
-	let str = String.sub filename 0 (len - 3) in
-	let exec = String.concat "" [str ; ".ll"] in
-	exec 
-(* Create test executable filename *)
-let test_executable_filename filename =
-	let len = String.length filename in
-	let str = String.sub filename 0 (len - 3) in
-	let exec = String.concat "" [str ; "-test.ll"] in
-	exec 
-(* Just scan input *)
-let scan input_raw = 
-	let lexbuf = Lexing.from_channel input_raw in (print_string "Scanned\n"); lexbuf
-(* Scan, then parse input *)
-let parse input_raw =
-	let input_tokens = scan input_raw in
-	let ast:(A.program) = Parser.program Scanner.token input_tokens in (print_string "Parsed\n"); ast
-(* Process include statements. Input is ast, and output is a new ast *)
-let process_headers ast:(A.program) =
-	let (includes,_,_,_) = ast in
-	let gen_header_code (incl,globals, current_func_list, structs) (path, str) = 
-		let tmp_path = (match path with A.Curr -> current_dir_path | A.Standard -> standard_library_path) in
-		let file = tmp_path ^ str in
-		let ic = 
-		try open_in file with _ -> raise (Exceptions.InvalidHeaderFile file) in
-		let (_,_,funcs,strs) = parse ic in
-		let new_ast:(A.program) = (incl, globals, current_func_list @ funcs, structs @ strs) in
-		new_ast 	
-	in
-	let modified_ast:(A.program) = List.fold_left gen_header_code ast includes in 
-	modified_ast
-(* Scan, parse, and run semantic checking. Returns Sast *)
-let semant input_raw = 
-	let tmp_ast = parse input_raw in
-	let input_ast = process_headers tmp_ast in
-	let sast:(S.sprogram) = Semant.check input_ast in (print_string "Semantic check passed\n"); sast
-(* Generate code given file. @bool_tests determines whether to create a test file *)
-let code_gen input_raw exec_name bool_tests =
-	let input_sast = semant input_raw in
-	let file = exec_name in
-	let oc = open_out file in
-	let m = Codegen.gen_llvm input_sast bool_tests in 
-	Llvm_analysis.assert_valid_module m;
-	fprintf oc "%s\n" (Llvm.string_of_llmodule m); 
-	close_out oc;
-	()
-let get_ast input_raw =
-	let ast = parse input_raw in
-	ast
-		
-		 
-(******************************)
-(* Entry pointer for Compiler *)
-(******************************)
-let _ =
-	(* Read in command line args *)
-	let arguments = Sys.argv in
-	(* Determine what the compiler should do based on command line args *)
-	let action = determine_action arguments in
-	let source_file = open_in arguments.((Array.length Sys.argv - 1)) in
-	(* Create a file to put executable in *)
-	let exec_name = executable_filename arguments.((Array.length Sys.argv -1)) in
-	(* Create a file to put test executable in *)
-	let test_exec_name = test_executable_filename arguments.((Array.length Sys.argv -1)) in
-	
-	let _ = (match action with 
-	  Scan -> let _  = scan source_file in ()
- 	| Parse -> let _ = parse source_file in ()
- 	| Ast ->  let _ = parse source_file in ()
- 	| Sast ->  let _ = semant source_file in () 
-	| Compile ->  let _ = code_gen source_file exec_name false in ()
-	| Compile_with_test -> let _ = code_gen source_file exec_name false in 
-			let source_test_file = open_in arguments.((Array.length Sys.argv - 1)) in 			  let _ = code_gen source_test_file test_exec_name true in ()
-	) in
-	close_in source_file
-\end{lstlisting}
+
 \end{document}
