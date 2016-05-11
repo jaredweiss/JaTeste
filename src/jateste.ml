@@ -4,7 +4,7 @@ module S = Sast
 
 
 (* Location of Jateste's standard library *)
-let standard_library_path = Sys.getenv "JATESTE_LIB"
+let standard_library_path = (Sys.getenv "JATESTE_LIB")
 let current_dir_path = "./"
 
 type action = Scan | Parse |  Ast | Sast | Compile | Compile_with_test
