@@ -27,6 +27,7 @@ test:
 
 .PHONY: install
 install: jateste.native
+	mkdir -p /usr/local/lib/JaTeste
 	cp -f -r ../lib /usr/local/lib/JaTeste
 
 
