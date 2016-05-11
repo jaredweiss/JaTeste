@@ -25,12 +25,19 @@ test:
 	@echo "\033[0;32m========= Running All Tests! ==========\033[0m"
 	@$(MAKE) -C ../test/
 
-.PHONY: install
+.PHONY: install-user
 install: jateste.native
 	@mkdir -p $(HOME)/lib/JaTeste
 	@cp -r ../lib $(HOME)/lib/JaTeste
 	@echo "Installed JaTeste std lib at $(HOME)/lib/JaTeste..."
-	@echo "Use the JATESTE_LIB env-var to specify your std lib location"
+	@echo "Use the JATESTE_LIB env-var to specify this install location"
+
+.PHONY: install
+install: jateste.native
+	@mkdir -p /usr/local/lib/JaTeste
+	@cp -r ../lib /usr/local/lib/JaTeste
+	@echo "Installed JaTeste std lib at /usr/local/lib/JaTeste..."
+	@echo "Use the JATESTE_LIB env-var to specify a different std lib location"
 
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM

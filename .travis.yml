@@ -28,5 +28,5 @@ before_script:
 script:
   - cd src
   - make
-  - make install
+  - make install-user
   - make test
