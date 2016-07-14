@@ -23,7 +23,10 @@ before_script:
   - opam install ocamlfind -y
   - opam install llvm.3.8 -y
   - export PATH=/usr/lib/llvm-3.8/bin:$PATH
+  - export JATESTE_LIB=$HOME/lib/JaTeste
 
 script:
   - cd src
-  - make all
+  - make
+  - make install-user
+  - make test

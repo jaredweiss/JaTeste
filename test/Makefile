@@ -12,7 +12,7 @@ define run-test
 endef
 
 define run-test-disabled
-@echo "\033[0;31mWarning -- $1 is disabled!\033[0m"
+@echo "\033[0;31mWarning -- JaTeste library isn't installed -- $1 is disabled!\033[0m"
 endef
 
 define run-test-with-case
@@ -98,10 +98,14 @@ test-array1:
 	$(call run-test,test-array1)
 
 test-lib1:
-ifndef BUILD_ON_TRAVIS
+ifndef JATESTE_LIB
 	$(call run-test,test-lib1)
 else
-	$(call run-test-disabled,test-lib1)
+	if $(wildcard /usr/local/lib/JaTeste/.)
+		$(call run-test,test-test-lib1)
+	else
+		$(call run-test-disabled,test-lib1)
+	endif
 endif
 
 test-struct-access1:
@@ -138,32 +142,47 @@ test-nested-loop1:
 
 # LinkedList library tests
 test-linkedlist1:
-ifndef BUILD_ON_TRAVIS
+ifndef JATESTE_LIB
 	$(call run-test,test-linkedlist1)
 else
-	$(call run-test-disabled,test-linkedlist1)
+	if $(wildcard /usr/local/lib/JaTeste/.)
+		$(call run-test,test-linkedlist1)
+	else
+		$(call run-test-disabled,test-linkedlist1)
+	endif
 endif
 
 test-linkedlist2:
-ifndef BUILD_ON_TRAVIS
+ifndef JATESTE_LIB
 	$(call run-test,test-linkedlist2)
-else
-	$(call run-test-disabled,test-linkedlist2)
-
+else 
+	if $(wildcard /usr/local/lib/JaTeste/.)
+		$(call run-test,test-linkedlist2)
+	else
+		$(call run-test-disabled,test-linkedlist2)
+	endif
 endif
 
 test-linkedlist-delete1:
-ifndef BUILD_ON_TRAVIS
+ifndef JATESTE_LIB
 	$(call run-test,test-linkedlist-delete1)
-else
-	$(call run-test-disabled,test-linkedlist-delete1)
+else 
+	if $(wildcard /usr/local/lib/JaTeste/.)
+		$(call run-test,test-linkedlist-delete1)
+	else
+		$(call run-test-disabled,test-linkedlist-delete1)
+	endif
 endif
 
 test-linkedlist-free1:
-ifndef BUILD_ON_TRAVIS
+ifndef JATESTE_LIB
 	$(call run-test,test-linkedlist-free1)
-else
-	$(call run-test-disabled,test-linkedlist-free1)
+else 
+	if $(wildcard /usr/local/lib/JaTeste/.)
+		$(call run-test,test-linkedlist-free1)
+	else
+		$(call run-test-disabled,test-linkedlist-free1)
+	endif
 endif
 
 
@@ -244,7 +263,3 @@ var-fail1:
 
 var-fail2:
 	$(call test-compile-fail,var-fail2)
-
-
-
-
