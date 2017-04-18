@@ -10,6 +10,12 @@ jateste.native :
 
 # "make clean" removes all generated files
 
+.PHONY: install
+install:
+	mkdir -p /usr/lib/jateste
+	cp -n lib-jateste/* /usr/lib/jateste
+	cp jateste.native /usr/bin/jateste
+
 .PHONY: clean
 clean :
 	ocamlbuild -clean
